@@ -73,15 +73,17 @@ public partial class MainWindow
 
     private async void CalculateStatisticsButton_Click(object sender, RoutedEventArgs e)
     {
-        if (_editableImage is null) { ShowError("Load or import an image first."); return; }
+        if (_editableImage is not { } image) { ShowError("Load or import an image first."); return; }
         await RunBusyAsync("Calculating channel statistics…", async () =>
         {
             int maximumSamples = ParsePositiveInt(StatisticsSampleLimitTextBox.Text, "Maximum samples");
-            IReadOnlyList<XisfChannelStatistics> statistics = await Task.Run(() => _editableImage.CalculateStatistics(new XisfStatisticsOptions
+            bool normalize = NormalizeStatisticsCheckBox.IsChecked == true;
+            XisfStatisticsOptions options = new()
             {
-                Normalize = NormalizeStatisticsCheckBox.IsChecked == true,
+                Normalize = normalize,
                 MaximumSamplesPerChannel = maximumSamples
-            }));
+            };
+            IReadOnlyList<XisfChannelStatistics> statistics = await Task.Run(() => image.CalculateStatistics(options));
             StatisticsGrid.ItemsSource = statistics;
             StatusText.Text = $"Calculated statistics for {statistics.Count} channel(s).";
         });
