@@ -1,6 +1,6 @@
 # XISFLib.Net
 
-`XISFLib` is a `net8.0` library for reading, writing, and converting Extensible Image Serialization Format (XISF) 1.0 and FITS astrophotography files.
+`XISFLib` is a `net10.0` library for reading, writing, and converting Extensible Image Serialization Format (XISF) 1.0 and FITS astrophotography files.
 
 ## Usage
 
@@ -101,7 +101,7 @@ FITS integer `BITPIX` images, standard unsigned `BZERO` conventions, floating-po
 
 ### Windows Forms and WPF
 
-Reference the `XISFLib.Windows` project or package from a `net8.0-windows` application. It provides extension methods for loaded images:
+Reference the `XISFLib.Windows` project or package from a `net10.0-windows` application. It provides extension methods for loaded images:
 
 ```csharp
 using Bitmap windowsFormsImage = image.ToBitmap();
