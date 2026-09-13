@@ -1,1 +1,8 @@
-<Solution />
+<Solution>
+  <Project Path="XISFLib.Benchmarks/XISFLib.Benchmarks.csproj" />
+  <Project Path="XISFLib.WpfViewer/XISFLib.WpfViewer.csproj" />
+  <Project Path="XISFLib.Windows.Tests/XISFLib.Windows.Tests.csproj" />
+  <Project Path="XISFLib.Windows/XISFLib.Windows.csproj" />
+  <Project Path="XISFLib.Tests/XISFLib.Tests.csproj" />
+  <Project Path="XISFLib/XISFLib.csproj" />
+</Solution>
