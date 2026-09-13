@@ -36,8 +36,8 @@ public sealed class XisfImageData
     public double? LowerBound { get; set; }
     public double? UpperBound { get; set; }
     public IDictionary<string, object?> Properties { get; } = new Dictionary<string, object?>(StringComparer.Ordinal);
-    public IList<XisfFitsKeyword> FitsKeywords { get; } = new List<XisfFitsKeyword>();
-    public IList<XisfTableData> Tables { get; } = new List<XisfTableData>();
+    public IList<XisfFitsKeyword> FitsKeywords { get; } = [];
+    public IList<XisfTableData> Tables { get; } = [];
     public byte[]? IccProfile { get; set; }
     public XisfImageData? Thumbnail { get; set; }
     public XisfColorFilterArray? ColorFilterArray { get; set; }
@@ -152,7 +152,7 @@ public sealed class XisfImageData
     private static int[] CopyDimensions(IReadOnlyList<int> dimensions)
     {
         ArgumentNullException.ThrowIfNull(dimensions);
-        return dimensions.ToArray();
+        return [.. dimensions];
     }
 
     private static void Validate(byte[] data, int[] dimensions, int channelCount, XisfSampleFormat sampleFormat)

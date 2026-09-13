@@ -48,8 +48,8 @@ public sealed class XisfTableData
 {
     public required string Id { get; init; }
     public string? Caption { get; init; }
-    public IList<XisfTableFieldData> Fields { get; } = new List<XisfTableFieldData>();
-    public IList<IReadOnlyList<object?>> Rows { get; } = new List<IReadOnlyList<object?>>();
+    public IList<XisfTableFieldData> Fields { get; } = [];
+    public IList<IReadOnlyList<object?>> Rows { get; } = [];
 }
 
 public sealed class XisfTable

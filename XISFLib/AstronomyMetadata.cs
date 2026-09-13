@@ -49,9 +49,16 @@ public static class AstronomyMetadata
             if (value is not null)
                 values[id] = Convert.ToString(value, CultureInfo.InvariantCulture) ?? string.Empty;
 
-        string? FindString(params string[] names) => names.Select(name => values.GetValueOrDefault(name)).FirstOrDefault(value => !string.IsNullOrWhiteSpace(value));
-        double? FindDouble(params string[] names) => TryDouble(FindString(names));
-        int? FindInt(params string[] names) => TryInt(FindString(names));
+        string? FindString(params ReadOnlySpan<string> names)
+        {
+            foreach (string name in names)
+                if (values.GetValueOrDefault(name) is { Length: > 0 } value && !string.IsNullOrWhiteSpace(value))
+                    return value;
+            return null;
+        }
+
+        double? FindDouble(params ReadOnlySpan<string> names) => TryDouble(FindString(names));
+        int? FindInt(params ReadOnlySpan<string> names) => TryInt(FindString(names));
         DateTimeOffset? time = DateTimeOffset.TryParse(FindString("DATE-OBS", "Observation:Time:Start", "Observation:Time"),
             CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.AllowWhiteSpaces, out DateTimeOffset parsed) ? parsed : null;
 

@@ -182,7 +182,7 @@ public static class XisfReader
         if (normalized == "complex32" || normalized == "complex64" || normalized == "complex128") return ParseComplex(text);
         if (normalized == "float32") return float.Parse(text, NumberStyles.Float, CultureInfo.InvariantCulture);
         if (normalized is "float64" or "float128") return double.Parse(text, NumberStyles.Float, CultureInfo.InvariantCulture);
-        if (type.Equals("ByteArray", StringComparison.OrdinalIgnoreCase)) return string.IsNullOrWhiteSpace(text) ? Array.Empty<byte>() : Convert.FromHexString(RemoveWhitespace(text));
+        if (type.Equals("ByteArray", StringComparison.OrdinalIgnoreCase)) return string.IsNullOrWhiteSpace(text) ? [] : Convert.FromHexString(RemoveWhitespace(text));
         if (normalized.EndsWith("vector", StringComparison.Ordinal)) return ValidateAndShapeCollection(element, canonicalType, ParseVector(canonicalType, text));
         if (normalized.EndsWith("matrix", StringComparison.Ordinal)) return ValidateAndShapeCollection(element, canonicalType, ParseVector(canonicalType.Replace("Matrix", "Vector", StringComparison.Ordinal), text));
         return normalized switch
