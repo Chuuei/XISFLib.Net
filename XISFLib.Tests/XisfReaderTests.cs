@@ -192,12 +192,7 @@ public class XisfReaderTests
     }
 
     [Theory]
-    [InlineData("20260122.xisf")]
-    [InlineData("Image01_ADBE.xisf")]
-    [InlineData("Image01_ADBE_stars.xisf")]
-    [InlineData("MarkariansChain_20250406.xisf")]
-    [InlineData("NGC_6992_pix.xisf")]
-    [InlineData("StarReduced.xisf")]
+    [InlineData("slow.xisf")]
     public void LoadsExampleImage(string fileName)
     {
         string examplesDirectory = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "Examples"));

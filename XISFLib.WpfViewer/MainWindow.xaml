@@ -111,6 +111,84 @@
                     </TreeView>
                 </Grid>
             </TabItem>
+            <TabItem Header="Utilities">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="18" MaxWidth="1050" HorizontalAlignment="Left">
+                        <TextBlock Text="Astronomy utilities" FontSize="18" FontWeight="SemiBold" />
+                        <TextBlock Text="These controls call the public XISFLib utility APIs for the selected image." Foreground="#606060" Margin="0,4,0,12" />
+                        <DataGrid x:Name="AstronomyMetadataGrid" AutoGenerateColumns="False" IsReadOnly="True" HeadersVisibility="Column" MinHeight="160">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Field" Binding="{Binding Name}" Width="220" />
+                                <DataGridTextColumn Header="Value" Binding="{Binding Value}" Width="*" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+
+                        <TextBlock Text="Channel statistics" FontSize="16" FontWeight="SemiBold" Margin="0,20,0,6" />
+                        <WrapPanel>
+                            <TextBlock Text="Maximum samples per channel" VerticalAlignment="Center" />
+                            <TextBox x:Name="StatisticsSampleLimitTextBox" Text="500000" Width="110" Margin="8,0,12,0" />
+                            <CheckBox x:Name="NormalizeStatisticsCheckBox" Content="Normalize through image bounds" VerticalAlignment="Center" Margin="0,0,12,0" />
+                            <Button x:Name="CalculateStatisticsButton" Content="Calculate statistics" Padding="12,5" Click="CalculateStatisticsButton_Click" />
+                        </WrapPanel>
+                        <DataGrid x:Name="StatisticsGrid" AutoGenerateColumns="False" IsReadOnly="True" Margin="0,8,0,0" MinHeight="150">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Channel" Binding="{Binding Channel}" Width="Auto" />
+                                <DataGridTextColumn Header="Samples" Binding="{Binding SampleCount}" Width="Auto" />
+                                <DataGridTextColumn Header="Finite" Binding="{Binding FiniteCount}" Width="Auto" />
+                                <DataGridTextColumn Header="Non-finite" Binding="{Binding NonFiniteCount}" Width="Auto" />
+                                <DataGridTextColumn Header="Minimum" Binding="{Binding Minimum}" Width="*" />
+                                <DataGridTextColumn Header="Maximum" Binding="{Binding Maximum}" Width="*" />
+                                <DataGridTextColumn Header="Mean" Binding="{Binding Mean}" Width="*" />
+                                <DataGridTextColumn Header="Std. dev." Binding="{Binding StandardDeviation}" Width="*" />
+                                <DataGridTextColumn Header="Median" Binding="{Binding Median}" Width="*" />
+                                <DataGridTextColumn Header="MAD" Binding="{Binding MedianAbsoluteDeviation}" Width="*" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+
+                        <TextBlock Text="Histogram" FontSize="16" FontWeight="SemiBold" Margin="0,20,0,6" />
+                        <WrapPanel>
+                            <TextBlock Text="Channel" VerticalAlignment="Center" /><ComboBox x:Name="HistogramChannelComboBox" Width="70" Margin="8,0,12,0" />
+                            <TextBlock Text="Bins" VerticalAlignment="Center" /><TextBox x:Name="HistogramBinCountTextBox" Text="256" Width="70" Margin="8,0,12,0" />
+                            <Button x:Name="CalculateHistogramButton" Content="Calculate histogram" Padding="12,5" Click="CalculateHistogramButton_Click" />
+                        </WrapPanel>
+                        <TextBlock x:Name="HistogramSummaryText" Foreground="#606060" Margin="0,8,0,4" TextWrapping="Wrap" />
+                        <DataGrid x:Name="HistogramGrid" AutoGenerateColumns="False" IsReadOnly="True" MaxHeight="240">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Bin" Binding="{Binding Index}" Width="80" />
+                                <DataGridTextColumn Header="Lower edge" Binding="{Binding LowerEdge}" Width="*" />
+                                <DataGridTextColumn Header="Upper edge" Binding="{Binding UpperEdge}" Width="*" />
+                                <DataGridTextColumn Header="Count" Binding="{Binding Count}" Width="*" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+
+                        <TextBlock Text="Region and channel access" FontSize="16" FontWeight="SemiBold" Margin="0,20,0,6" />
+                        <WrapPanel>
+                            <TextBlock Text="X" VerticalAlignment="Center" /><TextBox x:Name="RegionXTextBox" Text="0" Width="55" Margin="5,0,10,0" />
+                            <TextBlock Text="Y" VerticalAlignment="Center" /><TextBox x:Name="RegionYTextBox" Text="0" Width="55" Margin="5,0,10,0" />
+                            <TextBlock Text="Width" VerticalAlignment="Center" /><TextBox x:Name="RegionWidthTextBox" Text="16" Width="55" Margin="5,0,10,0" />
+                            <TextBlock Text="Height" VerticalAlignment="Center" /><TextBox x:Name="RegionHeightTextBox" Text="16" Width="55" Margin="5,0,10,0" />
+                            <Button x:Name="ReadRegionButton" Content="Read interleaved region" Padding="12,5" Click="ReadRegionButton_Click" />
+                            <Button x:Name="ReadChannelButton" Content="Read selected channel" Padding="12,5" Margin="8,0,0,0" Click="ReadChannelButton_Click" />
+                        </WrapPanel>
+                        <TextBox x:Name="SampleOutputTextBox" IsReadOnly="True" TextWrapping="Wrap" MinHeight="55" Margin="0,8,0,0" />
+
+                        <TextBlock Text="World coordinate system" FontSize="16" FontWeight="SemiBold" Margin="0,20,0,6" />
+                        <TextBlock x:Name="WcsSummaryText" Foreground="#606060" Margin="0,0,0,8" />
+                        <WrapPanel Margin="0,0,0,6">
+                            <TextBlock Text="Pixel X" VerticalAlignment="Center" /><TextBox x:Name="WcsXTextBox" Text="0" Width="90" Margin="6,0,12,0" />
+                            <TextBlock Text="Pixel Y" VerticalAlignment="Center" /><TextBox x:Name="WcsYTextBox" Text="0" Width="90" Margin="6,0,12,0" />
+                            <Button x:Name="PixelToSkyButton" Content="Pixel → sky" Padding="12,5" Click="PixelToSkyButton_Click" />
+                            <TextBlock x:Name="PixelToSkyResultText" VerticalAlignment="Center" Margin="12,0,0,0" />
+                        </WrapPanel>
+                        <WrapPanel>
+                            <TextBlock Text="RA (degrees)" VerticalAlignment="Center" /><TextBox x:Name="WcsRaTextBox" Width="110" Margin="6,0,12,0" />
+                            <TextBlock Text="Dec (degrees)" VerticalAlignment="Center" /><TextBox x:Name="WcsDecTextBox" Width="110" Margin="6,0,12,0" />
+                            <Button x:Name="SkyToPixelButton" Content="Sky → pixel" Padding="12,5" Click="SkyToPixelButton_Click" />
+                            <TextBlock x:Name="SkyToPixelResultText" VerticalAlignment="Center" Margin="12,0,0,0" />
+                        </WrapPanel>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
             <TabItem Header="Image metadata">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel Margin="18" MaxWidth="900" HorizontalAlignment="Left">

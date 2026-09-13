@@ -77,6 +77,11 @@ public partial class MainWindow : Window
             ImageSelector.IsEnabled = _editableImages.Length > 1;
             ImageSelector.SelectedIndex = 0;
             await LoadImageEditorAsync(0);
+            RefreshUtilityOverview();
+            if (_document is not null)
+                ShowDiagnostics(_document.Validate());
+            else
+                ShowDiagnostics(_fitsDocument!.Diagnostics);
             ResetImageViewport();
             await RenderSelectedImageAsync();
             StatusText.Text = $"Loaded {Path.GetFileName(path)} ({_editableImages.Length} image(s){(fits ? ", converted from FITS" : "")}).";
@@ -111,6 +116,7 @@ public partial class MainWindow : Window
             if (ImageSelector.SelectedIndex >= 0 && ImageSelector.SelectedIndex != _editorImageIndex)
             {
                 await LoadImageEditorAsync(ImageSelector.SelectedIndex);
+                RefreshUtilityOverview();
                 ResetImageViewport();
             }
             await RunBusyAsync("Rendering image…", RenderSelectedImageAsync);

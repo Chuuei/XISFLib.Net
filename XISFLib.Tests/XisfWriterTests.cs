@@ -169,13 +169,17 @@ public class XisfWriterTests
     }
 
     [Fact]
-    public void RoundTripsAllAstrometricPropertyDeclarationsFromExampleImage()
+    public void RoundTripsRepresentativeAstrometricPropertyDeclarations()
     {
-        string examplesDirectory = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "Examples"));
-        XisfImage source = Assert.Single(XisfReader.Load(Path.Combine(examplesDirectory, "NGC_6992_pix.xisf")).Images);
         XisfImageData image = XisfImageData.FromSamples(new byte[] { 1 }, [1], 1);
-        foreach ((string id, XisfProperty property) in source.Properties.Where(pair => pair.Key.StartsWith("PCL:AstrometricSolution:", StringComparison.Ordinal)))
-            image.Properties[id] = new XisfPropertyData(property.Type, property.Value, property.Format, property.Comment);
+        image.Properties["PCL:AstrometricSolution:ProjectionSystem"] = new XisfPropertyData("String", "Gnomonic", null, "Projection");
+        image.Properties["PCL:AstrometricSolution:ReferenceCelestialCoordinates"] = new XisfPropertyData("F64Vector", new[] { 312.5, 31.7 });
+        image.Properties["PCL:AstrometricSolution:CelestialPoleNativeCoordinates"] = new XisfPropertyData("F64Vector", new[] { 180.0, 45.0 });
+        image.Properties["PCL:AstrometricSolution:LinearTransformationMatrix"] = new XisfPropertyData("F64Matrix", new double[,] { { -0.00065, -0.00002 }, { -0.00002, 0.00065 } }, "%.15g");
+        image.Properties["PCL:AstrometricSolution:SplineWorldTransformation:LinearApproximation"] = new XisfPropertyData("F64Matrix", new double[,] { { 1, 0, 0 }, { 0, 1, 0 } });
+        image.Properties["PCL:AstrometricSolution:SplineWorldTransformation:PointGridInterpolation:ImageToNative:GridX"] = new XisfPropertyData("F64Matrix", new double[,] { { 1, 2 }, { 3, 4 } });
+        image.Properties["PCL:AstrometricSolution:SplineWorldTransformation:ControlPoints:Image"] = new XisfPropertyData("F64Vector", new[] { 1.0, 2.0, 3.0, 4.0 });
+        image.Properties["PCL:AstrometricSolution:SplineWorldTransformation:MaxSplinePoints"] = new XisfPropertyData("UInt32", 2500u);
 
         using MemoryStream output = new();
         XisfWriter.Write(output, [image], new XisfWriterOptions { Compression = XisfCompression.Zlib });

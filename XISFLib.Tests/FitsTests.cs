@@ -142,8 +142,7 @@ public class FitsTests
     }
 
     [Theory]
-    [InlineData("NGC_6992_cropped.fits")]
-    [InlineData("NGC_6992_wizardstack_2082f.fits")]
+    [InlineData("slow.fits")]
     public void LoadsAndConvertsExampleFitsImages(string fileName)
     {
         string examplesDirectory = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "Examples"));

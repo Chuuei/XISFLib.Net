@@ -89,6 +89,8 @@ internal sealed class XisfDataBlock
             return null;
         if (size < 0 || size > _source.Options.MaximumDataBlockSize || expectedSize > _source.Options.MaximumDataBlockSize)
             throw new XisfFormatException("The data block exceeds the configured size limit.");
+        if ((expectedSize > 0 && size == 0) || (size > 0 && expectedSize / (double)size > _source.Options.MaximumDecompressionRatio))
+            throw new XisfFormatException("The compressed data block exceeds the configured decompression-ratio limit.");
 
         string? checksum = (string?)attributes.Attribute("checksum") ?? (string?)_owner.Attribute("checksum");
         using IncrementalHash? hash = CreateIncrementalHash(checksum);

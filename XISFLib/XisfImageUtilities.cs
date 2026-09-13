@@ -113,7 +113,7 @@ public static class XisfImageExtensions
             int destination = output == XisfPixelLayout.Planar
                 ? channel * width * height + destinationPixel
                 : destinationPixel * channels + channel;
-            result[destination] = T.CreateChecked(ReadReal(data.Slice(checked((int)(sourceSample * sampleSize)), sampleSize), format, bigEndian));
+            result[destination] = ReadNumber<T>(data.Slice(checked((int)(sourceSample * sampleSize)), sampleSize), format, bigEndian);
         }
         return result;
     }
@@ -129,7 +129,7 @@ public static class XisfImageExtensions
         for (int pixel = 0; pixel < pixels; pixel++)
         {
             long sourceSample = storage == XisfPixelLayout.Planar ? (long)channel * pixels + pixel : (long)pixel * channels + channel;
-            result[pixel] = T.CreateChecked(ReadReal(data.Slice(checked((int)(sourceSample * sampleSize)), sampleSize), format, bigEndian));
+            result[pixel] = ReadNumber<T>(data.Slice(checked((int)(sourceSample * sampleSize)), sampleSize), format, bigEndian);
         }
         return result;
     }
@@ -222,6 +222,17 @@ public static class XisfImageExtensions
         XisfSampleFormat.UInt64 => bigEndian ? BinaryPrimitives.ReadUInt64BigEndian(data) : BinaryPrimitives.ReadUInt64LittleEndian(data),
         XisfSampleFormat.Float32 => BitConverter.Int32BitsToSingle(bigEndian ? BinaryPrimitives.ReadInt32BigEndian(data) : BinaryPrimitives.ReadInt32LittleEndian(data)),
         XisfSampleFormat.Float64 => BitConverter.Int64BitsToDouble(bigEndian ? BinaryPrimitives.ReadInt64BigEndian(data) : BinaryPrimitives.ReadInt64LittleEndian(data)),
+        _ => throw new InvalidOperationException("Complex images require complex-specific processing.")
+    };
+
+    private static T ReadNumber<T>(ReadOnlySpan<byte> data, XisfSampleFormat format, bool bigEndian) where T : INumberBase<T> => format switch
+    {
+        XisfSampleFormat.UInt8 => T.CreateChecked(data[0]),
+        XisfSampleFormat.UInt16 => T.CreateChecked(bigEndian ? BinaryPrimitives.ReadUInt16BigEndian(data) : BinaryPrimitives.ReadUInt16LittleEndian(data)),
+        XisfSampleFormat.UInt32 => T.CreateChecked(bigEndian ? BinaryPrimitives.ReadUInt32BigEndian(data) : BinaryPrimitives.ReadUInt32LittleEndian(data)),
+        XisfSampleFormat.UInt64 => T.CreateChecked(bigEndian ? BinaryPrimitives.ReadUInt64BigEndian(data) : BinaryPrimitives.ReadUInt64LittleEndian(data)),
+        XisfSampleFormat.Float32 => T.CreateChecked(BitConverter.Int32BitsToSingle(bigEndian ? BinaryPrimitives.ReadInt32BigEndian(data) : BinaryPrimitives.ReadInt32LittleEndian(data))),
+        XisfSampleFormat.Float64 => T.CreateChecked(BitConverter.Int64BitsToDouble(bigEndian ? BinaryPrimitives.ReadInt64BigEndian(data) : BinaryPrimitives.ReadInt64LittleEndian(data))),
         _ => throw new InvalidOperationException("Complex images require complex-specific processing.")
     };
 

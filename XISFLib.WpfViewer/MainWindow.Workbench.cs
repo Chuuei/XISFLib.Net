@@ -73,6 +73,7 @@ public partial class MainWindow
         EmptyDiagnosticsText.Visibility = Visibility.Visible;
         PreserveOriginalCheckBox.IsChecked = false;
         PreserveOriginalCheckBox.IsEnabled = false;
+        ClearUtilityResults();
         StatusText.Text = "No image loaded.";
     }
 
@@ -133,9 +134,13 @@ public partial class MainWindow
             ImageDetailsText.Text = $"{preview.PixelWidth} × {preview.PixelHeight}, {image.ChannelCount} channel(s), UInt8, imported raster";
             ClearDocumentEditors();
             PopulateImageEditor(image);
+            RefreshUtilityOverview();
             MetadataTree.Visibility = Visibility.Collapsed;
             EmptyMetadataText.Visibility = Visibility.Visible;
             EmptyMetadataText.Text = "This image has not been saved as XISF yet.";
+            DiagnosticsGrid.ItemsSource = null;
+            DiagnosticsGrid.Visibility = Visibility.Collapsed;
+            EmptyDiagnosticsText.Visibility = Visibility.Visible;
             StatusText.Text = $"Imported {Path.GetFileName(dialog.FileName)}. Configure metadata and save it as XISF.";
         }
         catch (Exception ex)
@@ -340,7 +345,7 @@ public partial class MainWindow
             if (_document is not null)
                 ShowDiagnostics(_document.Validate());
             else
-                ShowDiagnostics([]);
+                ShowDiagnostics(_fitsDocument!.Diagnostics);
             StatusText.Text = preserveOriginal
                 ? $"Saved a byte-identical copy and reloaded {Path.GetFileName(path)}. Editor changes were not applied."
                 : $"Saved, reloaded and validated {Path.GetFileName(path)}{(fitsOutput ? " as FITS" : "")}.";
@@ -428,13 +433,30 @@ public partial class MainWindow
 
     private void ValidateButton_Click(object sender, RoutedEventArgs e)
     {
-        if (_document is null) { ShowError("Load or save an XISF document first."); return; }
-        IReadOnlyList<XisfDiagnostic> diagnostics = _document.Validate();
-        ShowDiagnostics(diagnostics);
-        StatusText.Text = $"Validation completed with {diagnostics.Count} diagnostic(s).";
+        if (_document is not null)
+        {
+            IReadOnlyList<XisfDiagnostic> diagnostics = _document.Validate();
+            ShowDiagnostics(diagnostics);
+            StatusText.Text = $"XISF validation completed with {diagnostics.Count} diagnostic(s).";
+            return;
+        }
+        if (_fitsDocument is not null)
+        {
+            ShowDiagnostics(_fitsDocument.Diagnostics);
+            StatusText.Text = $"FITS validation completed with {_fitsDocument.Diagnostics.Count} diagnostic(s).";
+            return;
+        }
+        ShowError("Load or save an XISF or FITS document first.");
     }
 
     private void ShowDiagnostics(IReadOnlyList<XisfDiagnostic> diagnostics)
+    {
+        DiagnosticsGrid.ItemsSource = diagnostics;
+        DiagnosticsGrid.Visibility = Visibility.Visible;
+        EmptyDiagnosticsText.Visibility = Visibility.Collapsed;
+    }
+
+    private void ShowDiagnostics(IReadOnlyList<FitsValidationDiagnostic> diagnostics)
     {
         DiagnosticsGrid.ItemsSource = diagnostics;
         DiagnosticsGrid.Visibility = Visibility.Visible;

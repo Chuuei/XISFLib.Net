@@ -19,6 +19,16 @@ public class XisfUtilityTests
     }
 
     [Fact]
+    public void PreservesUInt64PrecisionWhenReadingRegionsAndChannels()
+    {
+        ulong[] samples = [9_007_199_254_740_993, ulong.MaxValue];
+        XisfImageData image = XisfImageData.FromSamples(samples, [2, 1], 1);
+
+        Assert.Equal(samples, image.ReadRegion<ulong>(0, 0, 2, 1));
+        Assert.Equal(samples, image.ReadChannel<ulong>(0));
+    }
+
+    [Fact]
     public void CalculatesRobustStatisticsAndHistogramPerChannel()
     {
         XisfImageData image = XisfImageData.FromSamples(new float[] { 0, 1, 2, 3, float.NaN }, [5, 1], 1);

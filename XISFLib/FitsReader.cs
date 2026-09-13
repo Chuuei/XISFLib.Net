@@ -135,7 +135,13 @@ public static partial class FitsReader
             {
                 string cardText = Encoding.ASCII.GetString(block, offset, 80);
                 string first = cardText[..8].TrimEnd();
-                if (first == "END") { ended = true; break; }
+                if (first == "END")
+                {
+                    if (header.Count >= options.MaximumHeaderCards)
+                        throw new FitsFormatException("A FITS header exceeds the configured header card limit.");
+                    ended = true;
+                    break;
+                }
                 if (string.IsNullOrWhiteSpace(cardText)) continue;
                 if (header.Count >= options.MaximumHeaderCards)
                     throw new FitsFormatException("A FITS header exceeds the configured header card limit.");
@@ -224,6 +230,130 @@ public static partial class FitsReader
             "BINTABLE" => FitsHduType.BinaryTable,
             _ => FitsHduType.Unknown
         };
+    }
+
+    private static void ValidateHeader(FitsHeader header, FitsHduType type, int hduIndex,
+        ICollection<FitsValidationDiagnostic> diagnostics)
+    {
+        string[] mandatory = type == FitsHduType.Primary || type == FitsHduType.RandomGroups
+            ? ["SIMPLE", "BITPIX", "NAXIS"]
+            : ["XTENSION", "BITPIX", "NAXIS"];
+        for (int index = 0; index < mandatory.Length; index++)
+        {
+            if (header.Count <= index || !header[index].Keyword.Equals(mandatory[index], StringComparison.Ordinal))
+            {
+                diagnostics.Add(new FitsValidationDiagnostic("FITS.MandatoryOrder", FitsValidationSeverity.Error,
+                    $"The mandatory {mandatory[index]} keyword must be card {index + 1} of this HDU.", hduIndex,
+                    header.Count > index ? index : null, mandatory[index]));
+            }
+        }
+
+        int naxis = 0;
+        bool validNaxis = TryGetInteger(header, "NAXIS", out long naxisValue) && naxisValue is >= 0 and <= 999;
+        if (validNaxis)
+        {
+            naxis = (int)naxisValue;
+            for (int axis = 1; axis <= naxis; axis++)
+            {
+                int expectedIndex = mandatory.Length - 1 + axis;
+                string keyword = $"NAXIS{axis}";
+                if (header.Count <= expectedIndex || !header[expectedIndex].Keyword.Equals(keyword, StringComparison.Ordinal))
+                    diagnostics.Add(new FitsValidationDiagnostic("FITS.MandatoryOrder", FitsValidationSeverity.Error,
+                        $"The mandatory {keyword} keyword is missing or is not in its required position.", hduIndex,
+                        header.Count > expectedIndex ? expectedIndex : null, keyword));
+                if (!TryGetInteger(header, keyword, out long axisLength) || axisLength < 0)
+                    diagnostics.Add(new FitsValidationDiagnostic("FITS.Axis", FitsValidationSeverity.Error,
+                        $"{keyword} must be a nonnegative integer.", hduIndex, null, keyword));
+            }
+        }
+        else
+            diagnostics.Add(new FitsValidationDiagnostic("FITS.Axis", FitsValidationSeverity.Error,
+                "NAXIS must be an integer from zero through 999.", hduIndex, null, "NAXIS"));
+
+        if (!TryGetInteger(header, "BITPIX", out long bitPix) || bitPix is not (8 or 16 or 32 or 64 or -32 or -64))
+            diagnostics.Add(new FitsValidationDiagnostic("FITS.BitPix", FitsValidationSeverity.Error,
+                "BITPIX is missing or unsupported.", hduIndex, null, "BITPIX"));
+
+        HashSet<string> repeatable = new(StringComparer.OrdinalIgnoreCase) { "COMMENT", "HISTORY", "CONTINUE", string.Empty };
+        foreach (IGrouping<string, (FitsHeaderCard Card, int Index)> group in header.Select((card, index) => (card, index))
+                     .GroupBy(item => item.card.Keyword, StringComparer.OrdinalIgnoreCase))
+        {
+            if (group.Count() <= 1 || repeatable.Contains(group.Key)) continue;
+            foreach ((FitsHeaderCard card, int index) in group.Skip(1))
+                diagnostics.Add(new FitsValidationDiagnostic("FITS.DuplicateKeyword", FitsValidationSeverity.Error,
+                    $"Keyword '{card.Keyword}' occurs more than once.", hduIndex, index, card.Keyword));
+        }
+
+        for (int index = 0; index < header.Count; index++)
+        {
+            string keyword = header[index].Keyword;
+            bool valid = keyword.StartsWith("HIERARCH ", StringComparison.Ordinal)
+                ? keyword.Length > 9 && keyword[9..].All(character => character is >= ' ' and <= '~')
+                : keyword.Length is > 0 and <= 8 && keyword.All(character => character is >= 'A' and <= 'Z' or >= '0' and <= '9' or '-' or '_');
+            if (!valid)
+                diagnostics.Add(new FitsValidationDiagnostic("FITS.KeywordSyntax", FitsValidationSeverity.Warning,
+                    $"Keyword '{keyword}' does not use standard FITS keyword syntax.", hduIndex, index, keyword));
+        }
+
+        if (type is FitsHduType.AsciiTable or FitsHduType.BinaryTable)
+        {
+            if (naxis != 2)
+                diagnostics.Add(new FitsValidationDiagnostic("FITS.TableShape", FitsValidationSeverity.Error,
+                    "A FITS table must have NAXIS = 2.", hduIndex, null, "NAXIS"));
+            if (bitPix != 8)
+                diagnostics.Add(new FitsValidationDiagnostic("FITS.TableShape", FitsValidationSeverity.Error,
+                    "A FITS table must have BITPIX = 8.", hduIndex, null, "BITPIX"));
+            if (!TryGetInteger(header, "PCOUNT", out long pcount) || pcount < 0 ||
+                !TryGetInteger(header, "GCOUNT", out long gcount) || gcount != 1)
+                diagnostics.Add(new FitsValidationDiagnostic("FITS.TableShape", FitsValidationSeverity.Error,
+                    "A FITS table requires PCOUNT >= 0 and GCOUNT = 1.", hduIndex));
+            if (!TryGetInteger(header, "TFIELDS", out long fields) || fields is < 0 or > 999)
+                diagnostics.Add(new FitsValidationDiagnostic("FITS.TableFields", FitsValidationSeverity.Error,
+                    "TFIELDS must be an integer from zero through 999.", hduIndex, null, "TFIELDS"));
+        }
+    }
+
+    private static void ValidatePayload(FitsHdu hdu, byte[] padding, int hduIndex,
+        ICollection<FitsValidationDiagnostic> diagnostics)
+    {
+        byte expectedPadding = hdu.Type == FitsHduType.AsciiTable ? (byte)' ' : (byte)0;
+        if (padding.Any(value => value != expectedPadding))
+            diagnostics.Add(new FitsValidationDiagnostic("FITS.Padding", FitsValidationSeverity.Warning,
+                $"The HDU data padding contains bytes other than {(expectedPadding == 0 ? "zero" : "ASCII spaces")}.", hduIndex));
+        if (hdu.DataChecksumValid == false)
+            diagnostics.Add(new FitsValidationDiagnostic("FITS.DataChecksum", FitsValidationSeverity.Error,
+                "The DATASUM value does not match the HDU data records.", hduIndex, null, "DATASUM"));
+        if (hdu.ChecksumValid == false)
+            diagnostics.Add(new FitsValidationDiagnostic("FITS.Checksum", FitsValidationSeverity.Error,
+                "The CHECKSUM value does not match the complete HDU.", hduIndex, null, "CHECKSUM"));
+
+        if (hdu.Type == FitsHduType.BinaryTable && TryGetInteger(hdu.Header, "THEAP", out long heapStart))
+        {
+            long rowsEnd = checked(hdu.Header.GetValue<long>("NAXIS1", 0) * hdu.Header.GetValue<long>("NAXIS2", 0));
+            if (heapStart < rowsEnd || heapStart > hdu.Data.LongLength)
+                diagnostics.Add(new FitsValidationDiagnostic("FITS.HeapBounds", FitsValidationSeverity.Error,
+                    "THEAP points outside the declared binary-table heap.", hduIndex, null, "THEAP"));
+        }
+    }
+
+    private static void ThrowIfStrict(FitsReaderOptions options, IEnumerable<FitsValidationDiagnostic> diagnostics, int hduIndex)
+    {
+        if (options.ValidationMode != FitsValidationMode.Strict) return;
+        FitsValidationDiagnostic? error = diagnostics.FirstOrDefault(item => item.HduIndex == hduIndex && item.Severity == FitsValidationSeverity.Error);
+        if (error is not null)
+            throw new FitsFormatException($"FITS conformance error: {error.Message}");
+    }
+
+    private static bool TryGetInteger(FitsHeader header, string keyword, out long value)
+    {
+        object? raw = header.FindFirst(keyword)?.Value;
+        if (raw is long integer)
+        {
+            value = integer;
+            return true;
+        }
+        return long.TryParse(Convert.ToString(raw, CultureInfo.InvariantCulture), NumberStyles.Integer,
+            CultureInfo.InvariantCulture, out value);
     }
 
     private static long GetDataLength(FitsHeader header, FitsHduType type, FitsReaderOptions options)
