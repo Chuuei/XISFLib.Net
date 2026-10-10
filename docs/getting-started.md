@@ -43,7 +43,7 @@ XisfWriter.Write("new.xisf", [created], new XisfWriterOptions
 });
 
 XisfImageData editable = XisfImageData.FromImage(image);
-editable.FitsKeywords.Add(new XisfFitsKeyword("OBJECT", "M31", "Target"));
+editable.FitsKeywords.Add(new XisfFitsKeyword("OBJECT", "'M31'", "Target"));
 XisfWriter.Write("edited.xisf", [editable]);
 ```
 
@@ -66,13 +66,13 @@ Use `FitsConverter.ConvertFitsToXisf` or `ConvertXisfToFits` for the correspondi
 ## Run the applications
 
 ```powershell
-dotnet run --project XISFLib.WpfViewer
+dotnet run --project XISFLib.WpfViewer -c Release
 dotnet run --project XISFLib.Convert -- "D:\Images" 4
-dotnet run --project XISFLib.Benchmarks -- "D:\Images\Examples"
+dotnet run --project XISFLib.Benchmarks -c Release -- "D:\Images\Examples"
 ```
 
 The viewer loads, renders, inspects, edits, validates, and saves files. Its byte-identical copy mode preserves the original monolithic file; re-encoding applies editor changes.
 
 The batch converter processes `.xisf` files directly inside the specified folder, with optional concurrency (default eight). It creates `.fits` files, refuses existing outputs, and returns exit code zero on success, one for conversion/enumeration failures, and two for invalid arguments.
 
-The benchmark project measures elapsed time and allocation for the supplied `slow.xisf` and `slow.fits` examples. It is a diagnostic harness; compare results on the same runtime, machine, and input files.
+The benchmark project measures elapsed time and allocation for the supplied `slow.xisf` and `slow.fits` examples. It also has `--performance`, `--fits-performance`, and `--wpf-load` modes for synthetic operations, FITS processing, and end-to-end viewer loading. See the [performance guide](performance.md) for commands and measurement limits, and the [application guide](applications.md) for viewer and converter behavior.

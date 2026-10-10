@@ -4,6 +4,8 @@
 
 File-path XISF loads retain the path and reopen it when an attached block is requested. They do not retain an open file handle. Keep the file available and unchanged while using the parsed document. `XisfImageData.FromImage` materializes an owned image for subsequent editing or processing without the original pixel source.
 
+Preserved unavailable properties/table cells and native astrometric properties can still retain source-backed serialized blocks in an editable copy. Keep their source available until writing finishes when those representations are attached or external. Owning decoded pixels does not imply that every preserved metadata block has been detached from its source.
+
 Monolithic XISF stream loads retain a copy of the input because later attachment reads require absolute file offsets. This applies even to seekable streams and is bounded by `MaximumBufferedInputBytes` (default 1 GiB). Distributed XML input is bounded by the header-size limit; pass a base directory when resolving header-relative blocks from a stream.
 
 FITS loads materialize raw HDU data and supported decoded content. Non-seekable input is buffered first and has its own input limit. Raw payload limits do not account for every managed object allocated for decoded table cells.
@@ -60,4 +62,4 @@ Complex XISF images cannot be converted into standard FITS image HDUs. FITS tabl
 
 Image decoding materializes the complete raw block. Typed reads allocate a converted array and may allocate another array when reordering channels. Region/channel extraction limits converted output size but still decodes the entire raw input for parsed images. Repeated reads repeat decoding and checksum verification; materialize an editable image for repeated utility/rendering operations when memory permits.
 
-Writers retain attachments during serialization. Compression and format conversion can create additional full-sized buffers. FITS output may allocate padded copies. Benchmark representative files before choosing concurrency or raising resource limits.
+Writers retain attachments during serialization. Compression and format conversion can create additional full-sized buffers. FITS output writes raw payloads and padding separately; it does not allocate a full padded copy for each HDU. Benchmark representative files before choosing concurrency or raising resource limits.

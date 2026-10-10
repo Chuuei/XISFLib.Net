@@ -70,7 +70,7 @@ XisfImageData outputImage = XisfImageData.FromSamples(
     pixels, dimensions: [2, 1], channelCount: 3,
     pixelStorage: XisfPixelLayout.Interleaved);
 outputImage.ColorSpace = "RGB";
-outputImage.FitsKeywords.Add(new XisfFitsKeyword("OBJECT", "M31", "Target"));
+outputImage.FitsKeywords.Add(new XisfFitsKeyword("OBJECT", "'M31'", "Target"));
 
 XisfWriter.Write("capture.xisf", [outputImage], new XisfWriterOptions
 {
@@ -81,7 +81,7 @@ XisfWriter.Write("capture.xisf", [outputImage], new XisfWriterOptions
 });
 ```
 
-`XisfImageData.FromArray(T[,])` accepts conventional `[height, width]` grayscale arrays. `FromArray(T[,,])` accepts `[height, width, channel]` interleaved images. `FromRaw` accepts already serialized XISF sample bytes, while `FromSamples` supports `byte`, `ushort`, `uint`, `ulong`, `float`, `double`, and `System.Numerics.Complex`. Writers target either a file path or any writable `Stream`.
+`XisfImageData.FromArray(T[,])` accepts conventional `[height, width]` grayscale arrays. `FromArray(T[,,])` accepts `[height, width, channel]` interleaved images. `FromRaw` accepts already serialized XISF sample bytes, while `FromSamples` supports `byte`, `ushort`, `uint`, `ulong`, `float`, `double`, `XisfComplex32`, and `System.Numerics.Complex`. Writers target either a file path or any writable `Stream`.
 
 Use `XisfWriter.WriteDistributed("capture.xish", "capture.xisb", images)` for indexed distributed output. A loaded document can be edited through `XisfDocument.Xml` and saved with `XisfWriter.Write`; unknown extension elements and data blocks are retained. `XisfWriter.WriteSigned` creates a monolithic file with a verifiable detached RSA XML signature.
 
@@ -122,6 +122,10 @@ Each output also includes an `XISFMETA` binary-table extension: one row containi
 Reference the `XISFLib.Windows` project or package from a `net10.0-windows` application. It provides extension methods for loaded images:
 
 ```csharp
+using System.Drawing;
+using System.Windows.Media.Imaging;
+using XISFLib;
+
 using Bitmap windowsFormsImage = image.ToBitmap();
 BitmapSource wpfImage = image.ToBitmapSource();
 
@@ -136,11 +140,9 @@ Both methods normalize samples through the XISF image bounds and support graysca
 
 The solution also includes `XISFLib.WpfViewer`, a WPF library workbench and example implementation. It can browse and load `.xisf`, `.xish`, `.fit`, `.fits`, or `.fts` files, import PNG/JPEG/TIFF/BMP/GIF images, edit document and image properties, FITS keywords, tables and ancillary image metadata, configure compression/checksums/shuffling, and write FITS or monolithic/distributed XISF output. Its Utilities tab demonstrates unified astronomy metadata, sampled channel statistics, full histograms, region/channel reads, and bidirectional pixel/sky WCS transforms by calling the same public APIs shown above. For a loaded monolithic `.xisf`, **Byte-identical copy** is enabled by default: saving copies the complete source unchanged, including every image, unknown extension, signature, data-block representation, and metadata item. Clear that option to apply editor changes or writer settings; re-encoding intentionally rebuilds the selected image and can change XML ordering, creation metadata, block locations, compression, checksums, and file size. Saved files are reloaded immediately and shown with XISF or FITS conformance diagnostics. It also supports multi-image selection, comparison of linear display with configurable automatic stretching, mouse-wheel zooming, and left-button drag panning. Run it with `dotnet run --project XISFLib.WpfViewer`.
 
-### Windows Explorer previews
+See the [application guide](docs/applications.md) for viewer editing limits, save modes, and command-line usage.
 
-`XISFLib.ExplorerPreviewHandler` is a 64-bit Windows Explorer preview handler for `.xisf`, `.xish`, `.fit`, `.fits`, and `.fts` files. It displays the first two-dimensional image (including RGB/RGBA FITS cubes), applies the automatic screen stretch, and shows basic dimensions and sample information. Loading happens asynchronously in an isolated `Prevhost.exe` process with network and arbitrary external XISF resources disabled.
-
-Build the project in Release mode, keep the complete output directory together, then run `Install-PreviewHandler.ps1` from that output directory in an elevated PowerShell window. Enable Explorer's Preview pane to use it. Run `Uninstall-PreviewHandler.ps1` before moving or deleting the output directory. The handler is framework-dependent and requires the matching .NET 10 Windows Desktop Runtime.
+### Loading and rendering performance
 
 Large file loading is performed away from the UI thread. Path-backed zlib XISF attachments are checksum-verified while streaming directly into their final decoded buffer, FITS conversion reuses its source pixel storage when possible, and WPF rendering reads samples directly without allocating full normalized or reordered arrays. Additional images in multi-image XISF documents are decoded on first selection.
 
@@ -159,7 +161,7 @@ The document exposes typed global/image properties, tables, FITS keywords, ICC p
 - zlib, LZ4, LZ4HC, and Zstandard decompression, including byte shuffling and compression subblocks
 - SHA-1, SHA-256, SHA-512, SHA3-256, and SHA3-512 block verification
 - UInt8/16/32/64, Float32/64, and Complex32/64 image samples
-- All required scalar, vector, and matrix property types and aliases, including complex collections and optional Int128/UInt128 values
+- All required scalar, vector, and matrix property types and aliases, including exact binary128 real/complex storage and optional Int128/UInt128 values
 - Little- and big-endian data with planar/interleaved conversion
 - Monolithic and indexed distributed writing with zlib/LZ4/LZ4HC/Zstandard compression, byte shuffling, checksums, conformant scalar/vector/matrix properties, tables, FITS keywords, ICC profiles, thumbnails, CFA, display, working-space, and resolution metadata
 - Shared core objects through `uid`/`Reference`, one-dimensional images, image offsets, orientation, and UUIDs

@@ -312,9 +312,9 @@ public sealed class FitsImage
 }
 
 /// <summary>A FITS table column with format, unit, scaling, and null sentinel.</summary>
-/// <param name="Name">The keyword, column, or mosaic name.</param>
-/// <param name="Format">The optional display or storage format.</param>
-/// <param name="Unit">The resolution or table-column unit.</param>
+/// <param name="Name">The column name from its TTYPEn card.</param>
+/// <param name="Format">The column storage format from its TFORMn card.</param>
+/// <param name="Unit">The optional physical unit from its TUNITn card.</param>
 /// <param name="Scale">The physical-value multiplier.</param>
 /// <param name="Zero">The physical-value offset.</param>
 /// <param name="Null">The optional integer null sentinel.</param>

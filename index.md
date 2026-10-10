@@ -4,6 +4,10 @@ Read, write, validate, and convert XISF and FITS astronomy images with .NET 10. 
 
 - [Getting started](docs/getting-started.md)
 - [API guide](docs/api-guide.md)
+- [Applications](docs/applications.md)
+- [Astrometric solutions](docs/astrometry.md)
+- [Specification coverage](docs/specification-compliance.md)
+- [Performance](docs/performance.md)
 - [I/O contracts and limitations](docs/io-and-limitations.md)
 - [Architecture](docs/architecture.md)
 - [Contributing](CONTRIBUTING.md)

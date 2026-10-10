@@ -4,6 +4,8 @@
   href: getting-started.md
 - name: API guide
   href: api-guide.md
+- name: Applications
+  href: applications.md
 - name: I/O and limitations
   href: io-and-limitations.md
 - name: Astrometric solutions

@@ -8,15 +8,51 @@ Dimensions are ordered width, height, then additional axes. Channels are a separ
 
 `FromSamples` accepts a flat array or read-only memory and copies the samples. `FromArray` accepts arrays indexed `[height, width]` or `[height, width, channels]`. `FromRaw` copies encoded samples after validating geometry. Integer XISF image formats are unsigned; real and complex floating-point formats are also supported.
 
+| Image sample format | CLR type for `FromSamples` |
+| --- | --- |
+| UInt8/16/32/64 | `byte`, `ushort`, `uint`, `ulong` |
+| Float32/64 | `float`, `double` |
+| Complex32 | `XisfComplex32` (two single-precision components) |
+| Complex64 | `System.Numerics.Complex` (two double-precision components) |
+
+Binary128 types are property storage types, not image sample formats. See [ownership and lifetime](io-and-limitations.md#ownership-and-lifetime) before retaining a parsed image beyond its source file's lifetime.
+
 `FitsDocument` contains ordered `FitsHdu` values. The first HDU is primary; it may be empty. Each HDU has a `FitsHeader`, raw `Data`, optional decoded `Content`, and nullable checksum results. `FitsImage` retains big-endian storage and the `BITPIX`, `BSCALE`, `BZERO`, and `BLANK` conventions. `GetPhysicalSamples` applies scaling and maps integer blanks to NaN, returning doubles.
 
 `FitsHeader` preserves card order and repeated keywords. `Find`, `FindFirst`, and `GetValue<T>` compare keywords without case sensitivity. `FitsHeaderCard` holds a typed value and optional comment. `FitsTable` exposes decoded rows and `FitsTableColumn` definitions, including format, unit, scaling, and null metadata. FITS writing uses retained raw table data; decoded rows are not an editable table serialization model.
 
 ## Metadata, properties, and tables
 
-Image properties use case-sensitive identifiers. Ordinary CLR scalar values infer their XISF type; `XisfPropertyData` specifies a type and optional format/comment explicitly. Supported numeric arrays become vector or matrix properties. `XisfProperty` retains the parsed value and original XML. See the property serialization tests for supported CLR combinations.
+Image properties use case-sensitive identifiers. Ordinary CLR scalar values infer their XISF type; `XisfPropertyData` specifies a type and optional format/comment explicitly. Supported numeric arrays become vector or matrix properties. `XisfProperty` retains the parsed value and original XML.
+
+| CLR value | Scalar property | Array prefix |
+| --- | --- | --- |
+| `sbyte`, `short`, `int`, `long`, `Int128` | Int8/16/32/64/128 | I8/16/32/64/128 |
+| `byte`, `ushort`, `uint`, `ulong`, `UInt128` | UInt8/16/32/64/128 | UI8/16/32/64/128 |
+| `float`, `double` | Float32/64 | F32/64 |
+| `XisfFloat128` | Float128 | F128 |
+| `XisfComplex32`, `System.Numerics.Complex`, `XisfComplex128` | Complex32/64/128 | C32/64/128 |
+| `bool`, `string` | Boolean, String | Not supported |
+| `DateTimeOffset`, `DateTime` | TimePoint | Not supported |
+| `decimal` | Float128 (decimal text input) | Not supported |
+
+A rank-one numeric array produces `<prefix>Vector`; a rank-two array produces `<prefix>Matrix`, indexed `[row, column]`. For example, `double[]` produces `F64Vector` and `double[,]` produces `F64Matrix`. Arrays of Boolean, strings, timestamps or `decimal`, and arrays with more than two dimensions, are not property collections. Use `XisfFloat128` for full binary128 precision; `decimal` has its own smaller numeric range and precision. Prefer `DateTimeOffset` for explicit time zones; `DateTime` is converted to UTC using its `Kind`.
+
+The table describes values accepted for writing. Parsed Complex32 scalar properties are exposed as `System.Numerics.Complex`; retain their declared `Type` when editing to preserve single-precision storage.
+
+```csharp
+editable.Properties["Processing:Weights"] = new double[] { 0.2, 0.3, 0.5 };
+editable.Properties["Processing:Transform"] = new XisfPropertyData(
+    "F64Matrix", new double[,] { { 1, 0 }, { 0, 1 } }, Comment: "Identity");
+editable.Properties["Measurement:Precise"] = XisfFloat128.Parse(
+    "1.0000000000000000000000000000000001");
+```
+
+Here `editable` is an `XisfImageData` instance. An explicitly declared type must agree with the CLR value; it does not generally coerce values to another numeric type. Standard aliases such as `Vector`, `Matrix`, and `ByteArray` are accepted. Explicit Complex32 declarations can narrow `System.Numerics.Complex` values or arrays to single precision.
 
 `XisfFitsKeyword` preserves astronomy keyword values and comments. Ancillary metadata uses `XisfColorFilterArray`, `XisfRgbWorkingSpace`, `XisfDisplayFunction`, and `XisfResolution`. ICC profiles are byte buffers; thumbnails are images with their own storage and metadata.
+
+`XisfFitsKeyword.Value` is FITS text, so string values include single quotes (for example, `"'M31'"`). For `COMMENT` and `HISTORY`, use an empty value and put the commentary text in `Comment`. In contrast, `FitsHeaderCard.Value` accepts CLR values directly, including unquoted strings.
 
 `XisfTable` is the parsed representation. For new output, construct `XisfTableData`, populate `Fields` with `XisfTableFieldData`, and append rows with exactly one value per field. The field type must agree with the values being serialized. Vector and matrix cells use the same data-block serialization as properties. Table comment text is preserved.
 
@@ -41,6 +77,8 @@ XISF block checksums are verified when blocks are read. XISF output defaults to 
 `CalculateHistogram` examines every sample in the selected channel. `XisfHistogram` includes bin counts, underflow, overflow, and non-finite counts. Bounds default to the image bounds; specify them when a different numeric interval is needed.
 
 `CelestialWorldCoordinateSystem.TryCreate` recognizes the supported FITS WCS keywords. `PixelToSky` accepts zero-based pixel coordinates and returns right ascension/declination in degrees; `SkyToPixel` returns zero-based coordinates. Reference-pixel properties retain FITS one-based values. The supported linear/CD and TAN transformations do not implement a complete astronomical WCS engine or arbitrary distortion models.
+
+For native XISF solutions, use `XisfImage.AstrometricSolution`. This separate API supports seven projections, projective transforms and spline distortion. It uses pixel-center coordinates `(column + 0.5, row + 0.5)` and does not infer a solution from FITS cards. See [astrometric solutions](astrometry.md) for examples and fallback behavior.
 
 ## Windows display adapters
 

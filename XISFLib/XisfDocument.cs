@@ -87,20 +87,20 @@ public sealed record XisfProperty(string Id, string Type, object? Value, string?
 /// <param name="Comment">The optional explanatory comment.</param>
 public sealed record XisfPropertyData(string Type, object? Value, string? Format = null, string? Comment = null);
 /// <summary>A FITS keyword preserved in an XISF image header.</summary>
-/// <param name="Name">The keyword, column, or mosaic name.</param>
-/// <param name="Value">The typed value; null represents an absent value.</param>
-/// <param name="Comment">The optional explanatory comment.</param>
+/// <param name="Name">The FITS keyword name, such as OBJECT or HISTORY.</param>
+/// <param name="Value">The textual FITS value, including any quoting required for a string; empty for COMMENT and HISTORY.</param>
+/// <param name="Comment">The explanatory comment, or the commentary text for COMMENT and HISTORY.</param>
 public sealed record XisfFitsKeyword(string Name, string Value, string? Comment);
 /// <summary>A repeating color-filter mosaic and its tile dimensions.</summary>
 /// <param name="Pattern">The repeating color-filter tile in row-major order.</param>
 /// <param name="Width">The tile width in pixels.</param>
 /// <param name="Height">The tile height in pixels.</param>
-/// <param name="Name">The keyword, column, or mosaic name.</param>
+/// <param name="Name">The optional human-readable mosaic name.</param>
 public sealed record XisfColorFilterArray(string Pattern, int Width, int Height, string? Name);
 /// <summary>RGB gamma, chromaticity coordinates, and luminance coefficients.</summary>
 /// <param name="Gamma">The working-space gamma.</param>
 /// <param name="IsSrgb">Whether the sRGB transfer function is used.</param>
-/// <param name="ChromaticityCoordinates">The RGB chromaticity coordinates.</param>
+/// <param name="ChromaticityCoordinates">The x chromaticities of the red, green and blue primaries, in that order.</param>
 /// <param name="LuminanceCoefficients">The RGB luminance weights.</param>
 public sealed record XisfRgbWorkingSpace(double Gamma, bool IsSrgb, IReadOnlyList<double> ChromaticityCoordinates, IReadOnlyList<double> LuminanceCoefficients)
 {
@@ -125,10 +125,10 @@ public sealed record XisfDisplayFunction(IReadOnlyList<double> Midtones, IReadOn
 /// <summary>Horizontal and vertical resolution expressed in a named unit.</summary>
 /// <param name="Horizontal">The horizontal resolution in the specified unit.</param>
 /// <param name="Vertical">The vertical resolution in the specified unit.</param>
-/// <param name="Unit">The resolution or table-column unit.</param>
+/// <param name="Unit">The resolution unit: inch or cm.</param>
 public sealed record XisfResolution(double Horizontal, double Vertical, string Unit);
 
-/// <summary>The identifier, scalar type, and display hints for a parsed table column.</summary>
+/// <summary>The identifier, scalar or collection type, and display hints for a parsed table column.</summary>
 /// <param name="Id">The case-sensitive identifier.</param>
 /// <param name="Type">The declared scalar or collection type.</param>
 /// <param name="Header">The optional display heading.</param>
