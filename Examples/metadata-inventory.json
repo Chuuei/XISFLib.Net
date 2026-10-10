@@ -1,0 +1,1843 @@
+{
+  "Xisf": [
+    {
+      "Id": "FITS:BITPIX",
+      "Types": [
+        "Int32"
+      ]
+    },
+    {
+      "Id": "FITS:BSCALE",
+      "Types": [
+        "Float64"
+      ]
+    },
+    {
+      "Id": "FITS:BZERO",
+      "Types": [
+        "Float64"
+      ]
+    },
+    {
+      "Id": "Instrument:Camera:Gain",
+      "Types": [
+        "Float64"
+      ]
+    },
+    {
+      "Id": "Instrument:Camera:Name",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Id": "Instrument:Camera:XBinning",
+      "Types": [
+        "UInt32"
+      ]
+    },
+    {
+      "Id": "Instrument:Camera:YBinning",
+      "Types": [
+        "UInt32"
+      ]
+    },
+    {
+      "Id": "Instrument:Filter:Name",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Id": "Instrument:FrameExposureTime",
+      "Types": [
+        "Float64"
+      ]
+    },
+    {
+      "Id": "Instrument:Sensor:XPixelSize",
+      "Types": [
+        "Float64"
+      ]
+    },
+    {
+      "Id": "Instrument:Sensor:YPixelSize",
+      "Types": [
+        "Float64"
+      ]
+    },
+    {
+      "Id": "Instrument:Telescope:FocalLength",
+      "Types": [
+        "Float64"
+      ]
+    },
+    {
+      "Id": "Instrument:Telescope:Name",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Id": "Observation:CelestialReferenceSystem",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Id": "Observation:Center:Dec",
+      "Types": [
+        "Float64"
+      ]
+    },
+    {
+      "Id": "Observation:Center:RA",
+      "Types": [
+        "Float64"
+      ]
+    },
+    {
+      "Id": "Observation:Equinox",
+      "Types": [
+        "Float64"
+      ]
+    },
+    {
+      "Id": "Observation:Location:Elevation",
+      "Types": [
+        "Int32"
+      ]
+    },
+    {
+      "Id": "Observation:Location:Latitude",
+      "Types": [
+        "Float64"
+      ]
+    },
+    {
+      "Id": "Observation:Location:Longitude",
+      "Types": [
+        "Float64"
+      ]
+    },
+    {
+      "Id": "Observation:Object:Name",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Id": "Observation:Time:End",
+      "Types": [
+        "TimePoint"
+      ]
+    },
+    {
+      "Id": "Observation:Time:Start",
+      "Types": [
+        "TimePoint"
+      ]
+    },
+    {
+      "Id": "Observer:Name",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Id": "PCL:AstrometricSolution:Catalog",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Id": "PCL:AstrometricSolution:CelestialPoleNativeCoordinates",
+      "Types": [
+        "F64Vector"
+      ]
+    },
+    {
+      "Id": "PCL:AstrometricSolution:CreationTime",
+      "Types": [
+        "TimePoint"
+      ]
+    },
+    {
+      "Id": "PCL:AstrometricSolution:CreatorApplication",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Id": "PCL:AstrometricSolution:CreatorModule",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Id": "PCL:AstrometricSolution:CreatorOS",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Id": "PCL:AstrometricSolution:LinearTransformationMatrix",
+      "Types": [
+        "F64Matrix"
+      ]
+    },
+    {
+      "Id": "PCL:AstrometricSolution:ProjectionSystem",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Id": "PCL:AstrometricSolution:ReferenceCelestialCoordinates",
+      "Types": [
+        "F64Vector"
+      ]
+    },
+    {
+      "Id": "PCL:AstrometricSolution:ReferenceImageCoordinates",
+      "Types": [
+        "F64Vector"
+      ]
+    },
+    {
+      "Id": "PCL:AstrometricSolution:ReferenceNativeCoordinates",
+      "Types": [
+        "F64Vector"
+      ]
+    },
+    {
+      "Id": "PCL:AstrometricSolution:SplineWorldTransformation:ControlPoints:Image",
+      "Types": [
+        "F64Vector"
+      ]
+    },
+    {
+      "Id": "PCL:AstrometricSolution:SplineWorldTransformation:ControlPoints:World",
+      "Types": [
+        "F64Vector"
+      ]
+    },
+    {
+      "Id": "PCL:AstrometricSolution:SplineWorldTransformation:LinearApproximation",
+      "Types": [
+        "F64Matrix"
+      ]
+    },
+    {
+      "Id": "PCL:AstrometricSolution:SplineWorldTransformation:MaxSplinePoints",
+      "Types": [
+        "Int32"
+      ]
+    },
+    {
+      "Id": "PCL:AstrometricSolution:SplineWorldTransformation:PointGridInterpolation:ImageToNative:Delta",
+      "Types": [
+        "Float64"
+      ]
+    },
+    {
+      "Id": "PCL:AstrometricSolution:SplineWorldTransformation:PointGridInterpolation:ImageToNative:GridX",
+      "Types": [
+        "F64Matrix"
+      ]
+    },
+    {
+      "Id": "PCL:AstrometricSolution:SplineWorldTransformation:PointGridInterpolation:ImageToNative:GridY",
+      "Types": [
+        "F64Matrix"
+      ]
+    },
+    {
+      "Id": "PCL:AstrometricSolution:SplineWorldTransformation:PointGridInterpolation:ImageToNative:Rect",
+      "Types": [
+        "F64Vector"
+      ]
+    },
+    {
+      "Id": "PCL:AstrometricSolution:SplineWorldTransformation:PointGridInterpolation:NativeToImage:Delta",
+      "Types": [
+        "Float64"
+      ]
+    },
+    {
+      "Id": "PCL:AstrometricSolution:SplineWorldTransformation:PointGridInterpolation:NativeToImage:GridX",
+      "Types": [
+        "F64Matrix"
+      ]
+    },
+    {
+      "Id": "PCL:AstrometricSolution:SplineWorldTransformation:PointGridInterpolation:NativeToImage:GridY",
+      "Types": [
+        "F64Matrix"
+      ]
+    },
+    {
+      "Id": "PCL:AstrometricSolution:SplineWorldTransformation:PointGridInterpolation:NativeToImage:Rect",
+      "Types": [
+        "F64Vector"
+      ]
+    },
+    {
+      "Id": "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:ImageToNative:LinearFunction",
+      "Types": [
+        "F64Matrix"
+      ]
+    },
+    {
+      "Id": "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:ImageToNative:SimplificationErrorX",
+      "Types": [
+        "Float64"
+      ]
+    },
+    {
+      "Id": "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:ImageToNative:SimplificationErrorY",
+      "Types": [
+        "Float64"
+      ]
+    },
+    {
+      "Id": "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:ImageToNative:SurfaceSplineX:NodeXCoordinates",
+      "Types": [
+        "F64Vector"
+      ]
+    },
+    {
+      "Id": "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:ImageToNative:SurfaceSplineX:NodeYCoordinates",
+      "Types": [
+        "F64Vector"
+      ]
+    },
+    {
+      "Id": "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:ImageToNative:SurfaceSplineX:ScalingFactor",
+      "Types": [
+        "Float64"
+      ]
+    },
+    {
+      "Id": "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:ImageToNative:SurfaceSplineX:Serialization",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Id": "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:ImageToNative:SurfaceSplineX:ZeroOffsetX",
+      "Types": [
+        "Float64"
+      ]
+    },
+    {
+      "Id": "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:ImageToNative:SurfaceSplineX:ZeroOffsetY",
+      "Types": [
+        "Float64"
+      ]
+    },
+    {
+      "Id": "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:ImageToNative:SurfaceSplineY:NodeXCoordinates",
+      "Types": [
+        "F64Vector"
+      ]
+    },
+    {
+      "Id": "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:ImageToNative:SurfaceSplineY:NodeYCoordinates",
+      "Types": [
+        "F64Vector"
+      ]
+    },
+    {
+      "Id": "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:ImageToNative:SurfaceSplineY:ScalingFactor",
+      "Types": [
+        "Float64"
+      ]
+    },
+    {
+      "Id": "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:ImageToNative:SurfaceSplineY:Serialization",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Id": "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:ImageToNative:SurfaceSplineY:ZeroOffsetX",
+      "Types": [
+        "Float64"
+      ]
+    },
+    {
+      "Id": "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:ImageToNative:SurfaceSplineY:ZeroOffsetY",
+      "Types": [
+        "Float64"
+      ]
+    },
+    {
+      "Id": "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:ImageToNative:TruncatedX",
+      "Types": [
+        "Boolean"
+      ]
+    },
+    {
+      "Id": "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:ImageToNative:TruncatedY",
+      "Types": [
+        "Boolean"
+      ]
+    },
+    {
+      "Id": "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:NativeToImage:LinearFunction",
+      "Types": [
+        "F64Matrix"
+      ]
+    },
+    {
+      "Id": "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:NativeToImage:SimplificationErrorX",
+      "Types": [
+        "Float64"
+      ]
+    },
+    {
+      "Id": "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:NativeToImage:SimplificationErrorY",
+      "Types": [
+        "Float64"
+      ]
+    },
+    {
+      "Id": "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:NativeToImage:SurfaceSplineX:NodeXCoordinates",
+      "Types": [
+        "F64Vector"
+      ]
+    },
+    {
+      "Id": "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:NativeToImage:SurfaceSplineX:NodeYCoordinates",
+      "Types": [
+        "F64Vector"
+      ]
+    },
+    {
+      "Id": "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:NativeToImage:SurfaceSplineX:ScalingFactor",
+      "Types": [
+        "Float64"
+      ]
+    },
+    {
+      "Id": "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:NativeToImage:SurfaceSplineX:Serialization",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Id": "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:NativeToImage:SurfaceSplineX:ZeroOffsetX",
+      "Types": [
+        "Float64"
+      ]
+    },
+    {
+      "Id": "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:NativeToImage:SurfaceSplineX:ZeroOffsetY",
+      "Types": [
+        "Float64"
+      ]
+    },
+    {
+      "Id": "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:NativeToImage:SurfaceSplineY:NodeXCoordinates",
+      "Types": [
+        "F64Vector"
+      ]
+    },
+    {
+      "Id": "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:NativeToImage:SurfaceSplineY:NodeYCoordinates",
+      "Types": [
+        "F64Vector"
+      ]
+    },
+    {
+      "Id": "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:NativeToImage:SurfaceSplineY:ScalingFactor",
+      "Types": [
+        "Float64"
+      ]
+    },
+    {
+      "Id": "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:NativeToImage:SurfaceSplineY:Serialization",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Id": "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:NativeToImage:SurfaceSplineY:ZeroOffsetX",
+      "Types": [
+        "Float64"
+      ]
+    },
+    {
+      "Id": "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:NativeToImage:SurfaceSplineY:ZeroOffsetY",
+      "Types": [
+        "Float64"
+      ]
+    },
+    {
+      "Id": "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:NativeToImage:TruncatedX",
+      "Types": [
+        "Boolean"
+      ]
+    },
+    {
+      "Id": "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:NativeToImage:TruncatedY",
+      "Types": [
+        "Boolean"
+      ]
+    },
+    {
+      "Id": "PCL:AstrometricSolution:SplineWorldTransformation:Projective:ImageToNative",
+      "Types": [
+        "F64Matrix"
+      ]
+    },
+    {
+      "Id": "PCL:AstrometricSolution:SplineWorldTransformation:Projective:NativeToImage",
+      "Types": [
+        "F64Matrix"
+      ]
+    },
+    {
+      "Id": "PCL:AstrometricSolution:SplineWorldTransformation:RBFType",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Id": "PCL:AstrometricSolution:SplineWorldTransformation:SimplifierRejectFraction",
+      "Types": [
+        "Float32"
+      ]
+    },
+    {
+      "Id": "PCL:AstrometricSolution:SplineWorldTransformation:SplineOrder",
+      "Types": [
+        "Int32"
+      ]
+    },
+    {
+      "Id": "PCL:AstrometricSolution:SplineWorldTransformation:SplineSmoothness",
+      "Types": [
+        "Float32"
+      ]
+    },
+    {
+      "Id": "PCL:AstrometricSolution:SplineWorldTransformation:Truncated",
+      "Types": [
+        "Boolean"
+      ]
+    },
+    {
+      "Id": "PCL:AstrometricSolution:SplineWorldTransformation:UseSimplifiers",
+      "Types": [
+        "Boolean"
+      ]
+    },
+    {
+      "Id": "PCL:AstrometricSolution:SplineWorldTransformation:Version",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Id": "PCL:Noise:Algorithms",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Id": "PCL:Noise:MStar",
+      "Types": [
+        "F64Vector"
+      ]
+    },
+    {
+      "Id": "PCL:Noise:NStar",
+      "Types": [
+        "F64Vector"
+      ]
+    },
+    {
+      "Id": "PCL:Noise:ScaleHigh",
+      "Types": [
+        "F64Vector"
+      ]
+    },
+    {
+      "Id": "PCL:Noise:ScaleLow",
+      "Types": [
+        "F64Vector"
+      ]
+    },
+    {
+      "Id": "PCL:Noise:Sigmas",
+      "Types": [
+        "F64Vector"
+      ]
+    },
+    {
+      "Id": "PCL:Signal:PSFCounts",
+      "Types": [
+        "UI32Vector"
+      ]
+    },
+    {
+      "Id": "PCL:Signal:PSFTotalFlux",
+      "Types": [
+        "F64Vector"
+      ]
+    },
+    {
+      "Id": "PCL:Signal:PSFTotalMeanFlux",
+      "Types": [
+        "F64Vector"
+      ]
+    },
+    {
+      "Id": "PCL:Signal:PSFTotalMeanPowerFlux",
+      "Types": [
+        "F64Vector"
+      ]
+    },
+    {
+      "Id": "PCL:Signal:PSFTotalPowerFlux",
+      "Types": [
+        "F64Vector"
+      ]
+    },
+    {
+      "Id": "PCL:Signal:PSFType",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Id": "PCL:Signature:Integration",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Id": "PCL:Signature:NoiseEvaluation",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Id": "PCL:Signature:Preprocessing",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Id": "PCL:Signature:Selection",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Id": "PCL:Signature:SignalEvaluation",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Id": "PCL:TotalExposureTime",
+      "Types": [
+        "F64Vector"
+      ]
+    },
+    {
+      "Id": "PixInsight:ProcessingHistory",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Id": "XISF:BlockAlignmentSize",
+      "Types": [
+        "UInt16"
+      ]
+    },
+    {
+      "Id": "XISF:ChecksumAlgorithms",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Id": "XISF:CompressionCodecs",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Id": "XISF:CompressionLevel",
+      "Types": [
+        "Int32"
+      ]
+    },
+    {
+      "Id": "XISF:CreationTime",
+      "Types": [
+        "String",
+        "TimePoint"
+      ]
+    },
+    {
+      "Id": "XISF:CreatorApplication",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Id": "XISF:CreatorModule",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Id": "XISF:CreatorOS",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Id": "XISF:MaxInlineBlockSize",
+      "Types": [
+        "UInt16"
+      ]
+    },
+    {
+      "Id": "XISF:OutputHints",
+      "Types": [
+        "String"
+      ]
+    }
+  ],
+  "Fits": [
+    {
+      "Keyword": "AD-PED",
+      "Types": [
+        "Double"
+      ]
+    },
+    {
+      "Keyword": "AIRMASS",
+      "Types": [
+        "Double"
+      ]
+    },
+    {
+      "Keyword": "ALT-OBS",
+      "Types": [
+        "Int64"
+      ]
+    },
+    {
+      "Keyword": "AMBTEMP",
+      "Types": [
+        "Double"
+      ]
+    },
+    {
+      "Keyword": "APERTURE",
+      "Types": [
+        "Double",
+        "Int64"
+      ]
+    },
+    {
+      "Keyword": "AWSOLRMS",
+      "Types": [
+        "Double"
+      ]
+    },
+    {
+      "Keyword": "AWSOLVED",
+      "Types": [
+        "Int64"
+      ]
+    },
+    {
+      "Keyword": "BG-1",
+      "Types": [
+        "Double",
+        "String"
+      ]
+    },
+    {
+      "Keyword": "BG-2",
+      "Types": [
+        "Double",
+        "String"
+      ]
+    },
+    {
+      "Keyword": "BG-3",
+      "Types": [
+        "Double",
+        "String"
+      ]
+    },
+    {
+      "Keyword": "BITPIX",
+      "Types": [
+        "Int64"
+      ]
+    },
+    {
+      "Keyword": "BSCALE",
+      "Types": [
+        "Double"
+      ]
+    },
+    {
+      "Keyword": "BZERO",
+      "Types": [
+        "Double"
+      ]
+    },
+    {
+      "Keyword": "CAMERAID",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Keyword": "CCD-TEMP",
+      "Types": [
+        "Double"
+      ]
+    },
+    {
+      "Keyword": "CD1_1",
+      "Types": [
+        "Double"
+      ]
+    },
+    {
+      "Keyword": "CD1_2",
+      "Types": [
+        "Double"
+      ]
+    },
+    {
+      "Keyword": "CD2_1",
+      "Types": [
+        "Double"
+      ]
+    },
+    {
+      "Keyword": "CD2_2",
+      "Types": [
+        "Double"
+      ]
+    },
+    {
+      "Keyword": "CENTALT",
+      "Types": [
+        "Double"
+      ]
+    },
+    {
+      "Keyword": "CENTAZ",
+      "Types": [
+        "Double"
+      ]
+    },
+    {
+      "Keyword": "CFAIMAGE",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Keyword": "COMMENT",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Keyword": "COMPMODE",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Keyword": "CRPIX1",
+      "Types": [
+        "Double"
+      ]
+    },
+    {
+      "Keyword": "CRPIX2",
+      "Types": [
+        "Double"
+      ]
+    },
+    {
+      "Keyword": "CRVAL1",
+      "Types": [
+        "Double"
+      ]
+    },
+    {
+      "Keyword": "CRVAL2",
+      "Types": [
+        "Double"
+      ]
+    },
+    {
+      "Keyword": "CTYPE1",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Keyword": "CTYPE2",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Keyword": "CUNIT1",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Keyword": "CUNIT2",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Keyword": "CVF",
+      "Types": [
+        "Double"
+      ]
+    },
+    {
+      "Keyword": "DATE",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Keyword": "DATE-AVG",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Keyword": "DATE-END",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Keyword": "DATE-LOC",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Keyword": "DATE-OBS",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Keyword": "DEC",
+      "Types": [
+        "Double"
+      ]
+    },
+    {
+      "Keyword": "DEWPOINT",
+      "Types": [
+        "Double"
+      ]
+    },
+    {
+      "Keyword": "EGAIN",
+      "Types": [
+        "Double"
+      ]
+    },
+    {
+      "Keyword": "EQUINOX",
+      "Types": [
+        "Double",
+        "Int64"
+      ]
+    },
+    {
+      "Keyword": "EXPOSURE",
+      "Types": [
+        "Double",
+        "Int64"
+      ]
+    },
+    {
+      "Keyword": "EXPTIME",
+      "Types": [
+        "Double",
+        "Int64"
+      ]
+    },
+    {
+      "Keyword": "EXTEND",
+      "Types": [
+        "Boolean"
+      ]
+    },
+    {
+      "Keyword": "FILTER",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Keyword": "FOCALLEN",
+      "Types": [
+        "Double",
+        "Int64"
+      ]
+    },
+    {
+      "Keyword": "FOCNAME",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Keyword": "FOCPOS",
+      "Types": [
+        "Int64"
+      ]
+    },
+    {
+      "Keyword": "FOCRATIO",
+      "Types": [
+        "Double"
+      ]
+    },
+    {
+      "Keyword": "FOCTEMP",
+      "Types": [
+        "Double"
+      ]
+    },
+    {
+      "Keyword": "FOCUSPOS",
+      "Types": [
+        "Int64"
+      ]
+    },
+    {
+      "Keyword": "FOCUSSZ",
+      "Types": [
+        "Double"
+      ]
+    },
+    {
+      "Keyword": "FOCUSTEM",
+      "Types": [
+        "Double"
+      ]
+    },
+    {
+      "Keyword": "FWHEEL",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Keyword": "GAIN",
+      "Types": [
+        "Int64"
+      ]
+    },
+    {
+      "Keyword": "HISTORY",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Keyword": "HUMIDITY",
+      "Types": [
+        "Double"
+      ]
+    },
+    {
+      "Keyword": "IDNR-1",
+      "Types": [
+        "Double",
+        "String"
+      ]
+    },
+    {
+      "Keyword": "IDNR-2",
+      "Types": [
+        "Double",
+        "String"
+      ]
+    },
+    {
+      "Keyword": "IDNR-3",
+      "Types": [
+        "Double",
+        "String"
+      ]
+    },
+    {
+      "Keyword": "IMAGETYP",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Keyword": "INSTRUME",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Keyword": "INT-METH",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Keyword": "INT-MODE",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Keyword": "INTEGRAT",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Keyword": "INTERPOL",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Keyword": "INTSCALE",
+      "Types": [
+        "Double"
+      ]
+    },
+    {
+      "Keyword": "LAT-OBS",
+      "Types": [
+        "Double"
+      ]
+    },
+    {
+      "Keyword": "LIVETIME",
+      "Types": [
+        "Double",
+        "Int64"
+      ]
+    },
+    {
+      "Keyword": "LNC-DEG",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Keyword": "LONG-OBS",
+      "Types": [
+        "Double"
+      ]
+    },
+    {
+      "Keyword": "MBBLEND",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Keyword": "MEDENR-1",
+      "Types": [
+        "Double",
+        "String"
+      ]
+    },
+    {
+      "Keyword": "MEDENR-2",
+      "Types": [
+        "Double",
+        "String"
+      ]
+    },
+    {
+      "Keyword": "MEDENR-3",
+      "Types": [
+        "Double",
+        "String"
+      ]
+    },
+    {
+      "Keyword": "MEDNR-1",
+      "Types": [
+        "Double",
+        "String"
+      ]
+    },
+    {
+      "Keyword": "MEDNR-2",
+      "Types": [
+        "Double",
+        "String"
+      ]
+    },
+    {
+      "Keyword": "MEDNR-3",
+      "Types": [
+        "Double",
+        "String"
+      ]
+    },
+    {
+      "Keyword": "MJD-AVG",
+      "Types": [
+        "Double"
+      ]
+    },
+    {
+      "Keyword": "MJD-OBS",
+      "Types": [
+        "Double"
+      ]
+    },
+    {
+      "Keyword": "NAXIS",
+      "Types": [
+        "Int64"
+      ]
+    },
+    {
+      "Keyword": "NAXIS1",
+      "Types": [
+        "Int64"
+      ]
+    },
+    {
+      "Keyword": "NAXIS2",
+      "Types": [
+        "Int64"
+      ]
+    },
+    {
+      "Keyword": "NAXIS3",
+      "Types": [
+        "Int64"
+      ]
+    },
+    {
+      "Keyword": "NCOMBINE",
+      "Types": [
+        "Int64"
+      ]
+    },
+    {
+      "Keyword": "NOISE-1",
+      "Types": [
+        "Double",
+        "String"
+      ]
+    },
+    {
+      "Keyword": "NOISE-2",
+      "Types": [
+        "Double",
+        "String"
+      ]
+    },
+    {
+      "Keyword": "NOISE-3",
+      "Types": [
+        "Double",
+        "String"
+      ]
+    },
+    {
+      "Keyword": "NOISE00",
+      "Types": [
+        "Double"
+      ]
+    },
+    {
+      "Keyword": "NOISEA00",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Keyword": "NOISEH00",
+      "Types": [
+        "Double"
+      ]
+    },
+    {
+      "Keyword": "NOISEL00",
+      "Types": [
+        "Double"
+      ]
+    },
+    {
+      "Keyword": "NORM-BGN",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Keyword": "NORMMETH",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Keyword": "NORMMODE",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Keyword": "NORMSCAL",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Keyword": "NOTE-1",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Keyword": "NOTE-10",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Keyword": "NOTE-11",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Keyword": "NOTE-12",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Keyword": "NOTE-2",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Keyword": "NOTE-3",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Keyword": "NOTE-4",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Keyword": "NOTE-5",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Keyword": "NOTE-6",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Keyword": "NOTE-7",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Keyword": "NOTE-8",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Keyword": "NOTE-9",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Keyword": "NUMFRAME",
+      "Types": [
+        "Int64"
+      ]
+    },
+    {
+      "Keyword": "OBJCTDEC",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Keyword": "OBJCTRA",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Keyword": "OBJCTROT",
+      "Types": [
+        "Double"
+      ]
+    },
+    {
+      "Keyword": "OBJECT",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Keyword": "OBSERVER",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Keyword": "OBSGEO-B",
+      "Types": [
+        "Double"
+      ]
+    },
+    {
+      "Keyword": "OBSGEO-H",
+      "Types": [
+        "Int64"
+      ]
+    },
+    {
+      "Keyword": "OBSGEO-L",
+      "Types": [
+        "Double"
+      ]
+    },
+    {
+      "Keyword": "OFFSET",
+      "Types": [
+        "Int64"
+      ]
+    },
+    {
+      "Keyword": "OPT-DC",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Keyword": "OUTL-DP",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Keyword": "OUTL-KH",
+      "Types": [
+        "Double"
+      ]
+    },
+    {
+      "Keyword": "OUTL-KL",
+      "Types": [
+        "Double"
+      ]
+    },
+    {
+      "Keyword": "OUTL-LN",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Keyword": "OUTL-REJ",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Keyword": "PIERSIDE",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Keyword": "PLTSOLVD",
+      "Types": [
+        "Boolean"
+      ]
+    },
+    {
+      "Keyword": "PROGRAM",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Keyword": "PROJECT",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Keyword": "PSFFLP00",
+      "Types": [
+        "Double"
+      ]
+    },
+    {
+      "Keyword": "PSFFLX00",
+      "Types": [
+        "Double"
+      ]
+    },
+    {
+      "Keyword": "PSFMFL00",
+      "Types": [
+        "Double"
+      ]
+    },
+    {
+      "Keyword": "PSFMFP00",
+      "Types": [
+        "Double"
+      ]
+    },
+    {
+      "Keyword": "PSFMST00",
+      "Types": [
+        "Double"
+      ]
+    },
+    {
+      "Keyword": "PSFNST00",
+      "Types": [
+        "Double"
+      ]
+    },
+    {
+      "Keyword": "PSFSGN00",
+      "Types": [
+        "Int64"
+      ]
+    },
+    {
+      "Keyword": "PSFSGTYP",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Keyword": "RA",
+      "Types": [
+        "Double"
+      ]
+    },
+    {
+      "Keyword": "RADESYS",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Keyword": "RATNR-1",
+      "Types": [
+        "Double",
+        "String"
+      ]
+    },
+    {
+      "Keyword": "RATNR-2",
+      "Types": [
+        "Double",
+        "String"
+      ]
+    },
+    {
+      "Keyword": "RATNR-3",
+      "Types": [
+        "Double",
+        "String"
+      ]
+    },
+    {
+      "Keyword": "REF-1",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Keyword": "REF-2",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Keyword": "REFENR-1",
+      "Types": [
+        "Double",
+        "String"
+      ]
+    },
+    {
+      "Keyword": "REFENR-2",
+      "Types": [
+        "Double",
+        "String"
+      ]
+    },
+    {
+      "Keyword": "REFENR-3",
+      "Types": [
+        "Double",
+        "String"
+      ]
+    },
+    {
+      "Keyword": "REFERENC",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Keyword": "REFNR-1",
+      "Types": [
+        "Double",
+        "String"
+      ]
+    },
+    {
+      "Keyword": "REFNR-2",
+      "Types": [
+        "Double",
+        "String"
+      ]
+    },
+    {
+      "Keyword": "REFNR-3",
+      "Types": [
+        "Double",
+        "String"
+      ]
+    },
+    {
+      "Keyword": "REGMODE",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Keyword": "REGMODEL",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Keyword": "ROWORDER",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Keyword": "SCALE-1",
+      "Types": [
+        "Double",
+        "String"
+      ]
+    },
+    {
+      "Keyword": "SCALE-2",
+      "Types": [
+        "Double",
+        "String"
+      ]
+    },
+    {
+      "Keyword": "SCALE-3",
+      "Types": [
+        "Double",
+        "String"
+      ]
+    },
+    {
+      "Keyword": "SET-TEMP",
+      "Types": [
+        "Double"
+      ]
+    },
+    {
+      "Keyword": "SIMPLE",
+      "Types": [
+        "Boolean"
+      ]
+    },
+    {
+      "Keyword": "SITEELEV",
+      "Types": [
+        "Double"
+      ]
+    },
+    {
+      "Keyword": "SITELAT",
+      "Types": [
+        "Double"
+      ]
+    },
+    {
+      "Keyword": "SITELONG",
+      "Types": [
+        "Double"
+      ]
+    },
+    {
+      "Keyword": "SNR-1",
+      "Types": [
+        "Double",
+        "String"
+      ]
+    },
+    {
+      "Keyword": "SNR-2",
+      "Types": [
+        "Double",
+        "String"
+      ]
+    },
+    {
+      "Keyword": "SNR-3",
+      "Types": [
+        "Double",
+        "String"
+      ]
+    },
+    {
+      "Keyword": "SOFTWARE",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Keyword": "SSWEIGHT",
+      "Types": [
+        "Double"
+      ]
+    },
+    {
+      "Keyword": "SWCREATE",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Keyword": "TELESCOP",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Keyword": "TIMESYS",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Keyword": "USBLIMIT",
+      "Types": [
+        "Int64"
+      ]
+    },
+    {
+      "Keyword": "VERSION",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Keyword": "WBPPCROP",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Keyword": "WEIGHTS",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Keyword": "WZFPRNT",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Keyword": "WZNOTE",
+      "Types": [
+        "String"
+      ]
+    },
+    {
+      "Keyword": "WZNSUBS",
+      "Types": [
+        "Int64"
+      ]
+    },
+    {
+      "Keyword": "XBINNING",
+      "Types": [
+        "Int64"
+      ]
+    },
+    {
+      "Keyword": "XPIXSZ",
+      "Types": [
+        "Double"
+      ]
+    },
+    {
+      "Keyword": "YBINNING",
+      "Types": [
+        "Int64"
+      ]
+    },
+    {
+      "Keyword": "YPIXSZ",
+      "Types": [
+        "Double"
+      ]
+    }
+  ]
+}

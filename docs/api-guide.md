@@ -29,6 +29,26 @@ Use required access when absence is an error, try access to distinguish absence 
 
 Image properties use case-sensitive identifiers. Ordinary CLR scalar values infer their XISF type; `XisfPropertyData` specifies a type and optional format/comment explicitly. Supported numeric arrays become vector or matrix properties. `XisfProperty` retains the parsed value and original XML.
 
+### Predefined properties
+
+`XisfKnownProperties` supplies 159 immutable typed keys for the predefined properties in [XISF 1.0 revision 1](https://pixinsight.com/doc/docs/XISF-1.0-spec/XISF-1.0-spec.html), including both astrometric distortion-model directions. Nested groups follow the specification namespaces: `Xisf`, `Organization`, `Observation`, `Instrument`, `Processing` and `AstrometricSolution`.
+
+```csharp
+created.Properties.Set(XisfKnownProperties.Instrument.ExposureTime, 30.0f);
+created.Properties.Set(XisfKnownProperties.Observation.Object.Name, "M31");
+created.Properties.Set(XisfKnownProperties.AstrometricSolution.ReferenceCelestialCoordinates,
+    new double[] { 10.6847, 41.2690 });
+float seconds = created.Properties.GetRequiredValue(XisfKnownProperties.Instrument.ExposureTime);
+bool present = image.Properties.TryGetValue(XisfKnownProperties.Instrument.ExposureTime, out float exposure);
+created.Properties.Remove(XisfKnownProperties.Instrument.ExposureTime);
+```
+
+Each `XisfPropertyKey<T>` carries its identifier, specified XISF type, CLR type and physical unit where applicable. Setters serialize the specified type; Float32 uses `float`, Float64 uses `double`, Int32 uses `int`, UInt16 uses `ushort`, TimePoint uses `DateTimeOffset`, vectors use one-dimensional arrays and matrices use rectangular arrays. Strings such as projection identifiers and newline-separated lists remain strings so the specification's vocabulary and future revisions can be represented. `XisfKnownProperties.All` provides a read-only catalog for metadata editors and inspection.
+
+Typed access works on editable image/document properties and creation metadata, and on parsed property/metadata dictionaries. Required reads throw for absent, unavailable, incompatible or malformed values. Try reads return false and distinguish missing values from zero. Compatible scalar representations can be converted on reading, supporting older files that used a different numeric storage type. Array shape constraints explicitly defined by the specification are checked when setting and reading; cross-property constraints and complete solution validity remain the responsibility of `XisfAstrometricSolution`. Typed setters and getters copy arrays so caller mutations do not alter stored metadata. Null values are rejected; use `Remove(key)` to remove a property. Optional specification defaults are not inserted implicitly.
+
+For document metadata, use `editable.Metadata.Set(XisfKnownProperties.Xisf.Title, "Session")`. Creation time/application and serialization-derived metadata remain governed by writer settings where documented; setting their typed keys does not override writer policy. String-key APIs and explicit `XisfPropertyData` declarations remain available for custom or advanced representations.
+
 | CLR value | Scalar property | Array prefix |
 | --- | --- | --- |
 | `sbyte`, `short`, `int`, `long`, `Int128` | Int8/16/32/64/128 | I8/16/32/64/128 |
@@ -55,6 +75,8 @@ editable.Properties["Measurement:Precise"] = XisfFloat128.Parse(
 Here `editable` is an `XisfImageData` instance. An explicitly declared type must agree with the CLR value; it does not generally coerce values to another numeric type. Standard aliases such as `Vector`, `Matrix`, and `ByteArray` are accepted. Explicit Complex32 declarations can narrow `System.Numerics.Complex` values or arrays to single precision.
 
 `XisfFitsKeyword` preserves astronomy keyword values and comments. Ancillary metadata uses `XisfColorFilterArray`, `XisfRgbWorkingSpace`, `XisfDisplayFunction`, and `XisfResolution`. ICC profiles are byte buffers; thumbnails are images with their own storage and metadata.
+
+For application properties, use `XisfAdditionalProperties`; for FITS cards, use `FitsKnownKeywords` with the typed `FitsHeader` overloads or `XisfFitsKeyword.FromValue`. See [typed metadata](metadata-properties.md) for catalog coverage, provenance, indexed WCS/table keywords and convention differences.
 
 `XisfFitsKeyword.Value` is FITS text, so string values include single quotes (for example, `"'M31'"`). For `COMMENT` and `HISTORY`, use an empty value and put the commentary text in `Comment`. In contrast, `FitsHeaderCard.Value` accepts CLR values directly, including unquoted strings.
 

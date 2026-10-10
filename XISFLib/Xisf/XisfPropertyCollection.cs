@@ -23,6 +23,41 @@ public sealed class XisfPropertyCollection : IDictionary<string, object?>
     /// <param name="format">Optional presentation format.</param>
     /// <param name="comment">Optional comment.</param>
     public void Set<T>(string id, T value, string? format = null, string? comment = null) => this[id] = XisfPropertyData.FromValue(value, format, comment);
+    /// <summary>Stores a predefined property using its specified type and array shape.</summary>
+    /// <typeparam name="T">The key's CLR value type, inferred from the key.</typeparam>
+    /// <param name="key">A definition from XisfKnownProperties.</param>
+    /// <param name="value">The value, copied when it is an array; null is rejected.</param>
+    /// <param name="format">Optional presentation format.</param>
+    /// <param name="comment">Optional comment.</param>
+    public void Set<T>(XisfPropertyKey<T> key, T value, string? format = null, string? comment = null)
+    { ArgumentNullException.ThrowIfNull(key); this[key.Id] = key.CreateData(value, format, comment); }
+    /// <summary>Reads a required predefined property; missing, unavailable and incompatible values throw.</summary>
+    /// <typeparam name="T">The key's CLR value type.</typeparam>
+    /// <param name="key">The predefined property definition.</param>
+    /// <returns>The value; arrays are owned copies.</returns>
+    public T GetRequiredValue<T>(XisfPropertyKey<T> key)
+    {
+        ArgumentNullException.ThrowIfNull(key);
+        if (!_values.TryGetValue(key.Id, out var raw)) throw new KeyNotFoundException($"Required XISF property '{key.Id}' is absent.");
+        return key.ReadRequired(raw);
+    }
+    /// <summary>Tries to read a predefined property; false means absent, unavailable, incompatible or malformed.</summary>
+    /// <typeparam name="T">The key's CLR value type.</typeparam>
+    /// <param name="key">The predefined property definition.</param>
+    /// <param name="value">The value on success; arrays are owned copies.</param>
+    /// <returns>Whether a compatible value was read.</returns>
+    public bool TryGetValue<T>(XisfPropertyKey<T> key, out T value)
+    { ArgumentNullException.ThrowIfNull(key); return key.TryRead(_values.GetValueOrDefault(key.Id), out value); }
+    /// <summary>Removes a predefined property.</summary>
+    /// <param name="key">The predefined property definition.</param>
+    /// <returns>Whether a property was removed.</returns>
+    public bool Remove(XisfPropertyKey key)
+    { ArgumentNullException.ThrowIfNull(key); return Remove(key.Id); }
+    /// <summary>Checks whether a predefined identifier is stored, regardless of its availability.</summary>
+    /// <param name="key">The predefined property definition.</param>
+    /// <returns>Whether the identifier is present.</returns>
+    public bool ContainsKey(XisfPropertyKey key)
+    { ArgumentNullException.ThrowIfNull(key); return ContainsKey(key.Id); }
     /// <summary>Reads a required typed property.</summary>
     /// <typeparam name="T">The requested CLR type.</typeparam>
     /// <param name="id">The property identifier.</param>
@@ -66,6 +101,30 @@ public sealed class XisfPropertyCollection : IDictionary<string, object?>
 /// <summary>Explicit typed access to parsed properties, including availability checks.</summary>
 public static class XisfPropertyExtensions
 {
+    /// <summary>Reads a required predefined property from a parsed image or document.</summary>
+    /// <typeparam name="T">The key's CLR value type, inferred from the key.</typeparam>
+    /// <param name="properties">The parsed property dictionary.</param>
+    /// <param name="key">The predefined property definition.</param>
+    /// <returns>The value; arrays are owned copies.</returns>
+    public static T GetRequiredValue<T>(this IReadOnlyDictionary<string, XisfProperty> properties, XisfPropertyKey<T> key)
+    {
+        ArgumentNullException.ThrowIfNull(properties);
+        ArgumentNullException.ThrowIfNull(key);
+        if (!properties.TryGetValue(key.Id, out var property)) throw new KeyNotFoundException($"Required XISF property '{key.Id}' is absent.");
+        return key.ReadRequired(property);
+    }
+    /// <summary>Tries to read an available predefined property with compatible type and shape.</summary>
+    /// <typeparam name="T">The key's CLR value type.</typeparam>
+    /// <param name="properties">The parsed property dictionary.</param>
+    /// <param name="key">The predefined property definition.</param>
+    /// <param name="value">The value on success; arrays are owned copies.</param>
+    /// <returns>Whether a compatible value was read.</returns>
+    public static bool TryGetValue<T>(this IReadOnlyDictionary<string, XisfProperty> properties, XisfPropertyKey<T> key, out T value)
+    {
+        ArgumentNullException.ThrowIfNull(properties);
+        ArgumentNullException.ThrowIfNull(key);
+        return key.TryRead(properties.GetValueOrDefault(key.Id), out value);
+    }
     /// <summary>Reads a required available property as the requested type.</summary>
     /// <typeparam name="T">The CLR type.</typeparam>
     /// <param name="properties">Parsed properties.</param>

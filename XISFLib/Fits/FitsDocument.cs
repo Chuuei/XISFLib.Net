@@ -72,7 +72,7 @@ public sealed record FitsHeaderCard(string Keyword, object? Value = null, string
 }
 
 /// <summary>An ordered, editable collection of FITS cards preserving repeated keywords.</summary>
-public sealed class FitsHeader : Collection<FitsHeaderCard>
+public sealed partial class FitsHeader : Collection<FitsHeaderCard>
 {
     /// <summary>Initializes a new instance with the supplied values.</summary>
     public FitsHeader() { }

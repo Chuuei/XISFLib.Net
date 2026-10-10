@@ -88,16 +88,16 @@ public static class AstronomyMetadata
 
         return new AstronomyImageMetadata(
             FindString("OBJECT", "Observation:Object:Name"),
-            FindString("OBSERVER", "Observation:Observer:Name"),
+            FindString("OBSERVER", XisfAdditionalProperties.Observer.Name.Id, "Observation:Observer:Name"),
             FindString("INSTRUME", "Instrument:Camera:Name"),
             FindString("TELESCOP", "Instrument:Telescope:Name"),
             FindString("FILTER", "Instrument:Filter:Name"),
-            FindDouble("EXPTIME", "EXPOSURE", "Observation:ExposureTime"),
+            FindDouble("EXPTIME", "EXPOSURE", XisfKnownProperties.Instrument.ExposureTime.Id, "Observation:ExposureTime"),
             FindDouble("GAIN", "Instrument:Camera:Gain"),
             FindDouble("OFFSET", "Instrument:Camera:Offset"),
-            FindInt("XBINNING", "Instrument:Camera:BinningX"),
-            FindInt("YBINNING", "Instrument:Camera:BinningY"),
-            FindDouble("CCD-TEMP", "SENSOR-T", "Instrument:Camera:Temperature"),
+            FindInt("XBINNING", XisfKnownProperties.Instrument.Camera.XBinning.Id, "Instrument:Camera:BinningX"),
+            FindInt("YBINNING", XisfKnownProperties.Instrument.Camera.YBinning.Id, "Instrument:Camera:BinningY"),
+            FindDouble("CCD-TEMP", "SENSOR-T", XisfKnownProperties.Instrument.Sensor.Temperature.Id, "Instrument:Camera:Temperature"),
             time,
             values);
     }

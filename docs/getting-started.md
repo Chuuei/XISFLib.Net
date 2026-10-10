@@ -30,11 +30,13 @@ File-path XISF loading reads the XML header first. Pixel blocks are read later, 
 
 ## Create or edit an image
 
+Known FITS keywords also support typed access, for example `hdu.Header.Set(FitsKnownKeywords.Common.EXPTIME, 30.0)`. Additional PixInsight and acquisition properties are available through `XisfAdditionalProperties`. See [typed metadata](metadata-properties.md) for examples and convention differences.
+
 ```csharp
 ushort[] pixels = [0, 100, 200, ushort.MaxValue];
 XisfImageData created = XisfImageData.FromSamples(pixels, [2, 2], 1);
 created.Id = "light";
-created.Properties["Observation:ExposureTime"] = 30.0;
+created.Properties.Set(XisfKnownProperties.Instrument.ExposureTime, 30.0f);
 XisfWriter.Write("new.xisf", [created], new XisfWriterOptions
 {
     Compression = XisfCompression.Zlib,
@@ -48,6 +50,20 @@ XisfWriter.Write("edited.xisf", [editable]);
 ```
 
 `XisfImageData` owns its pixels and exposes editable known metadata. `FromImage` copies decoded data and known metadata; it is not a mechanism for preserving unknown XML extensions byte for byte. For a loaded document, `XisfWriter.Write(path, document)` rebuilds attachments while retaining its XML. File-path writes stage output before replacing the destination, allowing a loaded document to be saved to its source path.
+
+Predefined properties have typed keys grouped by specification namespace:
+
+```csharp
+created.Properties.Set(XisfKnownProperties.Observation.Object.Name, "M31");
+created.Properties.Set(XisfKnownProperties.Instrument.Camera.XBinning, 2);
+created.Properties.Set(XisfKnownProperties.Observation.Time.Start, DateTimeOffset.UtcNow);
+
+float exposureSeconds = created.Properties.GetRequiredValue(XisfKnownProperties.Instrument.ExposureTime);
+if (image.Properties.TryGetValue(XisfKnownProperties.Instrument.ExposureTime, out float loadedExposure))
+    Console.WriteLine(loadedExposure);
+```
+
+The exposure property is `Instrument:ExposureTime`, a Float32 value in seconds. The earlier `Observation:ExposureTime` example used a custom identifier, not the specification's exposure property. Typed keys infer the CLR type for reads and enforce the declared type for writes. See [predefined properties](api-guide.md#predefined-properties) for array ownership, missing values, creation metadata and astrometric properties. String identifiers remain available for custom properties.
 
 ## Read and convert FITS
 

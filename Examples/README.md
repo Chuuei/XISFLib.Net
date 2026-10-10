@@ -27,6 +27,10 @@ The user supplied four FITS files. They are uncompressed Float32 RGB images in p
 
 All four loaded and converted successfully with zero FITS conformance diagnostics. [fits-validation.json](fits-validation.json) records their headers, raw/converted SHA-256 hashes, linear/adaptive rendering hashes, and hashes of checksummed FITS serialization. These outputs match the implementation before the FITS performance changes. The original example files have not been modified.
 
+## Metadata inventory
+
+[metadata-inventory.json](metadata-inventory.json) records the 119 distinct XISF property identifiers and 181 FITS keyword names found across all 63 XISF and four FITS files, including FITS cards embedded in XISF. It lists observed storage types without assigning inferred units or meanings. The typed catalogs cover all these names; see [typed metadata](../docs/metadata-properties.md) for standard definitions, application conventions, and ambiguous representations.
+
 ## Astrometry
 
 The Sh2-188 masters contain `PCL:AstrometricSolution:*` properties, including legacy spline data. They are useful for metadata decoding, preservation and multi-image handling. They do **not** use the September 2026 standard `AstrometricSolution:*` namespace, and the native Revision 1 evaluator does not interpret them. No downloadable file with that new namespace was found during this search.

@@ -114,6 +114,19 @@ public sealed record XisfPropertyData(string Type, object? Value, string? Format
 /// <param name="Comment">The explanatory comment, or the commentary text for COMMENT and HISTORY.</param>
 public sealed record XisfFitsKeyword(string Name, string Value, string? Comment)
 {
+    /// <summary>Creates a keyword using a typed FITS definition, quoting values for XISF storage.</summary>
+    /// <typeparam name="T">The keyword's CLR value type.</typeparam>
+    /// <param name="key">The FITS keyword definition.</param>
+    /// <param name="value">The typed value, or commentary text for COMMENT and HISTORY.</param>
+    /// <param name="comment">The optional comment.</param>
+    /// <returns>The encoded keyword.</returns>
+    public static XisfFitsKeyword FromValue<T>(FitsKeywordKey<T> key, T value, string? comment = null)
+    {
+        ArgumentNullException.ThrowIfNull(key);
+        ArgumentNullException.ThrowIfNull(value);
+        return FromValue(key.Keyword, value, comment);
+    }
+
     /// <summary>Creates a FITS keyword from a CLR value, quoting and escaping strings.</summary>
     /// <param name="name">The keyword name.</param>
     /// <param name="value">A string, Boolean or numeric FITS value.</param>

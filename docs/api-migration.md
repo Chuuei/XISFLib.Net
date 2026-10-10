@@ -1,5 +1,7 @@
 # API contracts and migration
 
+Typed metadata now includes `XisfAdditionalProperties` for observed application properties and `FitsKnownKeywords` for native FITS headers and XISF-carried FITS keyword creation. Existing string-based access remains supported. Each key exposes its source and unit; see [typed metadata](metadata-properties.md) for conversion rules and ambiguous names.
+
 These changes replace ambiguous editing, layout and conversion behavior before the API is frozen. Format codecs, numeric precision guards and specification support remain in place.
 
 ## Edit a complete XISF document
@@ -10,7 +12,7 @@ using XISFLib;
 XisfDocument source = XisfReader.Load("capture.xisf");
 XisfDocumentData editable = source.ToEditable();
 editable.Images[0].Id = "processed";
-editable.Images[0].Properties.Set("Observation:ExposureTime", 30.0);
+editable.Images[0].Properties.Set(XisfKnownProperties.Instrument.ExposureTime, 30.0f);
 editable.Images[0].FitsKeywords.Add(XisfFitsKeyword.FromValue("OBJECT", "M31"));
 editable.Properties.Set("Processing:Description", "Reviewed image");
 XisfWriter.Write("edited.xisf", editable, new XisfWriterOptions
@@ -61,6 +63,8 @@ header.Add(new FitsHeaderCard("HISTORY", "Processed once"));
 Try access returns false for absent, null or incompatible values. Required access throws with the keyword identified. Default access explicitly accepts a fallback, including zero when omitted. `Set` replaces matching cards; `Add` retains ordered duplicates such as HISTORY/COMMENT.
 
 Parsed XISF dictionaries and editable property collections also provide `TryGetValue<T>` and `GetRequiredValue<T>`. `Properties.Set(id, value)` and `XisfPropertyData.FromValue(value)` infer and validate scalar/vector/matrix types immediately. Raw values and explicit type declarations remain available for advanced representations.
+
+Use `XisfKnownProperties` to access predefined identifiers with inferred CLR types: `Properties.Set(XisfKnownProperties.Instrument.ExposureTime, 30.0f)` and `Properties.GetRequiredValue(XisfKnownProperties.Instrument.ExposureTime)`. The catalog covers all predefined properties in revision 1, including both distortion-model directions. The former `Observation:ExposureTime` example is corrected to `Instrument:ExposureTime` (Float32, seconds). Existing custom identifiers remain unchanged; the library does not rename stored properties automatically. See [predefined properties](api-guide.md#predefined-properties).
 
 `XisfFitsKeyword.FromValue` handles FITS quoting, apostrophe escaping and commentary storage. Its raw constructor accepts encoded FITS text. `FitsHeaderCard` accepts CLR values directly.
 
