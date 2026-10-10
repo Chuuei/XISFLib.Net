@@ -233,8 +233,9 @@
                             <TextBlock Text="RGB gamma" VerticalAlignment="Center" /><TextBox x:Name="RgbGammaTextBox" Margin="6,3" />
                             <CheckBox x:Name="RgbSrgbCheckBox" Content="sRGB transfer" Margin="6,3" /><TextBlock />
                         </UniformGrid>
-                        <TextBlock Text="RGB chromaticities (comma-separated)" Margin="0,8,0,2" /><TextBox x:Name="RgbChromaticitiesTextBox" />
-                        <TextBlock Text="RGB luminance coefficients (comma-separated)" Margin="0,8,0,2" /><TextBox x:Name="RgbLuminanceTextBox" />
+                        <TextBlock Text="RGB primary x chromaticities (comma-separated)" Margin="0,8,0,2" /><TextBox x:Name="RgbChromaticitiesTextBox" />
+                        <TextBlock Text="RGB primary y chromaticities (comma-separated)" Margin="0,8,0,2" /><TextBox x:Name="RgbYChromaticitiesTextBox" />
+                        <TextBlock Text="RGB luminance coefficients (comma-separated)" Margin="0,8,0,2" /><TextBox x:Name="RgbLuminanceTextBox" IsReadOnly="True" />
                         <TextBlock Text="Display function: midtones; shadows; highlights; low range; high range (four values per group)" Margin="0,8,0,2" />
                         <TextBox x:Name="DisplayFunctionTextBox" />
                         <StackPanel Orientation="Horizontal" Margin="0,12,0,0">

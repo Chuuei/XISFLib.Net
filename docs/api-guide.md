@@ -18,7 +18,7 @@ Image properties use case-sensitive identifiers. Ordinary CLR scalar values infe
 
 `XisfFitsKeyword` preserves astronomy keyword values and comments. Ancillary metadata uses `XisfColorFilterArray`, `XisfRgbWorkingSpace`, `XisfDisplayFunction`, and `XisfResolution`. ICC profiles are byte buffers; thumbnails are images with their own storage and metadata.
 
-`XisfTable` is the parsed representation. For new output, construct `XisfTableData`, populate `Fields` with `XisfTableFieldData`, and append rows with exactly one scalar value per field. The field type must agree with the values being serialized. Vector and matrix table cells are unsupported by the writer.
+`XisfTable` is the parsed representation. For new output, construct `XisfTableData`, populate `Fields` with `XisfTableFieldData`, and append rows with exactly one value per field. The field type must agree with the values being serialized. Vector and matrix cells use the same data-block serialization as properties. Table comment text is preserved.
 
 `AstronomyMetadata.From` extracts a common `AstronomyImageMetadata` view from a parsed image, editable image, or FITS header. Missing values remain nullable. Exposure is in seconds, sensor temperature is in Celsius, and observation timestamps use `DateTimeOffset`.
 
@@ -28,9 +28,9 @@ Image properties use case-sensitive identifiers. Ordinary CLR scalar values infe
 
 `FitsReaderOptions.ValidationMode` defaults to tolerant reading. Findings remain in `FitsDocument.Diagnostics`. Strict mode rejects error-level diagnostics. Each `FitsValidationDiagnostic` identifies its HDU and may identify a header card or keyword.
 
-XISF block checksums are verified when blocks are read. XISF output defaults to SHA-256; `XisfChecksum` also selects other supported digests. SHA-3 depends on platform support. FITS checksum output is opt-in through `WriteChecksums`. Missing FITS checksums yield null validation results.
+XISF block checksums are verified when blocks are read. XISF output defaults to SHA-256; `XisfChecksum` also selects other supported digests. SHA-3 uses a portable fallback when the native provider does not support it. FITS checksum output is opt-in through `WriteChecksums`. Missing FITS checksums yield null validation results.
 
-`XisfWriter.Sign` modifies the current XML header. Rebuilding attachments can change that header, so use `WriteSigned` when producing signed serialized output. `VerifyXmlSignature` verifies the signature against an embedded key; applications must establish signer trust separately. These APIs do not provide certificate-policy validation.
+`XisfWriter.Sign` modifies the current XML header. Rebuilding attachments can change that header, so use `WriteSigned` when producing signed serialized output. `VerifyXmlSignature` verifies the signature against an embedded key; applications must establish signer trust separately. Signatures are detached elements following the XISF root, and reference its complete contents. These APIs do not provide certificate-policy validation.
 
 ## Image utilities and celestial coordinates
 
@@ -47,3 +47,11 @@ XISF block checksums are verified when blocks are read. XISF output defaults to 
 Reference `XISFLib.Windows` from a Windows-targeted application. `ToBitmap` returns a disposable Windows Forms bitmap. `ToBitmapSource` returns a frozen WPF source, allowing cross-thread use. `ToBgra32Pixels` returns a BGRA byte buffer for custom rendering.
 
 Passing no stretch options renders normalized linear samples. `XisfStretchOptions.Auto` computes an automatic stretch. `DisplayFunction` requests the stored display transformation when available. `TargetBackground`, `ShadowsClipping`, and `LinkChannels` control automatic stretching; this affects display output rather than stored scientific samples.
+
+## Revision 1 APIs
+
+See [native astrometry](astrometry.md) and the [coverage report](specification-compliance.md). `XisfColorSpace` provides D50 RGB/XYZ/normalized CIELab conversion; `XisfDisplayFunctions` evaluates stored transformations and creates adaptive ones. `XisfPropertyFormatter` interprets property presentation tokens without changing stored values.
+
+`XisfWriterOptions.DataBlockStorage` selects attachment, embedded or inline storage, with `MaximumInlineBlockSize` controlling the threshold; images use embedded storage when inline is selected. `HexEncoding`, `CompressionSubblockSize`, `BlockAlignmentSize` and `StringsAsDataBlocks` configure representation. Empty collections always use empty inline blocks.
+
+`XisfProperty.IsAvailable`, table-cell availability and document/image `UnavailableObjects` expose unsupported representations without hiding readable content. `Validate(XmlSchemaSet)` adds validation against an application-supplied schema to semantic diagnostics.

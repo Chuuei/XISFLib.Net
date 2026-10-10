@@ -12,7 +12,7 @@ public class XisfWriterTests
         ushort[] samples = [1, 10, 2, 20];
         XisfImageData image = XisfImageData.FromSamples(samples, [2, 1], 2, XisfPixelLayout.Interleaved);
         image.Id = "light";
-        image.ColorSpace = "RGB";
+        image.ColorSpace = "Gray";
         image.ImageType = "LightFrame";
         image.Properties["Observation:ExposureTime"] = 30.5;
         image.FitsKeywords.Add(new XisfFitsKeyword("OBJECT", "M31", "Target"));
@@ -292,7 +292,7 @@ public class XisfWriterTests
     {
         Assert.Throws<ArgumentException>(() => XisfImageData.FromSamples(new ushort[3], [2, 1], 2));
         XisfImageData image = XisfImageData.FromSamples(new byte[1], [1, 1], 1);
-        Assert.Throws<ArgumentException>(() => XisfWriter.Write(Stream.Null, Array.Empty<XisfImageData>()));
+        Assert.Throws<ArgumentException>(() => XisfWriter.Write(Stream.Null, new XisfImageData[] { null! }));
         Assert.Throws<ArgumentException>(() => XisfWriter.Write(new MemoryStream(Array.Empty<byte>(), false), [image]));
     }
 }

@@ -81,7 +81,7 @@ XisfWriter.Write("capture.xisf", [outputImage], new XisfWriterOptions
 
 `XisfImageData.FromArray(T[,])` accepts conventional `[height, width]` grayscale arrays. `FromArray(T[,,])` accepts `[height, width, channel]` interleaved images. `FromRaw` accepts already serialized XISF sample bytes, while `FromSamples` supports `byte`, `ushort`, `uint`, `ulong`, `float`, `double`, and `System.Numerics.Complex`. Writers target either a file path or any writable `Stream`.
 
-Use `XisfWriter.WriteDistributed("capture.xish", "capture.xisb", images)` for indexed distributed output. A loaded document can be edited through `XisfDocument.Xml` and saved with `XisfWriter.Write`; unknown extension elements and data blocks are retained. `XisfWriter.WriteSigned` creates a monolithic file with a verifiable enveloped RSA XML signature.
+Use `XisfWriter.WriteDistributed("capture.xish", "capture.xisb", images)` for indexed distributed output. A loaded document can be edited through `XisfDocument.Xml` and saved with `XisfWriter.Write`; unknown extension elements and data blocks are retained. `XisfWriter.WriteSigned` creates a monolithic file with a verifiable detached RSA XML signature.
 
 ### FITS files and conversion
 
@@ -154,13 +154,15 @@ The document exposes typed global/image properties, tables, FITS keywords, ICC p
 
 - Monolithic `.xisf` files and distributed `.xish` headers with generic or indexed `.xisb` data files
 - Attached, embedded, inline Base64/Base16, local-path, and URL data blocks
-- zlib, LZ4, and LZ4HC decompression, including byte shuffling and compression subblocks
+- zlib, LZ4, LZ4HC, and Zstandard decompression, including byte shuffling and compression subblocks
 - SHA-1, SHA-256, SHA-512, SHA3-256, and SHA3-512 block verification
 - UInt8/16/32/64, Float32/64, and Complex32/64 image samples
 - All required scalar, vector, and matrix property types and aliases, including complex collections and optional Int128/UInt128 values
 - Little- and big-endian data with planar/interleaved conversion
-- Monolithic and indexed distributed writing with zlib/LZ4/LZ4HC compression, byte shuffling, checksums, conformant scalar/vector/matrix properties, tables, FITS keywords, ICC profiles, thumbnails, CFA, display, working-space, and resolution metadata
+- Monolithic and indexed distributed writing with zlib/LZ4/LZ4HC/Zstandard compression, byte shuffling, checksums, conformant scalar/vector/matrix properties, tables, FITS keywords, ICC profiles, thumbnails, CFA, display, working-space, and resolution metadata
 - Shared core objects through `uid`/`Reference`, one-dimensional images, image offsets, orientation, and UUIDs
 - Structured conformance diagnostics through `XisfDocument.Validate()`, including image attributes, FITS names, RGB working spaces, and ICC profile headers
 - W3C XML digital-signature verification and RSA signature creation
 - FITS 4.0 80-byte cards and 2880-byte records, primary/image/table/unknown HDUs, physical scaling and nulls, long and hierarchical keywords, WCS-preserving metadata conversion, standard unsigned integer conventions, and FITS checksums
+
+The [specification coverage report](docs/specification-compliance.md) records the Revision 1 audit, implemented features, verification evidence and operational bounds. See [native astrometric solutions](docs/astrometry.md) for all seven projections, projective transforms, spline distortion models and layer fallback.

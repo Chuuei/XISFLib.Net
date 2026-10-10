@@ -349,7 +349,9 @@ public static class FitsConverter
         foreach (FitsHeaderCard card in header)
         {
             if (!options.IncludeStructuralKeywords && IsStructural(card.Keyword)) continue;
-            image.FitsKeywords.Add(new XisfFitsKeyword(card.Keyword, FormatValue(card.Value), card.Comment));
+            image.FitsKeywords.Add(card.Keyword is "HISTORY" or "COMMENT"
+                ? new XisfFitsKeyword(card.Keyword, "", Convert.ToString(card.Value, CultureInfo.InvariantCulture) ?? card.Comment ?? "")
+                : new XisfFitsKeyword(card.Keyword, card.Value is string text ? "'" + text.Replace("'", "''", StringComparison.Ordinal) + "'" : FormatValue(card.Value), card.Comment));
         }
     }
 
@@ -371,7 +373,9 @@ public static class FitsConverter
         foreach (XisfFitsKeyword keyword in keywords)
         {
             if (IsStructural(keyword.Name)) continue;
-            header.Add(new FitsHeaderCard(keyword.Name, ParseValue(keyword.Name, keyword.Value), keyword.Comment));
+            header.Add(keyword.Name is "HISTORY" or "COMMENT"
+                ? new FitsHeaderCard(keyword.Name, keyword.Comment ?? keyword.Value)
+                : new FitsHeaderCard(keyword.Name, ParseValue(keyword.Name, keyword.Value), keyword.Comment));
         }
     }
 

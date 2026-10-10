@@ -156,6 +156,22 @@ public class XisfWindowsExtensionsTests
         Assert.Equal(image.ToBgra32Pixels(XisfStretchOptions.Auto), data.ToBgra32Pixels(XisfStretchOptions.Auto));
     }
 
+    [Fact]
+    public void NormalizedLabUsesD50AndAppliesBoundsAfterColorConversion()
+    {
+        var data = XisfImageData.FromSamples(new double[] { 0.5, 0.5, 0.5 }, [1, 1], 3, XisfPixelLayout.Interleaved);
+        data.ColorSpace = "CIELab";
+        data.LowerBound = 0.25;
+        data.UpperBound = 0.75;
+        var rgb = XisfColorSpace.LabToRgb(0.5, 0.5, 0.5);
+        byte expected = (byte)Math.Round(Math.Clamp((rgb.Red - 0.25) / 0.5, 0, 1) * 255);
+        byte[] rendered = data.ToBgra32Pixels();
+        Assert.InRange(rendered[0], expected - 1, expected + 1);
+        Assert.InRange(rendered[1], expected - 1, expected + 1);
+        Assert.InRange(rendered[2], expected - 1, expected + 1);
+        Assert.Equal(rendered, LoadImage(data).ToBgra32Pixels());
+    }
+
     private static XisfImage LoadImage(float[] samples, int width, int height, int channels) =>
         LoadImage(XisfImageData.FromSamples(samples, [width, height], channels, XisfPixelLayout.Interleaved));
 

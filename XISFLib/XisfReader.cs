@@ -2,6 +2,7 @@ using System.Buffers.Binary;
 using System.Globalization;
 using System.Numerics;
 using System.Security.Cryptography.Xml;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml;
@@ -44,6 +45,8 @@ public sealed class XisfReaderOptions
     public int MaximumDataBlockSize { get; set; } = 1024 * 1024 * 1024;
     /// <summary>The maximum declared uncompressed-to-compressed size ratio.</summary>
     public double MaximumDecompressionRatio { get; set; } = 1000;
+    /// <summary>Optional retrieval for non-HTTP URL schemes. The reader owns and disposes the returned stream.</summary>
+    public Func<Uri, CancellationToken, Stream>? ExternalResourceResolver { get; set; }
     /// <summary>The timeout for external network requests.</summary>
     public TimeSpan NetworkTimeout { get; set; } = TimeSpan.FromSeconds(30);
 }
@@ -121,12 +124,45 @@ public static class XisfReader
         XmlDocument xml = new() { PreserveWhitespace = true };
         using XmlReader reader = document.Xml.CreateReader();
         xml.Load(reader);
-        XmlElement? signature = xml.GetElementsByTagName("Signature", SignedXml.XmlDsigNamespaceUrl).OfType<XmlElement>().FirstOrDefault();
+        XmlElement? signature;
+        if (document.DetachedSignature is { } detached)
+        {
+            XmlDocument signatureDocument = new() { PreserveWhitespace = true };
+            using XmlReader signatureReader = detached.CreateReader();
+            signatureDocument.Load(signatureReader);
+            signature = signatureDocument.DocumentElement;
+        }
+        else signature = xml.GetElementsByTagName("Signature", SignedXml.XmlDsigNamespaceUrl).OfType<XmlElement>().FirstOrDefault();
         if (signature is null)
             return false;
         SignedXml signedXml = new(xml);
-        signedXml.LoadXml(signature);
-        return signedXml.CheckSignature();
+        XisfSignatureAlgorithms.Configure(signedXml);
+        try
+        {
+            signedXml.LoadXml(signature);
+            if (signedXml.SignedInfo?.References.Count != 1) return false;
+            Reference reference = (Reference)signedXml.SignedInfo.References[0]!;
+            string? id = (string?)document.Xml.Root!.Attribute("id");
+            if (document.DetachedSignature is not null)
+            {
+                foreach (Transform transform in reference.TransformChain)
+                    if (transform is not (XmlDsigC14NTransform or XmlDsigExcC14NTransform)) return false;
+                if (signedXml.SignedInfo.CanonicalizationMethod is XisfSignatureAlgorithms.Canonical11 or XisfSignatureAlgorithms.Canonical11Comments &&
+                    document.DetachedSignature.Attributes().Any(a => a.Name.Namespace == XNamespace.Xml && a.Name.LocalName is "id" or "base")) return false;
+            }
+            if (document.DetachedSignature is not null && (string.IsNullOrEmpty(id) || reference.Uri != "#" + id ||
+                document.Xml.Descendants().Count(e => (string?)e.Attribute("id") == id) != 1)) return false;
+            foreach (XElement block in document.Xml.Descendants().Where(e => e.Attribute("location") is not null))
+            {
+                string location = (string)block.Attribute("location")!;
+                if (location.StartsWith("inline:", StringComparison.Ordinal) || location == "embedded") continue;
+                if (block.Attribute("checksum") is null) return false;
+                new XisfDataBlock(block, document.Source).VerifyIntegrity();
+            }
+            return signedXml.CheckSignature();
+        }
+        catch (Exception exception) when (exception is CryptographicException or XisfFormatException or XmlException or IOException)
+        { return false; }
     }
 
     private static XisfDocument LoadCore(Stream input, string? baseDirectory, string? sourceFilePath, XisfReaderOptions options, CancellationToken cancellationToken = default)
@@ -174,7 +210,7 @@ public static class XisfReader
                 CopyToWithLimit(input, copy, options.MaximumXmlHeaderSize - prefixLength);
                 file = copy.ToArray();
                 text = new UTF8Encoding(false, true).GetString(file);
-                if (!text.AsSpan().TrimStart().StartsWith("<", StringComparison.Ordinal))
+                if (!text.TrimStart('\uFEFF').AsSpan().TrimStart().StartsWith("<", StringComparison.Ordinal))
                     throw new XisfFormatException("The stream is neither a monolithic XISF file nor an XML XISF header file.");
             }
             XmlReaderSettings xmlSettings = new()
@@ -183,9 +219,7 @@ public static class XisfReader
                 XmlResolver = null,
                 MaxCharactersInDocument = options.MaximumXmlCharacters
             };
-            using StringReader stringReader = new CancellationStringReader(text, cancellationToken);
-            using XmlReader xmlReader = XmlReader.Create(stringReader, xmlSettings);
-            XDocument xml = XDocument.Load(xmlReader, LoadOptions.PreserveWhitespace | LoadOptions.SetLineInfo);
+            XDocument xml = XisfXmlHeader.Read(text, xmlSettings, cancellationToken);
             XElement root = xml.Root ?? throw new XisfFormatException("The XISF XML header has no root element.");
             if (root.Name.LocalName != "xisf")
                 throw new XisfFormatException("The XISF XML root element must be named 'xisf'.");
@@ -197,14 +231,20 @@ public static class XisfReader
 
             XisfDataSource source = new(monolithic ? file : [], baseDirectory, monolithic ? sourceFilePath : null, options);
             XisfReferenceResolver references = new(root);
-            XElement? metadataElement = root.Elements().FirstOrDefault(e => e.Name.LocalName == "Metadata");
+            XElement? metadataElement = references.Children(root, "Metadata").FirstOrDefault();
             Dictionary<string, XisfProperty> metadata = metadataElement is null
                 ? []
                 : ParseProperties(metadataElement, source, references);
             Dictionary<string, XisfProperty> properties = ParseProperties(root, source, references);
-            List<XisfTable> tables = root.Elements().Where(e => e.Name.LocalName == "Table").Select(e => ParseTable(e, source, references)).ToList();
-            List<XisfImage> images = root.Elements().Where(e => e.Name.LocalName == "Image").Select(e => XisfImage.Parse(e, source, references)).ToList();
-            return new XisfDocument(version, xml, metadata, properties, tables, images, source);
+            List<XisfTable> tables = references.Children(root, "Table").Select(e => ParseTable(e, source, references)).ToList();
+            List<XisfImage> images = [];
+            List<XisfUnavailableObject> unavailable = [];
+            foreach (XElement element in references.Children(root, "Image"))
+            {
+                try { images.Add(XisfImage.Parse(element, source, references)); }
+                catch (XisfUnsupportedFeatureException exception) { unavailable.Add(new(element, exception.Message)); }
+            }
+            return new XisfDocument(version, xml, metadata, properties, tables, images, source) { UnavailableObjects = unavailable.AsReadOnly() };
         }
         catch (XisfFormatException)
         {
@@ -224,8 +264,14 @@ public static class XisfReader
         {
             string id = RequiredAttribute(element, "id");
             string type = RequiredAttribute(element, "type");
-            object? value = ParsePropertyValue(element, type, source);
-            if (!result.TryAdd(id, new XisfProperty(id, type, value, (string?)element.Attribute("format"), element, (string?)element.Attribute("comment"))))
+            object? value = null;
+            string? unavailable = null;
+            try { value = ParsePropertyValue(element, type, source); }
+            catch (XisfUnsupportedFeatureException exception) { unavailable = exception.Message; }
+            catch (Exception exception) when (id.StartsWith("AstrometricSolution:", StringComparison.Ordinal) && exception is XisfFormatException or FormatException or OverflowException)
+            { unavailable = exception.Message; }
+            if (!result.TryAdd(id, new XisfProperty(id, type, value, (string?)element.Attribute("format"), element, (string?)element.Attribute("comment"))
+                { IsAvailable = unavailable is null, UnavailableReason = unavailable, Source = source }))
                 throw new XisfFormatException($"Duplicate property identifier '{id}'.");
         }
         return result;
@@ -239,34 +285,47 @@ public static class XisfReader
         {
             byte[] data = new XisfDataBlock(element, source).Read();
             if (canonicalType == "String")
-                return Encoding.UTF8.GetString(data);
-            object value = ParseBinaryProperty(canonicalType, data, string.Equals((string?)element.Attribute("byteOrder"), "big", StringComparison.OrdinalIgnoreCase));
-            return ValidateAndShapeCollection(element, canonicalType, value);
+            {
+                string value = new UTF8Encoding(false, true).GetString(data);
+                if (value.Contains('\0')) throw new XisfFormatException("XISF strings cannot contain null code points.");
+                return value;
+            }
+            {
+                object value = ParseBinaryProperty(canonicalType, data, string.Equals((string?)element.Attribute("byteOrder"), "big", StringComparison.OrdinalIgnoreCase));
+                return ValidateAndShapeCollection(element, canonicalType, value);
+            }
         }
 
         string normalized = canonicalType.ToLowerInvariant();
         if (normalized == "string") return text;
         if (normalized == "boolean") return ParseBoolean(text);
-        if (normalized == "timepoint") return DateTimeOffset.Parse(text, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind);
-        if (normalized == "complex32" || normalized == "complex64" || normalized == "complex128") return ParseComplex(text);
-        if (normalized == "float32") return float.Parse(text, NumberStyles.Float, CultureInfo.InvariantCulture);
-        if (normalized is "float64" or "float128") return double.Parse(text, NumberStyles.Float, CultureInfo.InvariantCulture);
+        if (normalized == "timepoint") return DateTimeOffset.Parse(text, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal);
+        if (normalized == "complex128")
+        {
+            string[] components = text.Trim().Trim('(', ')').Split(',');
+            if (components.Length != 2) throw new XisfFormatException("Complex128 requires two components.");
+            return new XisfComplex128(XisfFloat128.Parse(components[0]), XisfFloat128.Parse(components[1]));
+        }
+        if (normalized == "complex32" || normalized == "complex64") return ParseComplex(text);
+        if (normalized == "float32") return (float)ParseFloatingPoint(text);
+        if (normalized == "float64") return ParseFloatingPoint(text);
+        if (normalized == "float128") return XisfFloat128.Parse(text);
         if (type.Equals("ByteArray", StringComparison.OrdinalIgnoreCase)) return string.IsNullOrWhiteSpace(text) ? [] : Convert.FromHexString(RemoveWhitespace(text));
         if (normalized.EndsWith("vector", StringComparison.Ordinal)) return ValidateAndShapeCollection(element, canonicalType, ParseVector(canonicalType, text));
         if (normalized.EndsWith("matrix", StringComparison.Ordinal)) return ValidateAndShapeCollection(element, canonicalType, ParseVector(canonicalType.Replace("Matrix", "Vector", StringComparison.Ordinal), text));
         return normalized switch
         {
-            "int8" => sbyte.Parse(text, CultureInfo.InvariantCulture),
-            "int16" => short.Parse(text, CultureInfo.InvariantCulture),
-            "int32" or "int" => int.Parse(text, CultureInfo.InvariantCulture),
-            "int64" => long.Parse(text, CultureInfo.InvariantCulture),
-            "uint8" => byte.Parse(text, CultureInfo.InvariantCulture),
-            "uint16" => ushort.Parse(text, CultureInfo.InvariantCulture),
-            "uint32" => uint.Parse(text, CultureInfo.InvariantCulture),
-            "uint64" => ulong.Parse(text, CultureInfo.InvariantCulture),
-            "int128" => Int128.Parse(text, CultureInfo.InvariantCulture),
-            "uint128" => UInt128.Parse(text, CultureInfo.InvariantCulture),
-            _ => text
+            "int8" => (sbyte)ParseInteger(text, 8, true),
+            "int16" => (short)ParseInteger(text, 16, true),
+            "int32" or "int" => (int)ParseInteger(text, 32, true),
+            "int64" => (long)ParseInteger(text, 64, true),
+            "uint8" => (byte)ParseInteger(text, 8, false),
+            "uint16" => (ushort)ParseInteger(text, 16, false),
+            "uint32" => (uint)ParseInteger(text, 32, false),
+            "uint64" => (ulong)ParseInteger(text, 64, false),
+            "int128" => (Int128)ParseInteger(text, 128, true),
+            "uint128" => (UInt128)ParseInteger(text, 128, false),
+            _ => throw new XisfUnsupportedFeatureException($"Unsupported property type '{type}'.")
         };
     }
 
@@ -353,8 +412,9 @@ public static class XisfReader
             "I16" or "UI16" => 2,
             "I32" or "UI32" or "F32" or "C32" => scalarType.Equals("C32", StringComparison.OrdinalIgnoreCase) ? 8 : 4,
             "I64" or "UI64" or "F64" or "C64" => scalarType.Equals("C64", StringComparison.OrdinalIgnoreCase) ? 16 : 8,
-            "I128" or "UI128" => 16,
-            _ => throw new XisfFormatException($"Unsupported binary property type '{type}'.")
+            "I128" or "UI128" or "F128" => 16,
+            "C128" => 32,
+            _ => throw new XisfUnsupportedFeatureException($"Unsupported binary property type '{type}'.")
         };
         if (data.Length % size != 0)
             throw new XisfFormatException($"Data size is not valid for property type '{type}'.");
@@ -371,6 +431,10 @@ public static class XisfReader
             "UI64" => Enumerable.Range(0, count).Select(i => bigEndian ? BinaryPrimitives.ReadUInt64BigEndian(data.AsSpan(i * size)) : BinaryPrimitives.ReadUInt64LittleEndian(data.AsSpan(i * size))).ToArray(),
             "I128" => Enumerable.Range(0, count).Select(i => bigEndian ? BinaryPrimitives.ReadInt128BigEndian(data.AsSpan(i * size)) : BinaryPrimitives.ReadInt128LittleEndian(data.AsSpan(i * size))).ToArray(),
             "UI128" => Enumerable.Range(0, count).Select(i => bigEndian ? BinaryPrimitives.ReadUInt128BigEndian(data.AsSpan(i * size)) : BinaryPrimitives.ReadUInt128LittleEndian(data.AsSpan(i * size))).ToArray(),
+            "F128" => Enumerable.Range(0, count).Select(i => new XisfFloat128(bigEndian ? BinaryPrimitives.ReadUInt128BigEndian(data.AsSpan(i * size)) : BinaryPrimitives.ReadUInt128LittleEndian(data.AsSpan(i * size)))).ToArray(),
+            "C128" => Enumerable.Range(0, count).Select(i => new XisfComplex128(
+                new(bigEndian ? BinaryPrimitives.ReadUInt128BigEndian(data.AsSpan(i * size)) : BinaryPrimitives.ReadUInt128LittleEndian(data.AsSpan(i * size))),
+                new(bigEndian ? BinaryPrimitives.ReadUInt128BigEndian(data.AsSpan(i * size + 16)) : BinaryPrimitives.ReadUInt128LittleEndian(data.AsSpan(i * size + 16))))).ToArray(),
             "F32" => Enumerable.Range(0, count).Select(i => BitConverter.Int32BitsToSingle(bigEndian ? BinaryPrimitives.ReadInt32BigEndian(data.AsSpan(i * size)) : BinaryPrimitives.ReadInt32LittleEndian(data.AsSpan(i * size)))).ToArray(),
             "F64" => Enumerable.Range(0, count).Select(i => BitConverter.Int64BitsToDouble(bigEndian ? BinaryPrimitives.ReadInt64BigEndian(data.AsSpan(i * size)) : BinaryPrimitives.ReadInt64LittleEndian(data.AsSpan(i * size)))).ToArray(),
             "C32" => Enumerable.Range(0, count).Select(i => new Complex(
@@ -379,7 +443,7 @@ public static class XisfReader
             "C64" => Enumerable.Range(0, count).Select(i => new Complex(
                 BitConverter.Int64BitsToDouble(bigEndian ? BinaryPrimitives.ReadInt64BigEndian(data.AsSpan(i * size, 8)) : BinaryPrimitives.ReadInt64LittleEndian(data.AsSpan(i * size, 8))),
                 BitConverter.Int64BitsToDouble(bigEndian ? BinaryPrimitives.ReadInt64BigEndian(data.AsSpan(i * size + 8, 8)) : BinaryPrimitives.ReadInt64LittleEndian(data.AsSpan(i * size + 8, 8))))).ToArray(),
-            _ => throw new XisfFormatException($"Unsupported binary property type '{type}'.")
+            _ => throw new XisfUnsupportedFeatureException($"Unsupported binary property type '{type}'.")
         };
     }
 
@@ -387,17 +451,18 @@ public static class XisfReader
     {
         string id = RequiredAttribute(element, "id");
         XElement? structure = references.Children(element, "Structure").SingleOrDefault();
-        List<XisfTableField> fields = structure?.Elements().Where(e => e.Name.LocalName == "Field")
+        List<XisfTableField> fields = structure?.Elements().Where(e => e.Name == structure.Name.Namespace + "Field")
             .Select(e => new XisfTableField(RequiredAttribute(e, "id"), RequiredAttribute(e, "type"), (string?)e.Attribute("header"), (string?)e.Attribute("format"))).ToList() ?? [];
         List<XisfTableRow> rows = [];
-        foreach (XElement row in element.Elements().Where(e => e.Name.LocalName == "Row"))
+        foreach (XElement row in element.Elements(element.Name.Namespace + "Row"))
         {
             List<XisfTableCell> cells = [];
             int index = 0;
-            foreach (XElement cell in row.Elements().Where(e => e.Name.LocalName == "Cell"))
+            foreach (XElement cell in row.Elements(row.Name.Namespace + "Cell"))
             {
                 string type = index < fields.Count ? fields[index].Type : "String";
-                cells.Add(new XisfTableCell(ParsePropertyValue(cell, type, source), cell));
+                try { cells.Add(new XisfTableCell(ParsePropertyValue(cell, type, source), cell) { Source = source }); }
+                catch (XisfUnsupportedFeatureException exception) { cells.Add(new(null, cell) { IsAvailable = false, UnavailableReason = exception.Message, Source = source }); }
                 index++;
             }
             rows.Add(new XisfTableRow(cells));
@@ -412,7 +477,46 @@ public static class XisfReader
         ? []
         : value.Split(':', StringSplitOptions.RemoveEmptyEntries).Select(v => double.Parse(v, NumberStyles.Float, CultureInfo.InvariantCulture)).ToArray();
 
-    internal static bool ParseBoolean(string value) => value.Equals("true", StringComparison.OrdinalIgnoreCase) || value == "1";
+    internal static bool ParseBoolean(string value) => value.Trim() switch
+    {
+        "true" or "1" => true,
+        "false" or "0" => false,
+        _ => throw new XisfFormatException("Invalid Boolean value.")
+    };
+
+    internal static double ParseFloatingPoint(string value) => value.Trim() switch
+    {
+        "NaN" or "nan" or "-nan" => double.NaN,
+        "+Inf" or "Inf" or "inf" or "+inf" => double.PositiveInfinity,
+        "-Inf" or "-inf" => double.NegativeInfinity,
+        _ => double.Parse(value, NumberStyles.Float, CultureInfo.InvariantCulture)
+    };
+
+    private static BigInteger ParseInteger(string text, int bits, bool signed)
+    {
+        text = text.Trim();
+        int radix = text.StartsWith("0x", StringComparison.OrdinalIgnoreCase) ? 16 :
+            text.StartsWith("0o", StringComparison.OrdinalIgnoreCase) ? 8 : text.StartsWith("0b", StringComparison.OrdinalIgnoreCase) ? 2 : 10;
+        BigInteger value;
+        if (radix == 10) value = BigInteger.Parse(text, NumberStyles.AllowLeadingSign, CultureInfo.InvariantCulture);
+        else
+        {
+            value = 0;
+            if (text.Length == 2) throw new XisfFormatException("An integer prefix requires digits.");
+            foreach (char c in text.AsSpan(2))
+            {
+                int digit = c is >= '0' and <= '9' ? c - '0' : c is >= 'a' and <= 'f' ? c - 'a' + 10 : c is >= 'A' and <= 'F' ? c - 'A' + 10 : -1;
+                if (digit < 0 || digit >= radix) throw new XisfFormatException("Invalid integer digit.");
+                value = value * radix + digit;
+            }
+            if (value >= (BigInteger.One << bits)) throw new XisfFormatException("Integer exceeds its declared width.");
+            if (signed && value >= (BigInteger.One << (bits - 1))) value -= BigInteger.One << bits;
+        }
+        BigInteger minimum = signed ? -(BigInteger.One << (bits - 1)) : BigInteger.Zero;
+        BigInteger maximum = (BigInteger.One << (signed ? bits - 1 : bits)) - 1;
+        if (value < minimum || value > maximum) throw new XisfFormatException("Integer exceeds its declared range.");
+        return value;
+    }
 
     private static Complex ParseComplex(string value)
     {
@@ -421,8 +525,8 @@ public static class XisfReader
             value = value[1..^1];
         string[] parts = value.Split(value.Contains(',') ? ',' : ':');
         return parts.Length == 2
-            ? new Complex(double.Parse(parts[0], CultureInfo.InvariantCulture), double.Parse(parts[1], CultureInfo.InvariantCulture))
-            : new Complex(double.Parse(value, CultureInfo.InvariantCulture), 0);
+            ? new Complex(ParseFloatingPoint(parts[0]), ParseFloatingPoint(parts[1]))
+            : new Complex(ParseFloatingPoint(value), 0);
     }
 
     internal static string RemoveWhitespace(string value) => string.Concat(value.Where(c => !char.IsWhiteSpace(c)));
@@ -493,7 +597,7 @@ internal sealed class XisfReferenceResolver
     public XisfReferenceResolver(XElement root)
     {
         Dictionary<string, XElement> elements = new(StringComparer.Ordinal);
-        foreach (XElement element in root.DescendantsAndSelf())
+        foreach (XElement element in root.DescendantsAndSelf().Where(e => e.Name.Namespace == root.Name.Namespace))
         {
             XAttribute? attribute = element.Attribute("uid");
             if (attribute is null)
@@ -504,7 +608,16 @@ internal sealed class XisfReferenceResolver
                 throw new XisfFormatException($"Duplicate core element uid '{attribute.Value}'.");
         }
         _elements = elements;
-        foreach (XElement reference in root.Descendants(XName.Get("Reference", XisfNamespace)))
+        HashSet<XElement> active = [], done = [];
+        void Visit(XElement element)
+        {
+            if (done.Contains(element)) return;
+            if (!active.Add(element)) throw new XisfFormatException("Cyclic core element references are not permitted.");
+            foreach (XElement reference in element.Descendants(XName.Get("Reference", root.Name.NamespaceName))) Visit(Resolve(reference));
+            active.Remove(element); done.Add(element);
+        }
+        foreach (XElement element in elements.Values) Visit(element);
+        foreach (XElement reference in root.Descendants(XName.Get("Reference", root.Name.NamespaceName)))
             Resolve(reference);
     }
 
@@ -512,18 +625,19 @@ internal sealed class XisfReferenceResolver
     {
         foreach (XElement child in parent.Elements())
         {
-            XElement candidate = child.Name == XName.Get("Reference", XisfNamespace) ? Resolve(child) : child;
-            if (candidate.Name.LocalName == name)
+            XElement candidate = child.Name.LocalName == "Reference" && child.Name.Namespace == parent.Name.Namespace ? Resolve(child) : child;
+            if (candidate.Name.LocalName == name && (candidate.Name.Namespace == parent.Name.Namespace || candidate.Name.NamespaceName == XisfNamespace))
                 yield return candidate;
         }
     }
 
     private XElement Resolve(XElement reference)
     {
-        if (reference.Attributes().Count() != 1 || reference.Attribute("ref") is not { } attribute || !Identifier.IsMatch(attribute.Value))
+        if (reference.Attribute("uid") is not null || reference.Attribute("ref") is not { } attribute || !Identifier.IsMatch(attribute.Value))
             throw new XisfFormatException("A Reference element must define one valid ref attribute.");
         if (!_elements.TryGetValue(attribute.Value, out XElement? target))
             throw new XisfFormatException($"Referenced core element '{attribute.Value}' was not found.");
+        if (target.Name.LocalName == "Reference") throw new XisfFormatException("Chained references are not permitted.");
         return target;
     }
 }

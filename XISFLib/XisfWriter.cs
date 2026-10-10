@@ -5,6 +5,7 @@ using System.Numerics;
 using System.Security.Cryptography;
 using System.Security.Cryptography.Xml;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Xml;
 using System.Xml.Linq;
 using K4os.Compression.LZ4;
@@ -21,7 +22,20 @@ public enum XisfCompression
     /// <summary>Uses the fast LZ4 compression codec.</summary>
     Lz4,
     /// <summary>Uses high-compression LZ4.</summary>
-    Lz4Hc
+    Lz4Hc,
+    /// <summary>Uses Zstandard compression, introduced in XISF Revision 1.</summary>
+    Zstd
+}
+
+/// <summary>The placement of serialized binary blocks in a newly written header.</summary>
+public enum XisfDataBlockStorage
+{
+    /// <summary>Stores blocks following the monolithic header, or in the distributed block file.</summary>
+    Attachment,
+    /// <summary>Stores text-encoded blocks in child Data elements.</summary>
+    Embedded,
+    /// <summary>Stores blocks inline where permitted; image samples use embedded Data elements.</summary>
+    Inline
 }
 
 /// <summary>The digest algorithm applied to serialized data blocks.</summary>
@@ -50,8 +64,24 @@ public sealed class XisfWriterOptions
     public bool Shuffle { get; set; }
     /// <summary>The attachment digest algorithm; the default is SHA-256.</summary>
     public XisfChecksum Checksum { get; set; } = XisfChecksum.Sha256;
+    /// <summary>The block placement; defaults to attachments.</summary>
+    public XisfDataBlockStorage DataBlockStorage { get; set; }
+    /// <summary>The maximum serialized size of inline and embedded blocks; larger blocks use attachments.</summary>
+    public ushort MaximumInlineBlockSize { get; set; } = ushort.MaxValue;
+    /// <summary>Whether text-encoded blocks use hexadecimal rather than Base64.</summary>
+    public bool HexEncoding { get; set; }
+    /// <summary>The maximum uncompressed bytes per independently compressed subblock; zero disables splitting.</summary>
+    public int CompressionSubblockSize { get; set; }
+    /// <summary>The alignment in bytes for attached blocks; one disables padding.</summary>
+    public int BlockAlignmentSize { get; set; } = 1;
+    /// <summary>Whether nonempty String properties are stored as UTF-8 blocks.</summary>
+    public bool StringsAsDataBlocks { get; set; }
+    /// <summary>Tables associated with the unit as a whole.</summary>
+    public IList<XisfTableData> Tables { get; } = [];
+    /// <summary>Extension elements in other namespaces, serialized as children of the root.</summary>
+    public IList<XElement> Extensions { get; } = [];
     /// <summary>The application name written to XISF creation metadata.</summary>
-    public string CreatorApplication { get; set; } = "XISFLib.Net";
+    public string CreatorApplication { get; set; } = "XISFLib.Net " + typeof(XisfWriter).Assembly.GetName().Version;
     /// <summary>The timestamp written to XISF creation metadata.</summary>
     public DateTimeOffset CreationTime { get; set; } = DateTimeOffset.UtcNow;
     /// <summary>Document-level metadata indexed by property identifiers.</summary>
@@ -63,15 +93,21 @@ public sealed class XisfWriterOptions
 /// <summary>Serializes XISF images and documents, including distributed output and XML signatures.</summary>
 public static class XisfWriter
 {
+    private static readonly Regex PropertyIdentifier = new("^[_a-zA-Z][_a-zA-Z0-9]*(:[_a-zA-Z][_a-zA-Z0-9]*)*$", RegexOptions.CultureInvariant);
     private static readonly XNamespace Namespace = "http://www.pixinsight.com/xisf";
 
-    /// <summary>Replaces existing XML signatures with an enveloped RSA signature on the current header.</summary>
+    /// <summary>Replaces existing XML signatures with a detached RSA signature on the current header.</summary>
     /// <param name="document">The document to read, validate, sign, or serialize.</param>
     /// <param name="key">The RSA key used to sign the XML header.</param>
     public static void Sign(XisfDocument document, RSA key)
     {
         ArgumentNullException.ThrowIfNull(document);
         ArgumentNullException.ThrowIfNull(key);
+        foreach (XElement block in document.Xml.Descendants().Where(IsDataBlockOwner))
+        {
+            string location = (string?)block.Attribute("location") ?? "embedded";
+            if (location != "embedded" && !location.StartsWith("inline:", StringComparison.Ordinal)) new XisfDataBlock(block, document.Source).VerifyIntegrity();
+        }
         SignXml(document.Xml, key);
     }
 
@@ -81,17 +117,28 @@ public static class XisfWriter
         using (XmlReader reader = document.CreateReader()) xml.Load(reader);
         foreach (XmlNode signature in xml.GetElementsByTagName("Signature", SignedXml.XmlDsigNamespaceUrl).Cast<XmlNode>().ToArray())
             signature.ParentNode?.RemoveChild(signature);
+        string id = xml.DocumentElement!.GetAttribute("id");
+        if (string.IsNullOrEmpty(id)) { id = "XISFRootElement_" + Guid.NewGuid().ToString("N"); xml.DocumentElement.SetAttribute("id", id); }
+        foreach (XElement block in document.Descendants().Where(IsDataBlockOwner))
+        {
+            string location = (string?)block.Attribute("location") ?? "embedded";
+            if (!location.StartsWith("inline:", StringComparison.Ordinal) && location != "embedded" && block.Attribute("checksum") is null)
+                throw new InvalidOperationException("Signing requires a checksum for every external or attached data block.");
+        }
         SignedXml signedXml = new(xml) { SigningKey = key };
-        Reference reference = new("");
-        reference.AddTransform(new XmlDsigEnvelopedSignatureTransform());
-        reference.AddTransform(new XmlDsigC14NTransform());
+        XisfSignatureAlgorithms.Configure(signedXml);
+        signedXml.SignedInfo!.CanonicalizationMethod = XisfSignatureAlgorithms.Canonical11;
+        Reference reference = new("#" + id);
+        reference.AddTransform(new XisfCanonicalXml11Transform());
         signedXml.AddReference(reference);
         KeyInfo keyInfo = new();
         keyInfo.AddClause(new RSAKeyValue(key));
         signedXml.KeyInfo = keyInfo;
         signedXml.ComputeSignature();
-        xml.DocumentElement!.AppendChild(xml.ImportNode(signedXml.GetXml(), true));
-        document.Root!.ReplaceWith(XElement.Parse(xml.DocumentElement.OuterXml, LoadOptions.PreserveWhitespace));
+        document.Root!.SetAttributeValue("id", id);
+        document.Descendants(XName.Get("Signature", SignedXml.XmlDsigNamespaceUrl)).Remove();
+        document.RemoveAnnotations<XisfDetachedSignature>();
+        document.AddAnnotation(new XisfDetachedSignature(XElement.Parse(signedXml.GetXml().OuterXml, LoadOptions.PreserveWhitespace)));
     }
 
     /// <summary>Serializes a document or images to the supplied file or stream.</summary>
@@ -124,11 +171,12 @@ public static class XisfWriter
         ArgumentNullException.ThrowIfNull(stream);
         ArgumentNullException.ThrowIfNull(document);
         if (!stream.CanWrite) throw new ArgumentException("The output stream must be writable.", nameof(stream));
+        if (document.HasXmlSignature && !XisfReader.VerifyXmlSignature(document)) throw new InvalidOperationException("The current signature or data integrity is invalid; use WriteSigned with a signing key after correcting the data.");
         (XDocument copy, List<Attachment> attachments) = PrepareLoadedDocument(document);
         WriteMonolithic(stream, copy, attachments);
     }
 
-    /// <summary>Rebuilds attachment locations and writes a fresh enveloped RSA XML signature.</summary>
+    /// <summary>Rebuilds attachment locations and writes a fresh detached RSA XML signature.</summary>
     /// <param name="stream">The caller-owned stream, positioned at the file origin; it remains open.</param>
     /// <param name="document">The document to read, validate, sign, or serialize.</param>
     /// <param name="key">The RSA key used to sign the XML header.</param>
@@ -138,9 +186,17 @@ public static class XisfWriter
         ArgumentNullException.ThrowIfNull(document);
         ArgumentNullException.ThrowIfNull(key);
         if (!stream.CanWrite) throw new ArgumentException("The output stream must be writable.", nameof(stream));
-        (XDocument copy, List<Attachment> attachments) = PrepareLoadedDocument(document);
+        XisfDocument unsigned = new(document.Version, new XDocument(document.Xml), document.Metadata, document.Properties, document.Tables, document.Images, document.Source);
+        (XDocument copy, List<Attachment> attachments) = PrepareLoadedDocument(unsigned);
+        foreach (Attachment attachment in attachments) attachment.Element.SetAttributeValue("checksum", Checksum(attachment.Data, XisfChecksum.Sha256));
+        copy.RemoveAnnotations<XisfDetachedSignature>();
         SignXml(copy, key);
+        XisfDetachedSignature initialSignature = copy.Annotation<XisfDetachedSignature>()!;
+        copy.RemoveAnnotations<XisfDetachedSignature>();
+        // Reserve the fixed-size signature while stabilizing offsets, then sign the final locations.
+        copy.AddAnnotation(new XisfSignatureReservation(initialSignature.Element.ToString(SaveOptions.DisableFormatting)));
         SetAttachmentLocations(copy, attachments);
+        copy.RemoveAnnotations<XisfSignatureReservation>();
         SignXml(copy, key);
         WriteMonolithic(stream, copy, attachments);
     }
@@ -148,19 +204,29 @@ public static class XisfWriter
     private static (XDocument Document, List<Attachment> Attachments) PrepareLoadedDocument(XisfDocument document)
     {
         XDocument copy = new(document.Xml);
+        if (document.DetachedSignature is { } signature) copy.AddAnnotation(new XisfDetachedSignature(new XElement(signature)));
+        copy.Descendants(XName.Get("Signature", SignedXml.XmlDsigNamespaceUrl)).Remove();
         XElement[] originals = document.Xml.Descendants().Where(IsDataBlockOwner).ToArray();
         XElement[] targets = copy.Descendants().Where(IsDataBlockOwner).ToArray();
         List<Attachment> attachments = [];
         for (int i = 0; i < originals.Length; i++)
         {
-            byte[] data = new XisfDataBlock(originals[i], document.Source).Read();
-            XElement target = targets[i];
-            target.Elements().Where(e => e.Name.LocalName == "Data").Remove();
-            target.Attributes("compression").Remove();
-            target.Attributes("checksum").Remove();
-            target.Attributes("subblocks").Remove();
-            target.SetAttributeValue("location", "attachment:00000000000000000000:" + data.Length);
-            attachments.Add(new Attachment(target, data, data.LongLength));
+            XElement original = originals[i], target = targets[i];
+            string location = (string?)original.Attribute("location") ?? "embedded";
+            if (location.StartsWith("inline:", StringComparison.OrdinalIgnoreCase) || location.Equals("embedded", StringComparison.OrdinalIgnoreCase)) continue;
+            byte[] data = new XisfDataBlock(original, document.Source).ReadSerialized();
+            if (target.Attribute("checksum") is null) target.SetAttributeValue("checksum", Checksum(data, XisfChecksum.Sha256));
+            if (copy.Annotation<XisfDetachedSignature>() is null)
+                target.SetAttributeValue("location", "attachment:00000000000000000000:" + data.Length);
+            long uncompressed = target.Attribute("compression") is { } compression ? long.Parse(compression.Value.Split(':')[1], CultureInfo.InvariantCulture) : data.LongLength;
+            attachments.Add(new Attachment(target, data, uncompressed));
+        }
+        if (copy.Annotation<XisfDetachedSignature>() is not null)
+        {
+            if (attachments.Any(a => !((string?)a.Element.Attribute("location"))!.StartsWith("attachment:", StringComparison.Ordinal)))
+                throw new InvalidOperationException("Converting a signed distributed unit requires a new signature. Use WriteSigned.");
+            attachments = attachments.GroupBy(a => (string?)a.Element.Attribute("location")).Select(g => g.First())
+                .OrderBy(a => long.Parse(((string)a.Element.Attribute("location")!).Split(':')[1], CultureInfo.InvariantCulture)).ToList();
         }
         return (copy, attachments);
     }
@@ -187,19 +253,42 @@ public static class XisfWriter
         Span<byte> header = stackalloc byte[16];
         "XISF0100"u8.CopyTo(header);
         BinaryPrimitives.WriteUInt32LittleEndian(header[8..], checked((uint)xml.Length));
+        header[12..].Clear();
         stream.Write(header);
         stream.Write(xml);
-        foreach (Attachment attachment in attachments) stream.Write(attachment.Data);
+        long position = 16L + xml.Length;
+        foreach (Attachment attachment in attachments)
+        {
+            long target = long.Parse(((string)attachment.Element.Attribute("location")!).Split(':')[1], CultureInfo.InvariantCulture);
+            byte[] padding = new byte[8192];
+            while (position < target) { int count = (int)Math.Min(padding.Length, target - position); stream.Write(padding.AsSpan(0, count)); position += count; }
+            stream.Write(attachment.Data); position += attachment.Data.LongLength;
+        }
     }
 
     private static void SetAttachmentLocations(XDocument document, IReadOnlyList<Attachment> attachments)
     {
+        if (document.Annotation<XisfDetachedSignature>() is not null)
+        {
+            long previousEnd = 16L + SerializeXml(document).Length;
+            foreach (Attachment attachment in attachments)
+            {
+                long position = long.Parse(((string)attachment.Element.Attribute("location")!).Split(':')[1], CultureInfo.InvariantCulture);
+                if (position < previousEnd) throw new InvalidOperationException("The signed header layout cannot be preserved. Use WriteSigned to regenerate the signature.");
+                previousEnd = checked(position + attachment.Data.LongLength);
+            }
+            return;
+        }
+        int alignment = 1;
+        XElement? alignmentProperty = document.Root!.Elements(Namespace + "Metadata").Elements(Namespace + "Property").FirstOrDefault(p => (string?)p.Attribute("id") == "XISF:BlockAlignmentSize");
+        if (alignmentProperty is not null && int.TryParse((string?)alignmentProperty.Attribute("value"), out int declaredAlignment) && declaredAlignment > 0) alignment = declaredAlignment;
         int xmlLength = SerializeXml(document).Length;
         for (int iteration = 0; iteration < 32; iteration++)
         {
             long position = 16L + xmlLength;
             foreach (Attachment attachment in attachments)
             {
+                position = checked(position + (alignment - position % alignment) % alignment);
                 attachment.Element.SetAttributeValue("location",
                     $"attachment:{position.ToString(CultureInfo.InvariantCulture)}:{attachment.Data.Length.ToString(CultureInfo.InvariantCulture)}");
                 position += attachment.Data.Length;
@@ -233,6 +322,7 @@ public static class XisfWriter
         string fullDataPath = Path.GetFullPath(dataBlockPath);
         if (!string.Equals(Path.GetDirectoryName(fullHeaderPath), Path.GetDirectoryName(fullDataPath), StringComparison.OrdinalIgnoreCase))
             throw new ArgumentException("The header and data-block files must be in the same directory.", nameof(dataBlockPath));
+        if (string.Equals(fullHeaderPath, fullDataPath, StringComparison.OrdinalIgnoreCase)) throw new ArgumentException("The header and data block paths must differ.");
         (XDocument document, List<Attachment> attachments) = BuildDocument(images, options);
         string fileName = Path.GetFileName(fullDataPath).Replace('\\', '/');
         for (int i = 0; i < attachments.Count; i++)
@@ -245,9 +335,9 @@ public static class XisfWriter
     {
         ArgumentNullException.ThrowIfNull(images);
         XisfImageData[] imageList = images.ToArray();
-        if (imageList.Length == 0) throw new ArgumentException("At least one image is required.", nameof(images));
         if (imageList.Any(image => image is null)) throw new ArgumentException("The image collection cannot contain null elements.", nameof(images));
         options ??= new XisfWriterOptions();
+        if (options.CompressionSubblockSize < 0 || options.BlockAlignmentSize < 1 || options.BlockAlignmentSize > ushort.MaxValue) throw new ArgumentOutOfRangeException(nameof(options));
         List<Attachment> attachments = [];
         XElement root = new(Namespace + "xisf", new XAttribute("version", "1.0"));
         XElement metadata = new(Namespace + "Metadata");
@@ -255,12 +345,29 @@ public static class XisfWriter
         AddProperty(metadata, "XISF:CreatorApplication", options.CreatorApplication, options, attachments);
         foreach ((string id, object? value) in options.Metadata)
         {
-            if (id is "XISF:CreationTime" or "XISF:CreatorApplication") continue;
+            if (id is "XISF:CreationTime" or "XISF:CreatorApplication" || id == "XISF:BlockAlignmentSize" && options.BlockAlignmentSize > 1) continue;
+            if (!id.StartsWith("XISF:", StringComparison.Ordinal)) throw new ArgumentException("Metadata properties must use the XISF namespace.");
             AddProperty(metadata, id, value, options, attachments);
         }
+        if (options.BlockAlignmentSize > 1) AddProperty(metadata, "XISF:BlockAlignmentSize", checked((ushort)options.BlockAlignmentSize), options, attachments);
         root.Add(metadata);
         foreach ((string id, object? value) in options.Properties) AddProperty(root, id, value, options, attachments);
+        foreach (XisfTableData table in options.Tables) root.Add(CreateTable(table, options, attachments));
+        foreach (XElement extension in options.Extensions)
+        {
+            if (extension.Name.Namespace == Namespace || extension.Name.Namespace == XNamespace.None) throw new ArgumentException("Extension elements require their own XML namespace.");
+            root.Add(new XElement(extension));
+        }
+        if (imageList.Where(i => !string.IsNullOrEmpty(i.Id)).Select(i => i.Id).Distinct(StringComparer.Ordinal).Count() != imageList.Count(i => !string.IsNullOrEmpty(i.Id)))
+            throw new ArgumentException("Image identifiers must be unique within a unit.", nameof(images));
         foreach (XisfImageData image in imageList) root.Add(CreateImage(image, options, attachments, false));
+        foreach (var pair in new[] { (Attribute: "compression", Id: "XISF:CompressionCodecs"), (Attribute: "checksum", Id: "XISF:ChecksumAlgorithms") })
+        {
+            string[] algorithms = root.Descendants().Attributes(pair.Attribute).Select(a => a.Value.Split(':')[0]).Distinct(StringComparer.Ordinal).ToArray();
+            if (algorithms.Length > 0 && !options.Metadata.ContainsKey(pair.Id)) AddProperty(metadata, pair.Id, string.Join(',', algorithms), options, attachments);
+        }
+        if (options.DataBlockStorage != XisfDataBlockStorage.Attachment && !options.Metadata.ContainsKey("XISF:MaxInlineBlockSize"))
+            AddProperty(metadata, "XISF:MaxInlineBlockSize", options.MaximumInlineBlockSize, options, attachments);
         return (new XDocument(new XDeclaration("1.0", "UTF-8", null), root), attachments);
     }
 
@@ -282,7 +389,7 @@ public static class XisfWriter
             BinaryPrimitives.WriteUInt64LittleEndian(entry, checked((ulong)i + 1));
             BinaryPrimitives.WriteUInt64LittleEndian(entry[8..], checked((ulong)position));
             BinaryPrimitives.WriteUInt64LittleEndian(entry[16..], checked((ulong)attachments[i].Data.LongLength));
-            BinaryPrimitives.WriteUInt64LittleEndian(entry[24..], checked((ulong)attachments[i].UncompressedLength));
+            BinaryPrimitives.WriteUInt64LittleEndian(entry[24..], attachments[i].Element.Attribute("compression") is null ? 0 : checked((ulong)attachments[i].UncompressedLength));
             stream.Write(entry);
             position += attachments[i].Data.LongLength;
         }
@@ -298,29 +405,48 @@ public static class XisfWriter
             Indent = false,
             OmitXmlDeclaration = false
         }))
+        {
             document.Save(writer);
+            if (document.Annotation<XisfSignatureReservation>() is { } reservation)
+            {
+                writer.Flush(); stream.Write(Encoding.UTF8.GetBytes(reservation.Xml));
+            }
+            if (document.Annotation<XisfDetachedSignature>() is { } signature)
+            {
+                writer.Flush();
+                byte[] detached = Encoding.UTF8.GetBytes(signature.Element.ToString(SaveOptions.DisableFormatting));
+                stream.Write(detached);
+            }
+        }
         return stream.ToArray();
     }
 
     private static XElement CreateImage(XisfImageData image, XisfWriterOptions options, List<Attachment> attachments, bool thumbnail)
     {
+        string colorSpace = image.ColorSpace ?? "Gray";
+        if (colorSpace is not ("Gray" or "RGB" or "CIELab") || colorSpace != "Gray" && image.ChannelCount < 3) throw new ArgumentException("Invalid image color space or channel count.", nameof(image));
+        if (!string.IsNullOrEmpty(image.Id) && (!PropertyIdentifier.IsMatch(image.Id) || image.Id.Contains(':'))) throw new ArgumentException("Invalid image identifier.", nameof(image));
+        if (image.Orientation is { Length: > 0 } orientation && orientation is not ("0" or "flip" or "90" or "90;flip" or "-90" or "-90;flip" or "180" or "180;flip")) throw new ArgumentException("Invalid image orientation.", nameof(image));
+        if (image.Uuid is { } identifier && (identifier.ToString("D")[14] != '4' || !"89ab".Contains(identifier.ToString("D")[19]))) throw new ArgumentException("Image UUIDs must be RFC 9562 version 4.", nameof(image));
+        if (thumbnail && (image.Dimensions.Count != 2 || image.SampleFormat is not (XisfSampleFormat.UInt8 or XisfSampleFormat.UInt16) || colorSpace == "CIELab" || image.ChannelCount > (colorSpace == "Gray" ? 2 : 4) || image.ColorFilterArray is not null || image.Thumbnail is not null))
+            throw new ArgumentException("The thumbnail does not satisfy XISF restrictions.", nameof(image));
         if (image.Offset < 0 || !double.IsFinite(image.Offset)) throw new ArgumentException("The image offset must be a finite nonnegative value.", nameof(image));
         XElement element = new(Namespace + (thumbnail ? "Thumbnail" : "Image"),
             new XAttribute("geometry", string.Join(':', image.Dimensions.Append(image.ChannelCount))),
             new XAttribute("sampleFormat", image.SampleFormat),
             new XAttribute("pixelStorage", image.PixelStorage == XisfPixelLayout.Interleaved ? "Normal" : "Planar"));
-        if (!string.IsNullOrWhiteSpace(image.Id) && !thumbnail) element.SetAttributeValue("id", image.Id);
+        if (!string.IsNullOrWhiteSpace(image.Id)) element.SetAttributeValue("id", image.Id);
         if (!string.IsNullOrWhiteSpace(image.ColorSpace)) element.SetAttributeValue("colorSpace", image.ColorSpace);
-        if (!string.IsNullOrWhiteSpace(image.ImageType) && !thumbnail) element.SetAttributeValue("imageType", CanonicalImageType(image.ImageType));
+        if (!string.IsNullOrWhiteSpace(image.ImageType)) element.SetAttributeValue("imageType", CanonicalImageType(image.ImageType));
         if (image.Offset != 0) element.SetAttributeValue("offset", Format(image.Offset));
         if (!string.IsNullOrWhiteSpace(image.Orientation)) element.SetAttributeValue("orientation", image.Orientation);
-        if (image.Uuid is { } uuid && !thumbnail) element.SetAttributeValue("uuid", uuid.ToString("D"));
+        if (image.Uuid is { } uuid) element.SetAttributeValue("uuid", uuid.ToString("D"));
         if (image.IsBigEndian) element.SetAttributeValue("byteOrder", "big");
-        if (image.SampleFormat is XisfSampleFormat.Float32 or XisfSampleFormat.Float64)
+        if (!thumbnail && (image.SampleFormat is XisfSampleFormat.Float32 or XisfSampleFormat.Float64 || image.LowerBound.HasValue || image.UpperBound.HasValue))
         {
             double lower = image.LowerBound ?? throw new ArgumentException("Floating-point images require a lower bound.", nameof(image));
             double upper = image.UpperBound ?? throw new ArgumentException("Floating-point images require an upper bound.", nameof(image));
-            if (!(lower < upper)) throw new ArgumentException("The lower image bound must be less than the upper bound.", nameof(image));
+            if (!double.IsFinite(lower) || !double.IsFinite(upper) || !(lower < upper)) throw new ArgumentException("The lower image bound must be less than the upper bound.", nameof(image));
             element.SetAttributeValue("bounds", $"{Format(lower)}:{Format(upper)}");
         }
 
@@ -328,12 +454,12 @@ public static class XisfWriter
         foreach ((string id, object? value) in image.Properties) AddProperty(element, id, value, options, attachments);
         foreach (XisfFitsKeyword keyword in image.FitsKeywords)
         {
-            XElement keywordElement = new(Namespace + "FITSKeyword", new XAttribute("name", keyword.Name), new XAttribute("value", keyword.Value));
-            if (keyword.Comment is not null) keywordElement.SetAttributeValue("comment", keyword.Comment);
+            XElement keywordElement = new(Namespace + "FITSKeyword", new XAttribute("name", keyword.Name), new XAttribute("value", keyword.Name is "HISTORY" or "COMMENT" ? "" : keyword.Value),
+                new XAttribute("comment", keyword.Name is "HISTORY" or "COMMENT" ? keyword.Comment ?? keyword.Value : keyword.Comment ?? ""));
             element.Add(keywordElement);
         }
         foreach (XisfTableData table in image.Tables)
-            element.Add(CreateTable(table));
+            element.Add(CreateTable(table, options, attachments));
         if (image.IccProfile is not null)
         {
             XElement profile = new(Namespace + "ICCProfile");
@@ -368,12 +494,17 @@ public static class XisfWriter
         return embedded;
     }
 
-    private static XElement CreateTable(XisfTableData table)
+    private static XElement CreateTable(XisfTableData table, XisfWriterOptions options, List<Attachment> attachments)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(table.Id);
+        if (!PropertyIdentifier.IsMatch(table.Id) || table.Fields.Any(f => !PropertyIdentifier.IsMatch(f.Id)) || table.Fields.Select(f => f.Id).Distinct(StringComparer.Ordinal).Count() != table.Fields.Count)
+            throw new ArgumentException("Invalid table or field identifier, or duplicate fields.");
         if (table.Fields.Count == 0) throw new ArgumentException($"Table '{table.Id}' must have at least one field.");
         XElement element = new(Namespace + "Table", new XAttribute("id", table.Id));
         if (table.Caption is not null) element.SetAttributeValue("caption", table.Caption);
+        if (table.Comment is not null) element.SetAttributeValue("comment", table.Comment);
+        element.SetAttributeValue("rows", table.Rows.Count);
+        element.SetAttributeValue("columns", table.Fields.Count);
         XElement structure = new(Namespace + "Structure");
         foreach (XisfTableFieldData field in table.Fields)
         {
@@ -387,13 +518,19 @@ public static class XisfWriter
         {
             if (row.Count != table.Fields.Count) throw new ArgumentException($"A row in table '{table.Id}' has an invalid cell count.");
             XElement rowElement = new(Namespace + "Row");
-            foreach (object? value in row)
+            for (int index = 0; index < row.Count; index++)
             {
-                PropertySerialization serialized = PropertyValue(value);
-                if (serialized.Binary is not null) throw new NotSupportedException("Table cells cannot contain vector or matrix values.");
-                XElement cell = new(Namespace + "Cell");
-                if (serialized.Type == "String") cell.Value = serialized.Text ?? string.Empty;
-                else cell.SetAttributeValue("value", serialized.Text ?? string.Empty);
+                XElement holder = new(Namespace + "Temporary");
+                object? value = row[index];
+                if (value is XisfTableCell preserved)
+                    value = new XisfProperty("cell", table.Fields[index].Type, preserved.Value, null, preserved.Xml) { Source = preserved.Source };
+                else value = new XisfPropertyData(table.Fields[index].Type, value);
+                AddProperty(holder, "cell", value, options, attachments);
+                XElement cell = holder.Elements().Single();
+                cell.Remove();
+                cell.Name = Namespace + "Cell";
+                cell.Attributes("id").Remove();
+                cell.Attributes("type").Remove();
                 rowElement.Add(cell);
             }
             element.Add(rowElement);
@@ -405,22 +542,42 @@ public static class XisfWriter
     {
         if (image.ColorFilterArray is { } cfa)
         {
+            if (cfa.Width <= 0 || cfa.Height <= 0 || cfa.Pattern.Length != (long)cfa.Width * cfa.Height || cfa.Pattern.Any(c => !"0RGBWCMY".Contains(c))) throw new ArgumentException("Invalid color filter array.", nameof(image));
             XElement child = new(Namespace + "ColorFilterArray", new XAttribute("pattern", cfa.Pattern), new XAttribute("width", cfa.Width), new XAttribute("height", cfa.Height));
             if (cfa.Name is not null) child.SetAttributeValue("name", cfa.Name);
             element.Add(child);
         }
         if (image.RgbWorkingSpace is { } rgb)
-            element.Add(new XElement(Namespace + "RGBWorkingSpace", new XAttribute("gamma", Format(rgb.Gamma)), new XAttribute("sRGB", rgb.IsSrgb.ToString().ToLowerInvariant()), new XAttribute("x", Join(rgb.ChromaticityCoordinates)), new XAttribute("Y", Join(rgb.LuminanceCoefficients))));
+            element.Add(new XElement(Namespace + "RGBWorkingSpace", new XAttribute("gamma", rgb.IsSrgb ? "sRGB" : Format(rgb.Gamma)), new XAttribute("x", Join(rgb.ChromaticityCoordinates)), new XAttribute("y", Join(rgb.YChromaticityCoordinates)), new XAttribute("Y", Join(XisfColorSpace.DeriveLuminanceCoefficients(rgb))), rgb.Name is null ? null : new XAttribute("name", rgb.Name)));
         if (image.DisplayFunction is { } display)
-            element.Add(new XElement(Namespace + "DisplayFunction", new XAttribute("m", Join(display.Midtones)), new XAttribute("s", Join(display.Shadows)), new XAttribute("h", Join(display.Highlights)), new XAttribute("l", Join(display.LowRange)), new XAttribute("r", Join(display.HighRange))));
+        {
+            if (new[] { display.Midtones, display.Shadows, display.Highlights, display.LowRange, display.HighRange }.Any(v => v.Count != 4 || v.Any(n => !double.IsFinite(n)))) throw new ArgumentException("Display function vectors require four finite components.", nameof(image));
+            element.Add(new XElement(Namespace + "DisplayFunction", new XAttribute("m", Join(display.Midtones)), new XAttribute("s", Join(display.Shadows)), new XAttribute("h", Join(display.Highlights)), new XAttribute("l", Join(display.LowRange)), new XAttribute("r", Join(display.HighRange)), display.Name is null ? null : new XAttribute("name", display.Name)));
+        }
         if (image.Resolution is { } resolution)
+        {
+            if (!double.IsFinite(resolution.Horizontal) || !double.IsFinite(resolution.Vertical) || resolution.Horizontal <= 0 || resolution.Vertical <= 0 || resolution.Unit is not ("inch" or "cm")) throw new ArgumentException("Invalid image resolution.", nameof(image));
             element.Add(new XElement(Namespace + "Resolution", new XAttribute("horizontal", Format(resolution.Horizontal)), new XAttribute("vertical", Format(resolution.Vertical)), new XAttribute("unit", resolution.Unit)));
+        }
     }
 
     private static void AddAttachment(XElement element, byte[] raw, int itemSize, XisfWriterOptions options, List<Attachment> attachments)
     {
         byte[] serialized = options.Shuffle && options.Compression != XisfCompression.None && itemSize > 1 ? Shuffle(raw, itemSize) : raw;
-        serialized = Compress(serialized, options.Compression);
+        if (options.CompressionSubblockSize > 0 && options.Compression != XisfCompression.None && serialized.Length > options.CompressionSubblockSize)
+        {
+            using MemoryStream packed = new();
+            List<string> subblocks = [];
+            for (int offset = 0; offset < serialized.Length; offset += options.CompressionSubblockSize)
+            {
+                int count = Math.Min(options.CompressionSubblockSize, serialized.Length - offset);
+                byte[] compressed = Compress(serialized.AsSpan(offset, count).ToArray(), options.Compression);
+                packed.Write(compressed); subblocks.Add($"{compressed.Length},{count}");
+            }
+            serialized = packed.ToArray();
+            element.SetAttributeValue("subblocks", string.Join(':', subblocks));
+        }
+        else serialized = Compress(serialized, options.Compression);
         if (options.Compression != XisfCompression.None)
         {
             string codec = options.Compression switch
@@ -428,6 +585,7 @@ public static class XisfWriter
                 XisfCompression.Zlib => "zlib",
                 XisfCompression.Lz4 => "lz4",
                 XisfCompression.Lz4Hc => "lz4hc",
+                XisfCompression.Zstd => "zstd",
                 _ => throw new ArgumentOutOfRangeException()
             };
             if (options.Shuffle && itemSize > 1) codec += "+sh";
@@ -435,6 +593,21 @@ public static class XisfWriter
         }
         string? checksum = Checksum(serialized, options.Checksum);
         if (checksum is not null) element.SetAttributeValue("checksum", checksum);
+        if (options.DataBlockStorage != XisfDataBlockStorage.Attachment && serialized.Length <= options.MaximumInlineBlockSize)
+        {
+            string encoding = options.HexEncoding ? "hex" : "base64";
+            string text = options.HexEncoding ? Convert.ToHexString(serialized).ToLowerInvariant() : Convert.ToBase64String(serialized);
+            bool embedded = options.DataBlockStorage == XisfDataBlockStorage.Embedded || element.Name.LocalName is "Image" or "Thumbnail";
+            if (embedded)
+            {
+                XElement data = new(Namespace + "Data", new XAttribute("encoding", encoding), text);
+                foreach (string name in new[] { "compression", "checksum", "subblocks" })
+                    if (element.Attribute(name) is { } attribute) { data.SetAttributeValue(name, attribute.Value); attribute.Remove(); }
+                element.SetAttributeValue("location", "embedded"); element.Add(data);
+            }
+            else { element.SetAttributeValue("location", "inline:" + encoding); element.Value = text; }
+            return;
+        }
         element.SetAttributeValue("location", "attachment:00000000000000000000:" + serialized.Length);
         attachments.Add(new Attachment(element, serialized, raw.LongLength));
     }
@@ -442,6 +615,11 @@ public static class XisfWriter
     private static byte[] Compress(byte[] data, XisfCompression compression)
     {
         if (compression == XisfCompression.None) return data;
+        if (compression == XisfCompression.Zstd)
+        {
+            using ZstdSharp.Compressor compressor = new();
+            return compressor.Wrap(data).ToArray();
+        }
         if (compression == XisfCompression.Zlib)
         {
             using MemoryStream output = new();
@@ -477,7 +655,8 @@ public static class XisfWriter
             XisfChecksum.Sha512 => SHA512.HashData(data),
             XisfChecksum.Sha3_256 when SHA3_256.IsSupported => SHA3_256.HashData(data),
             XisfChecksum.Sha3_512 when SHA3_512.IsSupported => SHA3_512.HashData(data),
-            XisfChecksum.Sha3_256 or XisfChecksum.Sha3_512 => throw new PlatformNotSupportedException("SHA-3 is not supported on this platform."),
+            XisfChecksum.Sha3_256 => XisfSha3.HashData(data, 256),
+            XisfChecksum.Sha3_512 => XisfSha3.HashData(data, 512),
             _ => throw new ArgumentOutOfRangeException(nameof(checksum))
         };
         if (digest is null) return null;
@@ -496,8 +675,29 @@ public static class XisfWriter
     private static void AddProperty(XElement parent, string id, object? value, XisfWriterOptions options, List<Attachment> attachments)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(id);
+        if (!PropertyIdentifier.IsMatch(id)) throw new ArgumentException("Invalid XISF property identifier.", nameof(id));
+        if (value is XisfProperty preserved)
+        {
+            XElement original = preserved.Xml;
+            XElement copy = new(original);
+            if (original.Name.Namespace == XNamespace.None)
+                foreach (XElement core in copy.DescendantsAndSelf().Where(e => e.Name.Namespace == XNamespace.None))
+                    core.Name = Namespace + core.Name.LocalName;
+            copy.SetAttributeValue("id", id);
+            string? location = (string?)copy.Attribute("location");
+            if (location is not null && location != "embedded" && !location.StartsWith("inline:", StringComparison.Ordinal))
+            {
+                if (preserved.Source is null) throw new ArgumentException("A preserved block requires its original data source.");
+                byte[] serialized = new XisfDataBlock(original, preserved.Source).ReadSerialized();
+                copy.SetAttributeValue("location", "attachment:00000000000000000000:" + serialized.Length);
+                long uncompressed = copy.Attribute("compression") is { } compression ? long.Parse(compression.Value.Split(':')[1], CultureInfo.InvariantCulture) : serialized.LongLength;
+                attachments.Add(new Attachment(copy, serialized, uncompressed));
+            }
+            parent.Add(copy);
+            return;
+        }
         XisfPropertyData? declared = value as XisfPropertyData;
-        PropertySerialization property = PropertyValue(declared?.Value ?? value);
+        PropertySerialization property = PropertyValue(declared is null ? value : declared.Value);
         if (declared is not null)
             property = ApplyDeclaredPropertyType(property, declared.Type);
         XElement element = new(Namespace + "Property", new XAttribute("id", id), new XAttribute("type", property.Type));
@@ -512,10 +712,21 @@ public static class XisfWriter
             }
             else
                 element.SetAttributeValue("length", property.Length);
-            AddAttachment(element, property.Binary, property.ItemSize, options, attachments);
+            if (property.Binary.Length == 0)
+                element.SetAttributeValue("location", "inline:base64");
+            else
+                AddAttachment(element, property.Binary, property.ItemSize, options, attachments);
         }
         else if (property.Type == "String")
-            element.Value = property.Text ?? string.Empty;
+        {
+            string text = property.Text ?? string.Empty;
+            if (text.Contains('\0')) throw new ArgumentException("XISF strings cannot contain null code points.");
+            byte[] utf8 = new UTF8Encoding(false, true).GetBytes(text);
+            bool xmlCompatible = true;
+            try { XmlConvert.VerifyXmlChars(text); } catch (XmlException) { xmlCompatible = false; }
+            if (utf8.Length > 0 && (options.StringsAsDataBlocks || !xmlCompatible)) AddAttachment(element, utf8, 1, options, attachments);
+            else element.Value = text;
+        }
         else
             element.SetAttributeValue("value", property.Text ?? string.Empty);
         parent.Add(element);
@@ -532,6 +743,18 @@ public static class XisfWriter
             "bytematrix" => "UI8Matrix", "imatrix" => "I32Matrix", "uimatrix" => "UI32Matrix", "matrix" => "F64Matrix",
             _ => type
         };
+        if (canonical.StartsWith("C32", StringComparison.OrdinalIgnoreCase) && property.Type.StartsWith("C64", StringComparison.Ordinal) && property.Binary is not null)
+        {
+            byte[] single = new byte[property.Binary.Length / 2];
+            for (int offset = 0; offset < property.Binary.Length; offset += 8)
+                BinaryPrimitives.WriteSingleLittleEndian(single.AsSpan(offset / 2), (float)BinaryPrimitives.ReadDoubleLittleEndian(property.Binary.AsSpan(offset)));
+            property = property with { Type = property.Type.Replace("C64", "C32", StringComparison.Ordinal), Binary = single, ItemSize = 8 };
+        }
+        else if (canonical == "Complex32" && property.Type == "Complex64")
+        {
+            string[] components = property.Text!.Trim('(', ')').Split(',');
+            property = property with { Type = "Complex32", Text = $"({Format((float)XisfReader.ParseFloatingPoint(components[0]))},{Format((float)XisfReader.ParseFloatingPoint(components[1]))})" };
+        }
         string actualCanonical = property.Type;
         if (!string.Equals(canonical, actualCanonical, StringComparison.OrdinalIgnoreCase))
             throw new ArgumentException($"The value serialized as '{property.Type}' is incompatible with the declared XISF property type '{type}'.");
@@ -553,9 +776,12 @@ public static class XisfWriter
         ulong number => new("UInt64", number.ToString(CultureInfo.InvariantCulture)),
         Int128 number => new("Int128", number.ToString(CultureInfo.InvariantCulture)),
         UInt128 number => new("UInt128", number.ToString(CultureInfo.InvariantCulture)),
-        float number => new("Float32", number.ToString("R", CultureInfo.InvariantCulture)),
-        double number => new("Float64", number.ToString("R", CultureInfo.InvariantCulture)),
+        float number => new("Float32", Format(number)),
+        double number => new("Float64", Format(number)),
         decimal number => new("Float128", number.ToString(CultureInfo.InvariantCulture)),
+        XisfFloat128 number => new("Float128", number.ToString()),
+        XisfComplex128 number => new("Complex128", number.ToString()),
+        XisfComplex32 number => new("Complex32", $"({Format(number.Real)},{Format(number.Imaginary)})"),
         DateTimeOffset time => new("TimePoint", time.ToString("O", CultureInfo.InvariantCulture)),
         DateTime time => new("TimePoint", time.ToUniversalTime().ToString("O", CultureInfo.InvariantCulture)),
         Complex complex => new("Complex64", $"({Format(complex.Real)},{Format(complex.Imaginary)})"),
@@ -579,6 +805,9 @@ public static class XisfWriter
             elementType == typeof(float) ? ("F32", 4) :
             elementType == typeof(double) ? ("F64", 8) :
             elementType == typeof(Complex) ? ("C64", 16) :
+            elementType == typeof(XisfFloat128) ? ("F128", 16) :
+            elementType == typeof(XisfComplex128) ? ("C128", 32) :
+            elementType == typeof(XisfComplex32) ? ("C32", 8) :
             throw new NotSupportedException($"Arrays of '{elementType.Name}' cannot be serialized as XISF properties.");
         byte[] data = new byte[checked(values.Length * itemSize)];
         int offset = 0;
@@ -606,6 +835,19 @@ public static class XisfWriter
         else if (type == typeof(UInt128)) BinaryPrimitives.WriteUInt128LittleEndian(destination, (UInt128)value);
         else if (type == typeof(float)) BinaryPrimitives.WriteInt32LittleEndian(destination, BitConverter.SingleToInt32Bits((float)value));
         else if (type == typeof(double)) BinaryPrimitives.WriteInt64LittleEndian(destination, BitConverter.DoubleToInt64Bits((double)value));
+        else if (type == typeof(XisfFloat128)) BinaryPrimitives.WriteUInt128LittleEndian(destination, ((XisfFloat128)value).Bits);
+        else if (type == typeof(XisfComplex128))
+        {
+            var complex = (XisfComplex128)value;
+            BinaryPrimitives.WriteUInt128LittleEndian(destination, complex.Real.Bits);
+            BinaryPrimitives.WriteUInt128LittleEndian(destination[16..], complex.Imaginary.Bits);
+        }
+        else if (type == typeof(XisfComplex32))
+        {
+            var complex = (XisfComplex32)value;
+            BinaryPrimitives.WriteSingleLittleEndian(destination, complex.Real);
+            BinaryPrimitives.WriteSingleLittleEndian(destination[4..], complex.Imaginary);
+        }
         else if (type == typeof(Complex))
         {
             Complex complex = (Complex)value;
@@ -616,7 +858,7 @@ public static class XisfWriter
 
     private static string Join<T>(IEnumerable<T> values) where T : IFormattable => string.Join(' ', values.Select(value => value.ToString(null, CultureInfo.InvariantCulture)));
     private static string Join(IEnumerable<double> values) => string.Join(':', values.Select(Format));
-    private static string Format(double value) => value.ToString("R", CultureInfo.InvariantCulture);
+    private static string Format(double value) => double.IsPositiveInfinity(value) ? "+Inf" : double.IsNegativeInfinity(value) ? "-Inf" : value.ToString("R", CultureInfo.InvariantCulture);
 
     private sealed record Attachment(XElement Element, byte[] Data, long UncompressedLength);
     private sealed record PropertySerialization(string Type, string? Text = null, byte[]? Binary = null,

@@ -95,6 +95,7 @@ public partial class MainWindow
         RgbGammaTextBox.Clear();
         RgbSrgbCheckBox.IsChecked = false;
         RgbChromaticitiesTextBox.Clear();
+        RgbYChromaticitiesTextBox.Clear();
         RgbLuminanceTextBox.Clear();
         DisplayFunctionTextBox.Clear();
         IccProfileText.Text = "None";
@@ -224,6 +225,7 @@ public partial class MainWindow
         RgbGammaTextBox.Text = image.RgbWorkingSpace?.Gamma.ToString("R", CultureInfo.InvariantCulture) ?? "";
         RgbSrgbCheckBox.IsChecked = image.RgbWorkingSpace?.IsSrgb == true;
         RgbChromaticitiesTextBox.Text = FormatNumbers(image.RgbWorkingSpace?.ChromaticityCoordinates);
+        RgbYChromaticitiesTextBox.Text = FormatNumbers(image.RgbWorkingSpace?.YChromaticityCoordinates);
         RgbLuminanceTextBox.Text = FormatNumbers(image.RgbWorkingSpace?.LuminanceCoefficients);
         DisplayFunctionTextBox.Text = image.DisplayFunction is null ? "" : string.Join("; ", new[] { FormatNumbers(image.DisplayFunction.Midtones), FormatNumbers(image.DisplayFunction.Shadows), FormatNumbers(image.DisplayFunction.Highlights), FormatNumbers(image.DisplayFunction.LowRange), FormatNumbers(image.DisplayFunction.HighRange) });
         _iccProfile = image.IccProfile;
@@ -378,7 +380,8 @@ public partial class MainWindow
         foreach (FitsKeywordEditorRow row in _fitsKeywords.Where(row => !string.IsNullOrWhiteSpace(row.Name))) image.FitsKeywords.Add(new XisfFitsKeyword(row.Name.Trim(), row.Value, EmptyToNull(row.Comment)));
         image.ColorFilterArray = string.IsNullOrWhiteSpace(CfaPatternTextBox.Text) ? null : new XisfColorFilterArray(CfaPatternTextBox.Text.Trim(), int.Parse(CfaWidthTextBox.Text, CultureInfo.InvariantCulture), int.Parse(CfaHeightTextBox.Text, CultureInfo.InvariantCulture), EmptyToNull(CfaNameTextBox.Text));
         double? gamma = ParseOptionalDouble(RgbGammaTextBox.Text);
-        image.RgbWorkingSpace = gamma is null ? null : new XisfRgbWorkingSpace(gamma.Value, RgbSrgbCheckBox.IsChecked == true, ParseNumbers(RgbChromaticitiesTextBox.Text, 3), ParseNumbers(RgbLuminanceTextBox.Text, 3));
+        image.RgbWorkingSpace = gamma is null ? null : new XisfRgbWorkingSpace(gamma.Value, RgbSrgbCheckBox.IsChecked == true, ParseNumbers(RgbChromaticitiesTextBox.Text, 3), ParseNumbers(RgbLuminanceTextBox.Text, 3)) { YChromaticityCoordinates = ParseNumbers(RgbYChromaticitiesTextBox.Text, 3), Name = image.RgbWorkingSpace?.Name };
+        if (image.RgbWorkingSpace is { } workingSpace) { image.RgbWorkingSpace = workingSpace with { LuminanceCoefficients = XisfColorSpace.DeriveLuminanceCoefficients(workingSpace) }; RgbLuminanceTextBox.Text = FormatNumbers(image.RgbWorkingSpace.LuminanceCoefficients); }
         image.DisplayFunction = ParseDisplayFunction(DisplayFunctionTextBox.Text);
         image.IccProfile = _iccProfile;
         image.Thumbnail = _thumbnail;

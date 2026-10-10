@@ -18,7 +18,7 @@ public sealed class XisfImage
         ChannelCount = channels;
         SampleFormat = sampleFormat;
         Id = (string?)xml.Attribute("id");
-        ColorSpace = (string?)xml.Attribute("colorSpace") ?? (channels == 1 ? "Gray" : null);
+        ColorSpace = (string?)xml.Attribute("colorSpace") ?? "Gray";
         ImageType = (string?)xml.Attribute("imageType");
         Offset = double.TryParse((string?)xml.Attribute("offset"), NumberStyles.Float, CultureInfo.InvariantCulture, out double offset) ? offset : 0;
         Orientation = (string?)xml.Attribute("orientation") ?? "0";
@@ -36,8 +36,16 @@ public sealed class XisfImage
         Properties = XisfReader.ParseProperties(xml, source, references);
         FitsKeywords = references.Children(xml, "FITSKeyword").Select(e => new XisfFitsKeyword(XisfReader.RequiredAttribute(e, "name"), (string?)e.Attribute("value") ?? "", (string?)e.Attribute("comment"))).ToList();
         Tables = references.Children(xml, "Table").Select(e => XisfReader.ParseTable(e, source, references)).ToList();
-        IccProfile = ReadOptionalBlock(xml, source, references, "ICCProfile");
-        Thumbnail = references.Children(xml, "Thumbnail").SingleOrDefault() is { } thumbnail ? Parse(thumbnail, source, references) : null;
+        List<XisfUnavailableObject> unavailable = [];
+        try { IccProfile = ReadOptionalBlock(xml, source, references, "ICCProfile"); }
+        catch (XisfUnsupportedFeatureException exception)
+        { unavailable.Add(new(references.Children(xml, "ICCProfile").Single(), exception.Message)); }
+        if (references.Children(xml, "Thumbnail").SingleOrDefault() is { } thumbnail)
+        {
+            try { Thumbnail = Parse(thumbnail, source, references); }
+            catch (XisfUnsupportedFeatureException exception) { unavailable.Add(new(thumbnail, exception.Message)); }
+        }
+        UnavailableObjects = unavailable;
         ColorFilterArray = ParseColorFilterArray(xml, references);
         RgbWorkingSpace = ParseRgbWorkingSpace(xml, references);
         DisplayFunction = ParseDisplayFunction(xml, references);
@@ -74,12 +82,16 @@ public sealed class XisfImage
     public double UpperBound { get; }
     /// <summary>Typed properties indexed by case-sensitive identifiers.</summary>
     public IReadOnlyDictionary<string, XisfProperty> Properties { get; }
+    /// <summary>The Revision 1 astrometric solution and fallback diagnostics, or null when absent.</summary>
+    public XisfAstrometricSolution? AstrometricSolution => XisfAstrometricSolution.FromProperties(Properties);
     /// <summary>The ordered FITS keywords associated with the image.</summary>
     public IReadOnlyList<XisfFitsKeyword> FitsKeywords { get; }
     /// <summary>The tables associated with this image or document.</summary>
     public IReadOnlyList<XisfTable> Tables { get; }
     /// <summary>The embedded ICC profile bytes, or null when absent.</summary>
     public byte[]? IccProfile { get; }
+    /// <summary>Optional objects with unsupported representations; their original XML remains available.</summary>
+    public IReadOnlyList<XisfUnavailableObject> UnavailableObjects { get; }
     /// <summary>The optional thumbnail image.</summary>
     public XisfImage? Thumbnail { get; }
     /// <summary>The optional repeating color-filter mosaic.</summary>
@@ -101,8 +113,8 @@ public sealed class XisfImage
         if (geometry.Length - 1 > source.Options.MaximumImageDimensions)
             throw new XisfFormatException("The image exceeds the configured dimension-count limit.");
         int[] values = geometry.Select(v => int.Parse(v, CultureInfo.InvariantCulture)).ToArray();
-        if (!Enum.TryParse(XisfReader.RequiredAttribute(element, "sampleFormat"), false, out XisfSampleFormat format))
-            throw new XisfFormatException("Unsupported image sample format.");
+        if (!Enum.TryParse(XisfReader.RequiredAttribute(element, "sampleFormat"), false, out XisfSampleFormat format) || !Enum.IsDefined(format) || int.TryParse((string?)element.Attribute("sampleFormat"), out _))
+            throw new XisfUnsupportedFeatureException("Unsupported image sample format.");
         long pixels = 1;
         foreach (int dimension in values[..^1])
             pixels = checked(pixels * dimension);
@@ -259,13 +271,22 @@ public sealed class XisfImage
     private static XisfRgbWorkingSpace? ParseRgbWorkingSpace(XElement parent, XisfReferenceResolver references)
     {
         XElement? e = references.Children(parent, "RGBWorkingSpace").SingleOrDefault();
-        return e is null ? null : new XisfRgbWorkingSpace(double.TryParse((string?)e.Attribute("gamma"), NumberStyles.Float, CultureInfo.InvariantCulture, out double gamma) ? gamma : 1, XisfReader.ParseBoolean((string?)e.Attribute("sRGB") ?? "false"), XisfReader.ParseDoubles((string?)e.Attribute("x") ?? (string?)e.Attribute("chromaticity")), XisfReader.ParseDoubles((string?)e.Attribute("Y") ?? (string?)e.Attribute("luminance")));
+        if (e is null) return null;
+        string gammaText = (string?)e.Attribute("gamma") ?? "1";
+        bool srgb = gammaText.Equals("sRGB", StringComparison.OrdinalIgnoreCase) || XisfReader.ParseBoolean((string?)e.Attribute("sRGB") ?? "false");
+        return new XisfRgbWorkingSpace(srgb ? 2.4 : XisfReader.ParseFloatingPoint(gammaText), srgb,
+            XisfReader.ParseDoubles((string?)e.Attribute("x") ?? (string?)e.Attribute("chromaticity")),
+            XisfReader.ParseDoubles((string?)e.Attribute("Y") ?? (string?)e.Attribute("luminance")))
+        {
+            YChromaticityCoordinates = e.Attribute("y") is null ? XisfRgbWorkingSpace.Srgb.YChromaticityCoordinates : XisfReader.ParseDoubles((string?)e.Attribute("y")),
+            Name = (string?)e.Attribute("name")
+        };
     }
 
     private static XisfDisplayFunction? ParseDisplayFunction(XElement parent, XisfReferenceResolver references)
     {
         XElement? e = references.Children(parent, "DisplayFunction").SingleOrDefault();
-        return e is null ? null : new XisfDisplayFunction(XisfReader.ParseDoubles((string?)e.Attribute("m")), XisfReader.ParseDoubles((string?)e.Attribute("s")), XisfReader.ParseDoubles((string?)e.Attribute("h")), XisfReader.ParseDoubles((string?)e.Attribute("l")), XisfReader.ParseDoubles((string?)e.Attribute("r")));
+        return e is null ? null : new XisfDisplayFunction(XisfReader.ParseDoubles((string?)e.Attribute("m")), XisfReader.ParseDoubles((string?)e.Attribute("s")), XisfReader.ParseDoubles((string?)e.Attribute("h")), XisfReader.ParseDoubles((string?)e.Attribute("l")), XisfReader.ParseDoubles((string?)e.Attribute("r"))) { Name = (string?)e.Attribute("name") };
     }
 
     private static XisfResolution? ParseResolution(XElement parent, XisfReferenceResolver references)

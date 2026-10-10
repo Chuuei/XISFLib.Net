@@ -97,16 +97,16 @@ public sealed class XisfImageData
         copy.DisplayFunction = image.DisplayFunction;
         copy.Resolution = image.Resolution;
         foreach ((string id, XisfProperty property) in image.Properties)
-            copy.Properties[id] = new XisfPropertyData(property.Type, property.Value, property.Format, property.Comment);
+            copy.Properties[id] = !property.IsAvailable || id.StartsWith("AstrometricSolution:", StringComparison.Ordinal) ? property : new XisfPropertyData(property.Type, property.Value, property.Format, property.Comment);
         foreach (XisfFitsKeyword keyword in image.FitsKeywords)
             copy.FitsKeywords.Add(keyword);
         foreach (XisfTable table in image.Tables)
         {
-            XisfTableData tableCopy = new() { Id = table.Id, Caption = table.Caption };
+            XisfTableData tableCopy = new() { Id = table.Id, Caption = table.Caption, Comment = table.Comment };
             foreach (XisfTableField field in table.Fields)
                 tableCopy.Fields.Add(new XisfTableFieldData(field.Id, field.Type, field.Header, field.Format));
             foreach (XisfTableRow row in table.Rows)
-                tableCopy.Rows.Add(row.Cells.Select(cell => cell.Value).ToArray());
+                tableCopy.Rows.Add(row.Cells.Select(cell => cell.IsAvailable ? cell.Value : cell).ToArray());
             copy.Tables.Add(tableCopy);
         }
         return copy;
@@ -247,6 +247,7 @@ public sealed class XisfImageData
         if (type == typeof(ulong)) return XisfSampleFormat.UInt64;
         if (type == typeof(float)) return XisfSampleFormat.Float32;
         if (type == typeof(double)) return XisfSampleFormat.Float64;
+        if (type == typeof(XisfComplex32)) return XisfSampleFormat.Complex32;
         if (type == typeof(Complex)) return XisfSampleFormat.Complex64;
         throw new NotSupportedException($"The .NET sample type '{type.Name}' has no supported XISF image sample format.");
     }
@@ -276,6 +277,11 @@ public sealed class XisfImageData
                 break;
             case XisfSampleFormat.Float64:
                 WriteInt64(destination, BitConverter.DoubleToInt64Bits((double)boxed), bigEndian);
+                break;
+            case XisfSampleFormat.Complex32:
+                XisfComplex32 complex32 = (XisfComplex32)boxed;
+                WriteInt32(destination, BitConverter.SingleToInt32Bits(complex32.Real), bigEndian);
+                WriteInt32(destination[4..], BitConverter.SingleToInt32Bits(complex32.Imaginary), bigEndian);
                 break;
             case XisfSampleFormat.Complex64:
                 Complex complex = (Complex)boxed;

@@ -54,7 +54,7 @@ Other scaled, signed, or blank-containing FITS images use a physical-value doubl
 
 Complex XISF images cannot be converted into standard FITS image HDUs. FITS table conversion into XISF flattens array-valued cells into text; converting XISF images back to FITS does not recreate those tables. Unknown HDUs and arbitrary extensions are not guaranteed to survive format conversion. Disable `TreatThirdAxisAsColorChannels` to preserve a three- or four-plane scientific cube as dimensions rather than color channels.
 
-`Float128` property text is read as a double, and decimal serialization does not create an IEEE binary128 value. Do not rely on this property path for quadruple-precision arithmetic. Typed image reads preserve integer values when the requested type can represent them; normalization, display, statistics, and physical double conversions may lose large-integer precision.
+`XisfFloat128` preserves IEEE binary128 bits and parses/serializes decimal text without passing through double precision. `XisfComplex128` preserves both binary128 components; F128/C128 vectors and matrices support either byte order. These storage types do not implement quadruple-precision arithmetic. Typed image reads preserve integer values when the requested type can represent them; normalization, display, statistics, and physical double conversions may lose large-integer precision.
 
 ## Memory and performance
 

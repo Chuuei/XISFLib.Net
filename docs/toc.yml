@@ -6,6 +6,10 @@
   href: api-guide.md
 - name: I/O and limitations
   href: io-and-limitations.md
+- name: Astrometric solutions
+  href: astrometry.md
+- name: Specification coverage
+  href: specification-compliance.md
 - name: Architecture
   href: architecture.md
 - name: Contributing

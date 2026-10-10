@@ -24,7 +24,7 @@ public class ReviewRegressionTests
         try
         {
             File.WriteAllText(path, "original");
-            Assert.Throws<ArgumentException>(() => XisfWriter.Write(path, Array.Empty<XisfImageData>()));
+            Assert.Throws<ArgumentException>(() => XisfWriter.Write(path, new XisfImageData[] { null! }));
             Assert.Equal("original", File.ReadAllText(path));
         }
         finally { File.Delete(path); }
@@ -55,8 +55,8 @@ public class ReviewRegressionTests
     {
         using MemoryStream input = Xml("<Image geometry=\"1:1\" sampleFormat=\"UInt8\" location=\"url(file:///unused)\" />");
         XisfImage image = XisfReader.Load(input, options: new XisfReaderOptions { AllowNetworkResources = true }).Images[0];
-        // HttpClient rejects file URIs before making a request. Losing the 'f' instead produces a relative URI error.
-        Assert.Throws<NotSupportedException>(() => image.ReadRawData());
+        // File URLs are filesystem resources and require the filesystem policy, independently of HTTP access.
+        Assert.Contains("External file", Assert.Throws<XisfFormatException>(() => image.ReadRawData()).Message);
     }
 
     [Fact]

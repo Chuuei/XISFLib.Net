@@ -40,7 +40,7 @@ public static class AstronomyMetadata
     public static AstronomyImageMetadata From(XisfImage image)
     {
         ArgumentNullException.ThrowIfNull(image);
-        return Create(image.FitsKeywords, image.Properties.ToDictionary(pair => pair.Key, pair => pair.Value.Value, StringComparer.OrdinalIgnoreCase));
+        return Create(image.FitsKeywords, image.Properties.ToDictionary(pair => pair.Key, pair => pair.Value.Value, StringComparer.Ordinal));
     }
 
     /// <summary>Extracts common observation and instrument metadata from properties and FITS keywords.</summary>
@@ -50,7 +50,7 @@ public static class AstronomyMetadata
     {
         ArgumentNullException.ThrowIfNull(image);
         return Create(image.FitsKeywords, image.Properties.ToDictionary(pair => pair.Key,
-            pair => pair.Value is XisfPropertyData property ? property.Value : pair.Value, StringComparer.OrdinalIgnoreCase));
+            pair => pair.Value switch { XisfPropertyData property => property.Value, XisfProperty property => property.Value, _ => pair.Value }, StringComparer.Ordinal));
     }
 
     /// <summary>Extracts common observation and instrument metadata from properties and FITS keywords.</summary>
@@ -66,7 +66,7 @@ public static class AstronomyMetadata
 
     private static AstronomyImageMetadata Create(IEnumerable<XisfFitsKeyword> keywords, IReadOnlyDictionary<string, object?> properties)
     {
-        Dictionary<string, string> values = new(StringComparer.OrdinalIgnoreCase);
+        Dictionary<string, string> values = new(StringComparer.Ordinal);
         foreach (XisfFitsKeyword keyword in keywords)
             values[keyword.Name] = keyword.Value;
         foreach ((string id, object? value) in properties)

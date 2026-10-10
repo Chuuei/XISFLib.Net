@@ -19,7 +19,7 @@ public static class XisfWindowsExtensions
         ArgumentNullException.ThrowIfNull(image);
         (int width, int height, byte[] pixels) = CreateBgra32Pixels(image.ReadRawData(), image.Dimensions, image.ChannelCount,
             image.SampleFormat, image.PixelStorage, image.IsBigEndian, image.LowerBound, image.UpperBound, image.ColorSpace,
-            image.Orientation, stretch, image.DisplayFunction);
+            image.Orientation, stretch, image.DisplayFunction, image.RgbWorkingSpace);
         return CreateBitmap(width, height, pixels, image.Resolution);
     }
 
@@ -32,7 +32,7 @@ public static class XisfWindowsExtensions
         ArgumentNullException.ThrowIfNull(image);
         (int width, int height, byte[] pixels) = CreateBgra32Pixels(image.RawData, image.Dimensions, image.ChannelCount,
             image.SampleFormat, image.PixelStorage, image.IsBigEndian, image.LowerBound ?? 0, GetUpperBound(image), image.ColorSpace,
-            image.Orientation ?? "0", stretch, image.DisplayFunction);
+            image.Orientation ?? "0", stretch, image.DisplayFunction, image.RgbWorkingSpace);
         return CreateBitmap(width, height, pixels, image.Resolution);
     }
 
@@ -71,7 +71,7 @@ public static class XisfWindowsExtensions
         ArgumentNullException.ThrowIfNull(image);
         (int width, int height, byte[] pixels) = CreateBgra32Pixels(image.ReadRawData(), image.Dimensions, image.ChannelCount,
             image.SampleFormat, image.PixelStorage, image.IsBigEndian, image.LowerBound, image.UpperBound, image.ColorSpace,
-            image.Orientation, stretch, image.DisplayFunction);
+            image.Orientation, stretch, image.DisplayFunction, image.RgbWorkingSpace);
         return CreateBitmapSource(width, height, pixels, image.Resolution);
     }
 
@@ -84,7 +84,7 @@ public static class XisfWindowsExtensions
         ArgumentNullException.ThrowIfNull(image);
         (int width, int height, byte[] pixels) = CreateBgra32Pixels(image.RawData, image.Dimensions, image.ChannelCount,
             image.SampleFormat, image.PixelStorage, image.IsBigEndian, image.LowerBound ?? 0, GetUpperBound(image), image.ColorSpace,
-            image.Orientation ?? "0", stretch, image.DisplayFunction);
+            image.Orientation ?? "0", stretch, image.DisplayFunction, image.RgbWorkingSpace);
         return CreateBitmapSource(width, height, pixels, image.Resolution);
     }
 
@@ -104,7 +104,7 @@ public static class XisfWindowsExtensions
     {
         ArgumentNullException.ThrowIfNull(image);
         return CreateBgra32Pixels(image.ReadRawData(), image.Dimensions, image.ChannelCount, image.SampleFormat, image.PixelStorage,
-            image.IsBigEndian, image.LowerBound, image.UpperBound, image.ColorSpace, image.Orientation, stretch, image.DisplayFunction).Pixels;
+            image.IsBigEndian, image.LowerBound, image.UpperBound, image.ColorSpace, image.Orientation, stretch, image.DisplayFunction, image.RgbWorkingSpace).Pixels;
     }
 
     /// <summary>Returns a newly allocated BGRA display buffer with optional stretching.</summary>
@@ -116,7 +116,7 @@ public static class XisfWindowsExtensions
         ArgumentNullException.ThrowIfNull(image);
         return CreateBgra32Pixels(image.RawData, image.Dimensions, image.ChannelCount, image.SampleFormat, image.PixelStorage,
             image.IsBigEndian, image.LowerBound ?? 0, GetUpperBound(image), image.ColorSpace, image.Orientation ?? "0", stretch,
-            image.DisplayFunction).Pixels;
+            image.DisplayFunction, image.RgbWorkingSpace).Pixels;
     }
 
     private static double GetUpperBound(XisfImageData image) => image.UpperBound ?? (image.SampleFormat switch
@@ -128,24 +128,32 @@ public static class XisfWindowsExtensions
         _ => double.NaN
     });
 
-    private static (int Width, int Height, byte[] Pixels) CreateBgra32Pixels(ReadOnlySpan<byte> data, IReadOnlyList<int> dimensions,
-        int channelCount, XisfSampleFormat sampleFormat, XisfPixelLayout pixelStorage, bool isBigEndian, double lowerBound,
-        double upperBound, string? colorSpace, string orientation, XisfStretchOptions? stretch, XisfDisplayFunction? displayFunction)
+    private static (int Width, int Height, byte[] Pixels) CreateBgra32Pixels(ReadOnlySpan<byte> data,
+        IReadOnlyList<int> dimensions,
+        int channelCount, XisfSampleFormat sampleFormat, XisfPixelLayout pixelStorage, bool isBigEndian,
+        double lowerBound,
+        double upperBound, string? colorSpace, string orientation, XisfStretchOptions? stretch,
+        XisfDisplayFunction? displayFunction, XisfRgbWorkingSpace? workingSpace)
     {
         if (dimensions.Count != 2)
             throw new NotSupportedException("Windows Forms and WPF bitmaps require a two-dimensional XISF image.");
         if (sampleFormat is XisfSampleFormat.Complex32 or XisfSampleFormat.Complex64)
             throw new NotSupportedException("Complex XISF samples cannot be represented as a bitmap.");
-        if (channelCount is < 1 or > 4)
-            throw new NotSupportedException("Bitmap conversion supports one to four image channels.");
+        bool isLab = colorSpace?.Equals("CIELab", StringComparison.OrdinalIgnoreCase) == true;
+        bool isGray = colorSpace is null || colorSpace.Equals("Gray", StringComparison.OrdinalIgnoreCase);
+        if (!isLab && !isGray && !colorSpace!.Equals("RGB", StringComparison.OrdinalIgnoreCase)) throw new NotSupportedException("Unsupported image color space.");
+        int nominalChannels = isGray ? 1 : 3;
+        if (channelCount < nominalChannels) throw new XisfFormatException("Channel count is inconsistent with the color space.");
 
         int width = dimensions[0];
         int height = dimensions[1];
         int pixelCount = checked(width * height);
-        NormalizedSampleReader samples = new(data, pixelCount, channelCount, sampleFormat, pixelStorage, isBigEndian, lowerBound, upperBound);
-        int colorChannelCount = channelCount is 2 or 4 ? channelCount - 1 : channelCount;
+        double labMaximum = sampleFormat switch { XisfSampleFormat.UInt8 => byte.MaxValue, XisfSampleFormat.UInt16 => ushort.MaxValue, XisfSampleFormat.UInt32 => uint.MaxValue, XisfSampleFormat.UInt64 => ulong.MaxValue, _ => 1 };
+        NormalizedSampleReader samples = new(data, pixelCount, channelCount, sampleFormat, pixelStorage, isBigEndian, isLab ? 0 : lowerBound, isLab ? labMaximum : upperBound);
+        int colorChannelCount = isLab ? 1 : nominalChannels;
         StretchTransform[] transforms = CreateStretchTransforms(samples, colorChannelCount, stretch, displayFunction);
-        bool isLab = colorSpace?.Equals("CIELab", StringComparison.OrdinalIgnoreCase) == true;
+        if (isLab && stretch?.UseDisplayFunction == true && displayFunction is not null)
+            transforms[0] = new StretchTransform(displayFunction.Shadows[3], displayFunction.Midtones[3], displayFunction.Highlights[3], displayFunction.LowRange[3], displayFunction.HighRange[3]);
         byte[] pixels = new byte[checked(pixelCount * 4)];
         for (int pixel = 0; pixel < pixelCount; pixel++)
         {
@@ -153,22 +161,26 @@ public static class XisfWindowsExtensions
             byte green;
             byte blue;
             byte alpha;
-            if (channelCount <= 2)
+            if (isGray)
             {
                 red = green = blue = ToByte(transforms[0].Apply(samples.Read(pixel, 0)));
-                alpha = channelCount == 2 ? ToByte(samples.Read(pixel, 1)) : byte.MaxValue;
+                alpha = channelCount > 1 ? ToByte(samples.Read(pixel, 1)) : byte.MaxValue;
             }
             else
             {
                 if (isLab)
-                    (red, green, blue) = LabToSrgb(transforms[0].Apply(samples.Read(pixel, 0)), samples.Read(pixel, 1), samples.Read(pixel, 2));
+                {
+                    var rgb = XisfColorSpace.LabToRgb(transforms[0].Apply(samples.Read(pixel, 0)), samples.Read(pixel, 1), samples.Read(pixel, 2), workingSpace);
+                    double rgbMaximum = upperBound / labMaximum, rgbMinimum = lowerBound / labMaximum;
+                    (red, green, blue) = (ToByte((rgb.Red - rgbMinimum) / (rgbMaximum - rgbMinimum)), ToByte((rgb.Green - rgbMinimum) / (rgbMaximum - rgbMinimum)), ToByte((rgb.Blue - rgbMinimum) / (rgbMaximum - rgbMinimum)));
+                }
                 else
                 {
                     red = ToByte(transforms[0].Apply(samples.Read(pixel, 0)));
                     green = ToByte(transforms[1].Apply(samples.Read(pixel, 1)));
                     blue = ToByte(transforms[2].Apply(samples.Read(pixel, 2)));
                 }
-                alpha = channelCount == 4 ? ToByte(samples.Read(pixel, 3)) : byte.MaxValue;
+                alpha = channelCount > 3 ? ToByte(samples.Read(pixel, 3)) : byte.MaxValue;
             }
 
             int target = pixel * 4;
@@ -178,26 +190,6 @@ public static class XisfWindowsExtensions
             pixels[target + 3] = alpha;
         }
         return ApplyOrientation(width, height, pixels, orientation);
-    }
-
-    private static (byte Red, byte Green, byte Blue) LabToSrgb(double l, double a, double b)
-    {
-        double fy = (Math.Clamp(l, 0, 1) * 100 + 16) / 116;
-        double fx = fy + (Math.Clamp(a, 0, 1) * 255 - 128) / 500;
-        double fz = fy - (Math.Clamp(b, 0, 1) * 255 - 128) / 200;
-        static double Pivot(double value)
-        {
-            double cube = value * value * value;
-            return cube > 216.0 / 24389 ? cube : (116 * value - 16) / (24389.0 / 27);
-        }
-        double x = 0.95047 * Pivot(fx);
-        double y = Pivot(fy);
-        double z = 1.08883 * Pivot(fz);
-        double red = 3.2404542 * x - 1.5371385 * y - 0.4985314 * z;
-        double green = -0.969266 * x + 1.8760108 * y + 0.041556 * z;
-        double blue = 0.0556434 * x - 0.2040259 * y + 1.0572252 * z;
-        static double Gamma(double value) => value <= 0.0031308 ? 12.92 * value : 1.055 * Math.Pow(Math.Max(0, value), 1 / 2.4) - 0.055;
-        return (ToByte(Gamma(red)), ToByte(Gamma(green)), ToByte(Gamma(blue)));
     }
 
     private static (int Width, int Height, byte[] Pixels) ApplyOrientation(int width, int height, byte[] source, string orientation)
@@ -231,8 +223,7 @@ public static class XisfWindowsExtensions
             return transforms;
         if (options.UseDisplayFunction)
         {
-            if (displayFunction is null)
-                throw new InvalidOperationException("The XISF image has no display function.");
+            if (displayFunction is null) return transforms;
             if (new[] { displayFunction.Midtones.Count, displayFunction.Shadows.Count, displayFunction.Highlights.Count,
                     displayFunction.LowRange.Count, displayFunction.HighRange.Count }.Any(count => count != 4))
                 throw new XisfFormatException("Display function vectors must have four components.");
@@ -246,65 +237,18 @@ public static class XisfWindowsExtensions
         if (!double.IsFinite(options.ShadowsClipping) || options.ShadowsClipping > 0)
             throw new ArgumentOutOfRangeException(nameof(options), "The shadows clipping value must be finite and nonpositive.");
 
-        if (options.LinkChannels || colorChannelCount == 1)
+        double[][] channels = new double[colorChannelCount][];
+        int stride = Math.Max(1, (int)Math.Ceiling(samples.PixelCount / 262144.0));
+        for (int channel = 0; channel < colorChannelCount; channel++)
         {
-            StretchTransform transform = CalculateAutoStretch(samples, colorChannelCount, null, options);
-            Array.Fill(transforms, transform);
+            List<double> values = [];
+            for (int pixel = 0; pixel < samples.PixelCount; pixel += stride) values.Add(samples.Read(pixel, channel));
+            channels[channel] = values.ToArray();
         }
-        else
-        {
-            for (int channel = 0; channel < colorChannelCount; channel++)
-                transforms[channel] = CalculateAutoStretch(samples, colorChannelCount, channel, options);
-        }
+        XisfDisplayFunction adaptive = XisfDisplayFunctions.CreateAdaptive(channels, options.TargetBackground, options.ShadowsClipping, options.LinkChannels);
+        for (int channel = 0; channel < colorChannelCount; channel++)
+            transforms[channel] = new StretchTransform(adaptive.Shadows[channel], adaptive.Midtones[channel], adaptive.Highlights[channel], 0, 1);
         return transforms;
-    }
-
-    private static StretchTransform CalculateAutoStretch(NormalizedSampleReader samples, int colorChannelCount, int? selectedChannel,
-        XisfStretchOptions options)
-    {
-        const int maximumStatisticsSamples = 262_144;
-        int includedChannels = selectedChannel.HasValue ? 1 : colorChannelCount;
-        int pixelStride = Math.Max(1, (int)Math.Ceiling((double)samples.PixelCount * includedChannels / maximumStatisticsSamples));
-        List<double> values = new(Math.Min(maximumStatisticsSamples, checked(samples.PixelCount * includedChannels)));
-        for (int pixel = 0; pixel < samples.PixelCount; pixel += pixelStride)
-        {
-            int firstChannel = selectedChannel ?? 0;
-            int lastChannel = selectedChannel.HasValue ? firstChannel + 1 : colorChannelCount;
-            for (int channel = firstChannel; channel < lastChannel; channel++)
-            {
-                double value = samples.Read(pixel, channel);
-                if (double.IsFinite(value))
-                    values.Add(Math.Clamp(value, 0, 1));
-            }
-        }
-        if (values.Count == 0)
-            return StretchTransform.Identity;
-
-        values.Sort();
-        double median = Median(values);
-        if (median <= 0 || median >= 0.5)
-            return StretchTransform.Identity;
-
-        for (int i = 0; i < values.Count; i++)
-            values[i] = Math.Abs(values[i] - median);
-        values.Sort();
-        double medianDeviation = Median(values);
-        double shadows = Math.Clamp(median + options.ShadowsClipping * 1.4826 * medianDeviation, 0, 1);
-        double background = (median - shadows) / (1 - shadows);
-        if (background <= 0 || background >= 1)
-            return StretchTransform.Identity;
-
-        double target = options.TargetBackground;
-        double midtones = background * (1 - target) / (background + target - 2 * background * target);
-        return new StretchTransform(shadows, Math.Clamp(midtones, double.Epsilon, 1 - double.Epsilon), 1, 0, 1);
-    }
-
-    private static double Median(List<double> sortedValues)
-    {
-        int middle = sortedValues.Count / 2;
-        return sortedValues.Count % 2 == 0
-            ? (sortedValues[middle - 1] + sortedValues[middle]) / 2
-            : sortedValues[middle];
     }
 
     private static byte ToByte(double value)
@@ -397,15 +341,8 @@ public static class XisfWindowsExtensions
 
         public double Apply(double value)
         {
-            if (!double.IsFinite(value) || value <= LowRange)
-                return 0;
-            if (value >= HighRange)
-                return 1;
-            value = (value - LowRange) / (HighRange - LowRange);
-            if (value <= Shadows) return 0;
-            if (value >= Highlights) return 1;
-            double x = (value - Shadows) / (Highlights - Shadows);
-            return (Midtones - 1) * x / ((2 * Midtones - 1) * x - Midtones);
+            if (double.IsNaN(value)) return 0;
+            return XisfDisplayFunctions.Evaluate(value, Midtones, Shadows, Highlights, LowRange, HighRange);
         }
     }
 }

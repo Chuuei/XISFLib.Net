@@ -45,6 +45,31 @@ internal sealed class XisfDataBlock
 
     public byte[] Read()
     {
+        string? location = (string?)_owner.Attribute("location");
+        if (location?.StartsWith("attachment:", StringComparison.OrdinalIgnoreCase) == true)
+        {
+            string[] parts = location.Split(':');
+            if (parts.Length == 3 && long.TryParse(parts[1], out long position) && int.TryParse(parts[2], out int size))
+            {
+                byte[]? streamed = ReadPathBackedZlibAttachment(position, size, _owner);
+                if (streamed is not null) return streamed;
+            }
+        }
+        byte[] serialized = ReadSerialized();
+        XElement attributes = location == "embedded" || location is null && _owner.Elements().Any(e => e.Name.LocalName == "Data") ? _owner.Elements().First(e => e.Name.LocalName == "Data") : _owner;
+        VerifyChecksum(serialized, (string?)attributes.Attribute("checksum") ?? (string?)_owner.Attribute("checksum"));
+        return Decompress(serialized, attributes);
+    }
+
+    public void VerifyIntegrity()
+    {
+        byte[] serialized = ReadSerialized();
+        XElement attributes = (string?)_owner.Attribute("location") == "embedded" ? _owner.Elements().First(e => e.Name.LocalName == "Data") : _owner;
+        VerifyChecksum(serialized, (string?)attributes.Attribute("checksum") ?? (string?)_owner.Attribute("checksum"));
+    }
+
+    public byte[] ReadSerialized()
+    {
         XElement attributes = _owner;
         string location = (string?)_owner.Attribute("location") ?? (_owner.Elements().Any(e => e.Name.LocalName == "Data") ? "embedded" : "");
         byte[] serialized;
@@ -62,9 +87,6 @@ internal sealed class XisfDataBlock
             string[] parts = location.Split(':');
             if (parts.Length != 3 || !long.TryParse(parts[1], out long position) || !int.TryParse(parts[2], out int size))
                 throw new XisfFormatException("Invalid attached data block location.");
-            byte[]? streamed = ReadPathBackedZlibAttachment(position, size, attributes);
-            if (streamed is not null)
-                return streamed;
             serialized = _source.ReadAttachment(position, size);
         }
         else
@@ -72,8 +94,9 @@ internal sealed class XisfDataBlock
 
         if (serialized.Length > _source.Options.MaximumDataBlockSize)
             throw new XisfFormatException("The data block exceeds the configured size limit.");
-        VerifyChecksum(serialized, (string?)attributes.Attribute("checksum") ?? (string?)_owner.Attribute("checksum"));
-        return Decompress(serialized, attributes);
+        try { VerifyChecksum(serialized, (string?)attributes.Attribute("checksum") ?? (string?)_owner.Attribute("checksum")); }
+        catch (XisfUnsupportedFeatureException) { /* Preserve opaque blocks; Read still reports the unavailable checksum algorithm. */ }
+        return serialized;
     }
 
     private byte[]? ReadPathBackedZlibAttachment(long position, int size, XElement attributes)
@@ -93,8 +116,16 @@ internal sealed class XisfDataBlock
             throw new XisfFormatException("The compressed data block exceeds the configured decompression-ratio limit.");
 
         string? checksum = (string?)attributes.Attribute("checksum") ?? (string?)_owner.Attribute("checksum");
-        using IncrementalHash? hash = CreateIncrementalHash(checksum);
-        using AttachmentReadStream attachment = new(path, position, size, hash);
+        if (checksum is not null && ((checksum.StartsWith("sha3-256", StringComparison.Ordinal) && !SHA3_256.IsSupported) ||
+            (checksum.StartsWith("sha3-512", StringComparison.Ordinal) && !SHA3_512.IsSupported))) return null;
+        if (checksum is not null)
+        {
+            using IncrementalHash hash = CreateIncrementalHash(checksum)!;
+            using AttachmentReadStream verification = new(path, position, size, hash);
+            verification.Drain();
+            VerifyChecksumDigest(hash.GetHashAndReset(), checksum);
+        }
+        using AttachmentReadStream attachment = new(path, position, size, null);
         using ZLibStream zlib = new(attachment, CompressionMode.Decompress, true);
         byte[] result = new byte[expectedSize];
         try
@@ -109,8 +140,6 @@ internal sealed class XisfDataBlock
             throw new XisfFormatException("The decompressed zlib block has an unexpected size.");
         zlib.Dispose();
         attachment.Drain();
-        if (hash is not null)
-            VerifyChecksumDigest(hash.GetHashAndReset(), checksum!);
         return result;
     }
 
@@ -126,19 +155,35 @@ internal sealed class XisfDataBlock
         string resource = location[(isUrl ? 4 : 5)..close];
         string? indexText = close + 1 < location.Length && location[close + 1] == ':' ? location[(close + 2)..] : null;
         byte[] file;
+        if (isUrl && Uri.TryCreate(resource, UriKind.Absolute, out Uri? uri) && uri.IsFile)
+        {
+            if (!_source.Options.AllowExternalFilePaths) throw new XisfFormatException("External file data blocks are disabled by reader policy.");
+            resource = uri.LocalPath;
+            isUrl = false;
+        }
         if (isUrl)
         {
             if (!_source.Options.AllowNetworkResources)
                 throw new XisfFormatException("Network data blocks are disabled by reader policy.");
             using CancellationTokenSource timeout = new(_source.Options.NetworkTimeout);
-            using HttpResponseMessage response = Http.GetAsync(resource, HttpCompletionOption.ResponseHeadersRead, timeout.Token).GetAwaiter().GetResult();
-            response.EnsureSuccessStatusCode();
-            if (response.Content.Headers.ContentLength is long length && length > _source.Options.MaximumDataBlockSize)
-                throw new XisfFormatException("The network data block exceeds the configured size limit.");
-            using Stream network = response.Content.ReadAsStream(timeout.Token);
-            using MemoryStream output = new();
-            CopyToWithLimit(network, output, _source.Options.MaximumDataBlockSize);
-            file = output.ToArray();
+            Uri resourceUri = new(resource, UriKind.Absolute);
+            if (_source.Options.ExternalResourceResolver is { } resolver)
+            {
+                using Stream resolved = resolver(resourceUri, timeout.Token);
+                using MemoryStream output = new();
+                CopyToWithLimit(resolved, output, _source.Options.MaximumDataBlockSize); file = output.ToArray();
+            }
+            else
+            {
+                if (resourceUri.Scheme is not ("http" or "https")) throw new XisfUnsupportedFeatureException($"URL scheme '{resourceUri.Scheme}' requires an external resource resolver.");
+                using HttpResponseMessage response = Http.GetAsync(resourceUri, HttpCompletionOption.ResponseHeadersRead, timeout.Token).GetAwaiter().GetResult();
+                response.EnsureSuccessStatusCode();
+                if (response.Content.Headers.ContentLength is long length && length > _source.Options.MaximumDataBlockSize)
+                    throw new XisfFormatException("The network data block exceeds the configured size limit.");
+                using Stream network = response.Content.ReadAsStream(timeout.Token);
+                using MemoryStream output = new();
+                CopyToWithLimit(network, output, _source.Options.MaximumDataBlockSize); file = output.ToArray();
+            }
         }
         else
         {
@@ -157,6 +202,7 @@ internal sealed class XisfDataBlock
                 if (!_source.Options.AllowExternalFilePaths)
                     throw new XisfFormatException("External file data blocks are disabled by reader policy.");
                 resource = resource.Replace('/', Path.DirectorySeparatorChar);
+                if (!Path.IsPathFullyQualified(resource)) throw new XisfFormatException("External paths must be absolute or use @header_dir.");
             }
             if (new FileInfo(resource).Length > _source.Options.MaximumDataBlockSize)
                 throw new XisfFormatException("The data block exceeds the configured size limit.");
@@ -182,10 +228,11 @@ internal sealed class XisfDataBlock
         }
     }
 
-    private static byte[] ReadXisbBlock(byte[] file, ulong id)
+    private byte[] ReadXisbBlock(byte[] file, ulong id)
     {
         if (file.Length < 32 || !file.AsSpan(0, 8).SequenceEqual("XISB0100"u8) || file.AsSpan(8, 8).ContainsAnyExcept((byte)0))
             throw new XisfFormatException("Invalid XISF data blocks file header.");
+        byte[]? matching = null;
         ulong nodePosition = 16;
         HashSet<ulong> visited = [];
         HashSet<ulong> identifiers = [];
@@ -204,19 +251,25 @@ internal sealed class XisfDataBlock
                 ulong entryId = BinaryPrimitives.ReadUInt64LittleEndian(file.AsSpan(entry, 8));
                 ulong position = BinaryPrimitives.ReadUInt64LittleEndian(file.AsSpan(entry + 8, 8));
                 ulong length = BinaryPrimitives.ReadUInt64LittleEndian(file.AsSpan(entry + 16, 8));
-                if (!file.AsSpan(entry + 32, 8).SequenceEqual(new byte[8]) || entryId != 0 && !identifiers.Add(entryId))
+                ulong uncompressedLength = BinaryPrimitives.ReadUInt64LittleEndian(file.AsSpan(entry + 24, 8));
+                if (!file.AsSpan(entry + 32, 8).SequenceEqual(new byte[8]) || !identifiers.Add(entryId) ||
+                    position == 0 && (length != 0 || uncompressedLength != 0))
                     throw new XisfFormatException("Invalid XISF block-index entry.");
-                if (entryId == id)
+                if (position != 0 && entryId == id)
                 {
+                    string[]? compression = ((string?)_owner.Attribute("compression"))?.Split(':');
+                    ulong expected = compression is { Length: >= 2 } ? ParseUnsigned(compression[1]) : 0;
+                    if (uncompressedLength != expected) throw new XisfFormatException("The XISB uncompressed block length does not match the header.");
                     if (position == 0 || position > (ulong)file.Length || length > (ulong)file.Length - position || length > int.MaxValue)
                         throw new XisfFormatException("Invalid XISF indexed data block dimensions.");
-                    return file.AsSpan(checked((int)position), checked((int)length)).ToArray();
+                    matching = file.AsSpan(checked((int)position), checked((int)length)).ToArray();
                 }
             }
             nodePosition = next;
         }
         if (nodePosition != 0)
             throw new XisfFormatException("A cycle was detected in the XISF block index.");
+        if (matching is not null) return matching;
         throw new XisfFormatException($"XISF data block index identifier '{id}' was not found.");
     }
 
@@ -244,7 +297,9 @@ internal sealed class XisfDataBlock
             "sha512" => SHA512.HashData(data),
             "sha3256" when SHA3_256.IsSupported => SHA3_256.HashData(data),
             "sha3512" when SHA3_512.IsSupported => SHA3_512.HashData(data),
-            _ => throw new XisfFormatException($"Unsupported checksum algorithm '{checksum[..separator]}'.")
+            "sha3256" => XisfSha3.HashData(data, 256),
+            "sha3512" => XisfSha3.HashData(data, 512),
+            _ => throw new XisfUnsupportedFeatureException($"Unsupported checksum algorithm '{checksum[..separator]}'.")
         };
         VerifyChecksumDigest(digest, checksum);
     }
@@ -262,7 +317,7 @@ internal sealed class XisfDataBlock
             "sha512" => HashAlgorithmName.SHA512,
             "sha3256" when SHA3_256.IsSupported => new HashAlgorithmName("SHA3-256"),
             "sha3512" when SHA3_512.IsSupported => new HashAlgorithmName("SHA3-512"),
-            _ => throw new XisfFormatException($"Unsupported checksum algorithm '{checksum[..separator]}'.")
+            _ => throw new XisfUnsupportedFeatureException($"Unsupported checksum algorithm '{checksum[..separator]}'.")
         };
         return IncrementalHash.CreateHash(name);
     }
@@ -322,6 +377,21 @@ internal sealed class XisfDataBlock
     private static byte[] DecompressOne(byte[] data, string codec, int expectedSize)
     {
         codec = codec.Replace("+sh", "", StringComparison.Ordinal);
+        if (codec == "zstd")
+        {
+            byte[] result = new byte[expectedSize];
+            using ZstdSharp.Decompressor decompressor = new();
+            try
+            {
+                if (decompressor.Unwrap(data, result) != expectedSize)
+                    throw new XisfFormatException("The decompressed Zstandard block has an unexpected size.");
+            }
+            catch (ZstdSharp.ZstdException exception)
+            {
+                throw new XisfFormatException("Invalid Zstandard data block.", exception);
+            }
+            return result;
+        }
         if (codec == "zlib")
         {
             using MemoryStream source = new(data);
@@ -345,7 +415,7 @@ internal sealed class XisfDataBlock
             if (decoded != expectedSize) throw new XisfFormatException("The decompressed LZ4 block has an unexpected size.");
             return result;
         }
-        throw new XisfFormatException($"Unsupported compression codec '{codec}'.");
+        throw new XisfUnsupportedFeatureException($"Unsupported compression codec '{codec}'.");
     }
 
     private static byte[] Unshuffle(byte[] input, int itemSize)
