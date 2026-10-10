@@ -809,51 +809,11 @@ public static class XisfWriter
             elementType == typeof(XisfComplex128) ? ("C128", 32) :
             elementType == typeof(XisfComplex32) ? ("C32", 8) :
             throw new NotSupportedException($"Arrays of '{elementType.Name}' cannot be serialized as XISF properties.");
-        byte[] data = new byte[checked(values.Length * itemSize)];
-        int offset = 0;
-        foreach (object value in values)
-        {
-            WritePropertyItem(data.AsSpan(offset, itemSize), value, elementType);
-            offset += itemSize;
-        }
+        int componentSize = prefix.StartsWith('C') ? itemSize / 2 : itemSize;
+        byte[] data = XisfSampleBuffer.CopyArray(values, checked(values.Length * itemSize), componentSize);
         return values.Rank == 1
             ? new PropertySerialization(prefix + "Vector", Binary: data, Length: values.Length, ItemSize: itemSize)
             : new PropertySerialization(prefix + "Matrix", Binary: data, Rows: values.GetLength(0), Columns: values.GetLength(1), ItemSize: itemSize);
-    }
-
-    private static void WritePropertyItem(Span<byte> destination, object value, Type type)
-    {
-        if (type == typeof(byte)) destination[0] = (byte)value;
-        else if (type == typeof(sbyte)) destination[0] = unchecked((byte)(sbyte)value);
-        else if (type == typeof(short)) BinaryPrimitives.WriteInt16LittleEndian(destination, (short)value);
-        else if (type == typeof(ushort)) BinaryPrimitives.WriteUInt16LittleEndian(destination, (ushort)value);
-        else if (type == typeof(int)) BinaryPrimitives.WriteInt32LittleEndian(destination, (int)value);
-        else if (type == typeof(uint)) BinaryPrimitives.WriteUInt32LittleEndian(destination, (uint)value);
-        else if (type == typeof(long)) BinaryPrimitives.WriteInt64LittleEndian(destination, (long)value);
-        else if (type == typeof(ulong)) BinaryPrimitives.WriteUInt64LittleEndian(destination, (ulong)value);
-        else if (type == typeof(Int128)) BinaryPrimitives.WriteInt128LittleEndian(destination, (Int128)value);
-        else if (type == typeof(UInt128)) BinaryPrimitives.WriteUInt128LittleEndian(destination, (UInt128)value);
-        else if (type == typeof(float)) BinaryPrimitives.WriteInt32LittleEndian(destination, BitConverter.SingleToInt32Bits((float)value));
-        else if (type == typeof(double)) BinaryPrimitives.WriteInt64LittleEndian(destination, BitConverter.DoubleToInt64Bits((double)value));
-        else if (type == typeof(XisfFloat128)) BinaryPrimitives.WriteUInt128LittleEndian(destination, ((XisfFloat128)value).Bits);
-        else if (type == typeof(XisfComplex128))
-        {
-            var complex = (XisfComplex128)value;
-            BinaryPrimitives.WriteUInt128LittleEndian(destination, complex.Real.Bits);
-            BinaryPrimitives.WriteUInt128LittleEndian(destination[16..], complex.Imaginary.Bits);
-        }
-        else if (type == typeof(XisfComplex32))
-        {
-            var complex = (XisfComplex32)value;
-            BinaryPrimitives.WriteSingleLittleEndian(destination, complex.Real);
-            BinaryPrimitives.WriteSingleLittleEndian(destination[4..], complex.Imaginary);
-        }
-        else if (type == typeof(Complex))
-        {
-            Complex complex = (Complex)value;
-            BinaryPrimitives.WriteInt64LittleEndian(destination, BitConverter.DoubleToInt64Bits(complex.Real));
-            BinaryPrimitives.WriteInt64LittleEndian(destination[8..], BitConverter.DoubleToInt64Bits(complex.Imaginary));
-        }
     }
 
     private static string Join<T>(IEnumerable<T> values) where T : IFormattable => string.Join(' ', values.Select(value => value.ToString(null, CultureInfo.InvariantCulture)));

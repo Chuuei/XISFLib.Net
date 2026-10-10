@@ -199,17 +199,19 @@ public static class XisfWindowsExtensions
         int targetWidth = quarterTurn ? height : width;
         int targetHeight = quarterTurn ? width : height;
         byte[] target = new byte[source.Length];
+        string rotation = orientation.Split(';')[0];
+        bool flip = orientation.EndsWith(";flip", StringComparison.Ordinal) || orientation == "flip";
         for (int y = 0; y < height; y++)
         for (int x = 0; x < width; x++)
         {
-            (int tx, int ty) = orientation.Split(';')[0] switch
+            (int tx, int ty) = rotation switch
             {
                 "90" => (y, width - 1 - x),
                 "-90" => (height - 1 - y, x),
                 "180" => (width - 1 - x, height - 1 - y),
                 _ => (x, y)
             };
-            if (orientation.EndsWith(";flip", StringComparison.Ordinal) || orientation == "flip") tx = targetWidth - 1 - tx;
+            if (flip) tx = targetWidth - 1 - tx;
             Buffer.BlockCopy(source, (y * width + x) * 4, target, (ty * targetWidth + tx) * 4, 4);
         }
         return (targetWidth, targetHeight, target);
@@ -241,9 +243,10 @@ public static class XisfWindowsExtensions
         int stride = Math.Max(1, (int)Math.Ceiling(samples.PixelCount / 262144.0));
         for (int channel = 0; channel < colorChannelCount; channel++)
         {
-            List<double> values = [];
-            for (int pixel = 0; pixel < samples.PixelCount; pixel += stride) values.Add(samples.Read(pixel, channel));
-            channels[channel] = values.ToArray();
+            var values = new double[(samples.PixelCount - 1) / stride + 1];
+            int index = 0;
+            for (int pixel = 0; pixel < samples.PixelCount; pixel += stride) values[index++] = samples.Read(pixel, channel);
+            channels[channel] = values;
         }
         XisfDisplayFunction adaptive = XisfDisplayFunctions.CreateAdaptive(channels, options.TargetBackground, options.ShadowsClipping, options.LinkChannels);
         for (int channel = 0; channel < colorChannelCount; channel++)

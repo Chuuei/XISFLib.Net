@@ -1,3 +1,5 @@
+using System.Runtime.CompilerServices;
+
 namespace XISFLib;
 
 /// <summary>Implements the normative D50 color transformations in XISF Annex B.</summary>
@@ -8,6 +10,7 @@ public static class XisfColorSpace
     /// <summary>The D50 reference white Z tristimulus value, with Y equal to one.</summary>
     public const double WhiteZ = 0.82521;
     private const double Epsilon = 216.0 / 24389, Kappa = 24389.0 / 27;
+    private static readonly ConditionalWeakTable<XisfRgbWorkingSpace, MatrixCache> MatrixCaches = new();
 
     /// <summary>Derives luminance coefficients from the primaries and D50 white.</summary>
     /// <param name="workingSpace">The RGB working space.</param>
@@ -53,7 +56,7 @@ public static class XisfColorSpace
     public static (double Red, double Green, double Blue) XyzToRgb(double x, double y, double z, XisfRgbWorkingSpace? workingSpace = null)
     {
         workingSpace ??= XisfRgbWorkingSpace.Srgb;
-        var rgb = Multiply(Inverse(ColorMatrix(workingSpace)), x, y, z);
+        var rgb = Multiply(GetMatrices(workingSpace).Reverse.Value, x, y, z);
         return (Encode(rgb.X, workingSpace), Encode(rgb.Y, workingSpace), Encode(rgb.Z, workingSpace));
     }
 
@@ -95,7 +98,9 @@ public static class XisfColorSpace
     private static double G(double t) => t * t * t > Epsilon ? t * t * t : (116 * t - 16) / Kappa;
     private static double Linearize(double x, XisfRgbWorkingSpace w) => w.IsSrgb ? x <= 0.04045 ? x / 12.92 : Math.Pow((x + 0.055) / 1.055, 2.4) : Math.Pow(x, w.Gamma);
     private static double Encode(double x, XisfRgbWorkingSpace w) => w.IsSrgb ? x <= 0.0031308 ? x * 12.92 : 1.055 * Math.Pow(x, 1 / 2.4) - 0.055 : Math.Pow(x, 1 / w.Gamma);
-    private static double[,] ColorMatrix(XisfRgbWorkingSpace w)
+    private static double[,] ColorMatrix(XisfRgbWorkingSpace w) => GetMatrices(w).Forward;
+    private static Matrices GetMatrices(XisfRgbWorkingSpace w) => MatrixCaches.GetValue(w, static _ => new MatrixCache()).Get(w);
+    private static double[,] BuildColorMatrix(XisfRgbWorkingSpace w)
     {
         double[] luminance = DeriveLuminanceCoefficients(w);
         double[,] m = new double[3, 3];
@@ -106,6 +111,36 @@ public static class XisfColorSpace
             m[2, i] = luminance[i] * (1 - w.ChromaticityCoordinates[i] - w.YChromaticityCoordinates[i]) / w.YChromaticityCoordinates[i];
         }
         return m;
+    }
+
+    private sealed record Matrices(double[] X, double[] Y, double[,] Forward, Lazy<double[,]> Reverse)
+    {
+        public bool Matches(XisfRgbWorkingSpace space)
+        {
+            if (space.ChromaticityCoordinates.Count != 3 || space.YChromaticityCoordinates.Count != 3) return false;
+            for (int i = 0; i < 3; i++)
+                if (X[i] != space.ChromaticityCoordinates[i] || Y[i] != space.YChromaticityCoordinates[i]) return false;
+            return true;
+        }
+    }
+
+    private sealed class MatrixCache
+    {
+        private Matrices? _matrices;
+        public Matrices Get(XisfRgbWorkingSpace space)
+        {
+            Matrices? current = Volatile.Read(ref _matrices);
+            if (current is not null && current.Matches(space)) return current;
+            lock (this)
+            {
+                current = _matrices;
+                if (current is not null && current.Matches(space)) return current;
+                double[,] matrix = BuildColorMatrix(space);
+                current = new(space.ChromaticityCoordinates.ToArray(), space.YChromaticityCoordinates.ToArray(), matrix, new Lazy<double[,]>(() => Inverse(matrix)));
+                Volatile.Write(ref _matrices, current);
+                return current;
+            }
+        }
     }
     private static (double X, double Y, double Z) Multiply(double[,] m, double x, double y, double z) =>
         (m[0, 0] * x + m[0, 1] * y + m[0, 2] * z, m[1, 0] * x + m[1, 1] * y + m[1, 2] * z, m[2, 0] * x + m[2, 1] * y + m[2, 2] * z);

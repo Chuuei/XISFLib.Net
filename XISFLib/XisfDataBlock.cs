@@ -55,20 +55,19 @@ internal sealed class XisfDataBlock
                 if (streamed is not null) return streamed;
             }
         }
-        byte[] serialized = ReadSerialized();
+        byte[] serialized = ReadSerialized(false);
         XElement attributes = location == "embedded" || location is null && _owner.Elements().Any(e => e.Name.LocalName == "Data") ? _owner.Elements().First(e => e.Name.LocalName == "Data") : _owner;
-        VerifyChecksum(serialized, (string?)attributes.Attribute("checksum") ?? (string?)_owner.Attribute("checksum"));
         return Decompress(serialized, attributes);
     }
 
     public void VerifyIntegrity()
     {
-        byte[] serialized = ReadSerialized();
-        XElement attributes = (string?)_owner.Attribute("location") == "embedded" ? _owner.Elements().First(e => e.Name.LocalName == "Data") : _owner;
-        VerifyChecksum(serialized, (string?)attributes.Attribute("checksum") ?? (string?)_owner.Attribute("checksum"));
+        _ = ReadSerialized(false);
     }
 
-    public byte[] ReadSerialized()
+    public byte[] ReadSerialized() => ReadSerialized(true);
+
+    private byte[] ReadSerialized(bool preserveUnsupportedChecksum)
     {
         XElement attributes = _owner;
         string location = (string?)_owner.Attribute("location") ?? (_owner.Elements().Any(e => e.Name.LocalName == "Data") ? "embedded" : "");
@@ -95,7 +94,7 @@ internal sealed class XisfDataBlock
         if (serialized.Length > _source.Options.MaximumDataBlockSize)
             throw new XisfFormatException("The data block exceeds the configured size limit.");
         try { VerifyChecksum(serialized, (string?)attributes.Attribute("checksum") ?? (string?)_owner.Attribute("checksum")); }
-        catch (XisfUnsupportedFeatureException) { /* Preserve opaque blocks; Read still reports the unavailable checksum algorithm. */ }
+        catch (XisfUnsupportedFeatureException) when (preserveUnsupportedChecksum) { /* Preserve opaque blocks; Read still reports the unavailable checksum algorithm. */ }
         return serialized;
     }
 
@@ -358,45 +357,51 @@ internal sealed class XisfDataBlock
 
     private static byte[] DecompressSubblocks(byte[] data, string codec, string definition, int expectedSize)
     {
-        using MemoryStream output = new(expectedSize);
+        byte[] output = new byte[expectedSize];
         int offset = 0;
+        int written = 0;
         foreach (string item in definition.Split(':', StringSplitOptions.RemoveEmptyEntries))
         {
             string[] sizes = item.Split(',');
-            if (sizes.Length != 2 || !int.TryParse(sizes[0], out int compressed) || !int.TryParse(sizes[1], out int uncompressed) || compressed < 0 || uncompressed < 0 || compressed > data.Length - offset || uncompressed > expectedSize - output.Length)
+            if (sizes.Length != 2 || !int.TryParse(sizes[0], out int compressed) || !int.TryParse(sizes[1], out int uncompressed) || compressed < 0 || uncompressed < 0 || compressed > data.Length - offset || uncompressed > expectedSize - written)
                 throw new XisfFormatException("Invalid compression subblocks attribute.");
-            byte[] block = DecompressOne(data.AsSpan(offset, compressed).ToArray(), codec, uncompressed);
-            output.Write(block);
+            DecompressInto(data, offset, compressed, codec, output.AsSpan(written, uncompressed));
+            written += uncompressed;
             offset += compressed;
         }
-        if (offset != data.Length || output.Length != expectedSize)
+        if (offset != data.Length || written != expectedSize)
             throw new XisfFormatException("Compressed subblock lengths do not match the data block.");
-        return output.ToArray();
+        return output;
     }
 
     private static byte[] DecompressOne(byte[] data, string codec, int expectedSize)
     {
+        byte[] result = new byte[expectedSize];
+        DecompressInto(data, 0, data.Length, codec, result);
+        return result;
+    }
+
+    private static void DecompressInto(byte[] data, int offset, int count, string codec, Span<byte> result)
+    {
         codec = codec.Replace("+sh", "", StringComparison.Ordinal);
         if (codec == "zstd")
         {
-            byte[] result = new byte[expectedSize];
             using ZstdSharp.Decompressor decompressor = new();
             try
             {
-                if (decompressor.Unwrap(data, result) != expectedSize)
+                if (decompressor.Unwrap(data.AsSpan(offset, count), result) != result.Length)
                     throw new XisfFormatException("The decompressed Zstandard block has an unexpected size.");
             }
             catch (ZstdSharp.ZstdException exception)
             {
                 throw new XisfFormatException("Invalid Zstandard data block.", exception);
             }
-            return result;
+            return;
         }
         if (codec == "zlib")
         {
-            using MemoryStream source = new(data);
+            using MemoryStream source = new(data, offset, count, false);
             using ZLibStream zlib = new(source, CompressionMode.Decompress);
-            byte[] result = new byte[expectedSize];
             try
             {
                 zlib.ReadExactly(result);
@@ -406,14 +411,13 @@ internal sealed class XisfDataBlock
                 throw new XisfFormatException("The decompressed zlib block has an unexpected size.", exception);
             }
             if (zlib.ReadByte() >= 0) throw new XisfFormatException("The decompressed zlib block has an unexpected size.");
-            return result;
+            return;
         }
         if (codec is "lz4" or "lz4hc")
         {
-            byte[] result = new byte[expectedSize];
-            int decoded = LZ4Codec.Decode(data, result);
-            if (decoded != expectedSize) throw new XisfFormatException("The decompressed LZ4 block has an unexpected size.");
-            return result;
+            int decoded = LZ4Codec.Decode(data.AsSpan(offset, count), result);
+            if (decoded != result.Length) throw new XisfFormatException("The decompressed LZ4 block has an unexpected size.");
+            return;
         }
         throw new XisfUnsupportedFeatureException($"Unsupported compression codec '{codec}'.");
     }

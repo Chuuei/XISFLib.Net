@@ -2,6 +2,12 @@ using System.Diagnostics;
 using System.IO;
 using XISFLib;
 
+if (args.FirstOrDefault() == "--performance")
+{
+    PerformanceBenchmarks.Run(args.Skip(1).ToArray());
+    return;
+}
+
 string examples = args.Length == 0
     ? Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "Examples"))
     : Path.GetFullPath(args[0]);

@@ -51,10 +51,15 @@ public static class XisfDisplayFunctions
         double[] medians = new double[channels.Count], deviations = new double[channels.Count];
         for (int i = 0; i < channels.Count; i++)
         {
-            double[] values = channels[i].Where(double.IsFinite).Select(v => Math.Clamp(v, 0, 1)).Order().ToArray();
+            double[] values = new double[channels[i].Length];
+            int count = 0;
+            foreach (double value in channels[i])
+                if (double.IsFinite(value)) values[count++] = Math.Clamp(value, 0, 1);
+            if (count != values.Length) Array.Resize(ref values, count);
             if (values.Length == 0) { medians[i] = 0; deviations[i] = 0; continue; }
             medians[i] = Median(values);
-            deviations[i] = 1.4826 * Median(values.Select(v => Math.Abs(v - medians[i])).Order().ToArray());
+            for (int j = 0; j < values.Length; j++) values[j] = Math.Abs(values[j] - medians[i]);
+            deviations[i] = 1.4826 * Median(values);
         }
         double[] m = [0.5, 0.5, 0.5, 0.5], s = [0, 0, 0, 0], h = [1, 1, 1, 1];
         bool invertAll = medians.Min() > 0.5;
@@ -74,5 +79,5 @@ public static class XisfDisplayFunctions
         }
         return new(m, s, h, new double[4], new double[] { 1, 1, 1, 1 }) { Name = "Adaptive display function" };
     }
-    private static double Median(double[] sorted) => sorted.Length % 2 == 0 ? (sorted[sorted.Length / 2 - 1] + sorted[sorted.Length / 2]) / 2 : sorted[sorted.Length / 2];
+    private static double Median(double[] values) => XisfSelection.Median(values);
 }

@@ -12,6 +12,8 @@
   href: specification-compliance.md
 - name: Architecture
   href: architecture.md
+- name: Performance
+  href: performance.md
 - name: Contributing
   href: ../CONTRIBUTING.md
 - name: API reference

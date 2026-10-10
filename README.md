@@ -4,6 +4,8 @@
 
 See the [project documentation](docs/index.md) for setup, the API guide, I/O contracts, conversion limits, and architecture, and [CONTRIBUTING.md](CONTRIBUTING.md) for development and packaging. Both library projects generate XML documentation for IntelliSense and NuGet consumers; undocumented public APIs fail the build.
 
+The [performance guide](docs/performance.md) records benchmark results and explains how to use the fastest sample-reading and rendering paths without sacrificing specification behavior.
+
 ## Usage
 
 ```csharp

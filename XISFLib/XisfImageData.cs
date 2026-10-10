@@ -1,5 +1,5 @@
-using System.Buffers.Binary;
 using System.Numerics;
+using System.Runtime.InteropServices;
 
 namespace XISFLib;
 
@@ -139,11 +139,9 @@ public sealed class XisfImageData
         where T : unmanaged
     {
         XisfSampleFormat format = SampleFormatOf<T>();
-        int size = BytesPerSample(format);
-        byte[] data = new byte[checked(samples.Length * size)];
-        ReadOnlySpan<T> source = samples.Span;
-        for (int i = 0; i < source.Length; i++)
-            WriteSample(data.AsSpan(i * size, size), source[i], format, isBigEndian);
+        byte[] data = MemoryMarshal.AsBytes(samples.Span).ToArray();
+        int componentSize = format is XisfSampleFormat.Complex32 ? 4 : format is XisfSampleFormat.Complex64 ? 8 : BytesPerSample(format);
+        if (isBigEndian == BitConverter.IsLittleEndian) XisfSampleBuffer.ReverseComponents(data, componentSize);
         return new XisfImageData(data, CopyDimensions(dimensions), channelCount, format, pixelStorage, isBigEndian);
     }
 
@@ -250,58 +248,5 @@ public sealed class XisfImageData
         if (type == typeof(XisfComplex32)) return XisfSampleFormat.Complex32;
         if (type == typeof(Complex)) return XisfSampleFormat.Complex64;
         throw new NotSupportedException($"The .NET sample type '{type.Name}' has no supported XISF image sample format.");
-    }
-
-    private static void WriteSample<T>(Span<byte> destination, T value, XisfSampleFormat format, bool bigEndian) where T : unmanaged
-    {
-        object boxed = value;
-        switch (format)
-        {
-            case XisfSampleFormat.UInt8:
-                destination[0] = (byte)boxed;
-                break;
-            case XisfSampleFormat.UInt16:
-                if (bigEndian) BinaryPrimitives.WriteUInt16BigEndian(destination, (ushort)boxed);
-                else BinaryPrimitives.WriteUInt16LittleEndian(destination, (ushort)boxed);
-                break;
-            case XisfSampleFormat.UInt32:
-                if (bigEndian) BinaryPrimitives.WriteUInt32BigEndian(destination, (uint)boxed);
-                else BinaryPrimitives.WriteUInt32LittleEndian(destination, (uint)boxed);
-                break;
-            case XisfSampleFormat.UInt64:
-                if (bigEndian) BinaryPrimitives.WriteUInt64BigEndian(destination, (ulong)boxed);
-                else BinaryPrimitives.WriteUInt64LittleEndian(destination, (ulong)boxed);
-                break;
-            case XisfSampleFormat.Float32:
-                WriteInt32(destination, BitConverter.SingleToInt32Bits((float)boxed), bigEndian);
-                break;
-            case XisfSampleFormat.Float64:
-                WriteInt64(destination, BitConverter.DoubleToInt64Bits((double)boxed), bigEndian);
-                break;
-            case XisfSampleFormat.Complex32:
-                XisfComplex32 complex32 = (XisfComplex32)boxed;
-                WriteInt32(destination, BitConverter.SingleToInt32Bits(complex32.Real), bigEndian);
-                WriteInt32(destination[4..], BitConverter.SingleToInt32Bits(complex32.Imaginary), bigEndian);
-                break;
-            case XisfSampleFormat.Complex64:
-                Complex complex = (Complex)boxed;
-                WriteInt64(destination, BitConverter.DoubleToInt64Bits(complex.Real), bigEndian);
-                WriteInt64(destination[8..], BitConverter.DoubleToInt64Bits(complex.Imaginary), bigEndian);
-                break;
-            default:
-                throw new NotSupportedException($"Typed conversion to {format} is not supported. Use {nameof(FromRaw)} for this format.");
-        }
-    }
-
-    private static void WriteInt32(Span<byte> destination, int value, bool bigEndian)
-    {
-        if (bigEndian) BinaryPrimitives.WriteInt32BigEndian(destination, value);
-        else BinaryPrimitives.WriteInt32LittleEndian(destination, value);
-    }
-
-    private static void WriteInt64(Span<byte> destination, long value, bool bigEndian)
-    {
-        if (bigEndian) BinaryPrimitives.WriteInt64BigEndian(destination, value);
-        else BinaryPrimitives.WriteInt64LittleEndian(destination, value);
     }
 }

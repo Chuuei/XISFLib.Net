@@ -12,6 +12,7 @@ The public API uses C# XML documentation comments. Building the library projects
 | [Astrometric solutions](astrometry.md) | Native projections, projective transforms, spline distortion and preservation |
 | [Specification coverage](specification-compliance.md) | Revision 1 audit, feature coverage, verification and bounds |
 | [Architecture](architecture.md) | Responsibilities of every project and the main processing paths |
+| [Performance](performance.md) | Measured optimizations, benchmark commands, and efficient API usage |
 | [Contributing](../CONTRIBUTING.md) | Development, testing, packaging, and documentation conventions |
 
 The [repository README](../README.md) includes further executable usage examples and the supported format features. The XML comments on each overload are the API reference. A DocFX configuration is supplied to render these guides and the API reference as a local website; DocFX is optional for normal builds.

@@ -150,8 +150,10 @@ public sealed class XisfImage
         int count = checked((int)(PixelCount * ChannelCount));
         T[] samples = new T[count];
         int size = BytesPerSample(SampleFormat);
-        for (int i = 0; i < count; i++)
-            samples[i] = ReadSample<T>(bytes.AsSpan(i * size, size));
+        if (XisfSampleBuffer.Matches<T>(SampleFormat)) XisfSampleBuffer.CopyToArray(bytes, samples, size, IsBigEndian);
+        else
+            for (int i = 0; i < count; i++)
+                samples[i] = ReadSample<T>(bytes.AsSpan(i * size, size));
         return Reorder(samples, layout);
     }
 
@@ -181,7 +183,7 @@ public sealed class XisfImage
     {
         double[] samples = GetSamples<double>(layout);
         double range = UpperBound - LowerBound;
-        if (range == 0) return samples.Select(_ => 0d).ToArray();
+        if (range == 0) { Array.Clear(samples); return samples; }
         for (int i = 0; i < samples.Length; i++)
             samples[i] = (samples[i] - LowerBound) / range;
         return samples;
