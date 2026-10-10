@@ -1,6 +1,6 @@
 namespace XISFLib;
 
-/// <summary>Controls display stretching in Windows image adapters.</summary>
+/// <summary>Controls display stretching in image adapters.</summary>
 public sealed record XisfStretchOptions
 {
     /// <summary>Default options for automatic background stretching.</summary>

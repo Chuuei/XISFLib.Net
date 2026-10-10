@@ -1,4 +1,8 @@
 <Solution>
+  <Project Path="XISFLib.AvaloniaViewer/XISFLib.AvaloniaViewer.csproj" />
+  <Project Path="XISFLib.Viewer.Core/XISFLib.Viewer.Core.csproj" />
+  <Project Path="XISFLib.Viewer.Core.Tests/XISFLib.Viewer.Core.Tests.csproj" />
+  <Project Path="XISFLib.AvaloniaViewer.Tests/XISFLib.AvaloniaViewer.Tests.csproj" />
   <Project Path="XISFLib.Convert/XISFLib.Convert.csproj" />
   <Project Path="XISFLib.Benchmarks/XISFLib.Benchmarks.csproj" />
   <Project Path="XISFLib.WpfViewer/XISFLib.WpfViewer.csproj" />

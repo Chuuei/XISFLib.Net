@@ -1,0 +1,2306 @@
+[
+  {
+    "Color": "Gray",
+    "Orientation": "0",
+    "Layout": "Planar",
+    "BigEndian": false,
+    "Mode": "Linear",
+    "Sha256": "A06CC194AD84C0A1B92FD4741C529BE63D9F7ACEAE8D7B89921DAE631F695867"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "0",
+    "Layout": "Planar",
+    "BigEndian": false,
+    "Mode": "Auto",
+    "Sha256": "FAA161B286B8F9EF629949EC44082B8C600D8D5FD05825393D9428CDC0738E07"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "0",
+    "Layout": "Planar",
+    "BigEndian": false,
+    "Mode": "DisplayFunction",
+    "Sha256": "514FD48811E880FABD28DD6BD8AA85F2F11421F3A12D1707EA2FD5D943561456"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "0",
+    "Layout": "Planar",
+    "BigEndian": true,
+    "Mode": "Linear",
+    "Sha256": "A06CC194AD84C0A1B92FD4741C529BE63D9F7ACEAE8D7B89921DAE631F695867"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "0",
+    "Layout": "Planar",
+    "BigEndian": true,
+    "Mode": "Auto",
+    "Sha256": "FAA161B286B8F9EF629949EC44082B8C600D8D5FD05825393D9428CDC0738E07"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "0",
+    "Layout": "Planar",
+    "BigEndian": true,
+    "Mode": "DisplayFunction",
+    "Sha256": "514FD48811E880FABD28DD6BD8AA85F2F11421F3A12D1707EA2FD5D943561456"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "0",
+    "Layout": "Interleaved",
+    "BigEndian": false,
+    "Mode": "Linear",
+    "Sha256": "40A968BC03C67B54A316603E0F22FB867C99C24DEEAF62AE1B5BEDE997D766AE"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "0",
+    "Layout": "Interleaved",
+    "BigEndian": false,
+    "Mode": "Auto",
+    "Sha256": "DD967793AC30B313E1F7E229EB4293D5576D0024CBC36E525AC401301862398E"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "0",
+    "Layout": "Interleaved",
+    "BigEndian": false,
+    "Mode": "DisplayFunction",
+    "Sha256": "DDC3C369CD07017FA95B5F5957021DC967E916ADC7A75170BF7913D40E5B801A"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "0",
+    "Layout": "Interleaved",
+    "BigEndian": true,
+    "Mode": "Linear",
+    "Sha256": "40A968BC03C67B54A316603E0F22FB867C99C24DEEAF62AE1B5BEDE997D766AE"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "0",
+    "Layout": "Interleaved",
+    "BigEndian": true,
+    "Mode": "Auto",
+    "Sha256": "DD967793AC30B313E1F7E229EB4293D5576D0024CBC36E525AC401301862398E"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "0",
+    "Layout": "Interleaved",
+    "BigEndian": true,
+    "Mode": "DisplayFunction",
+    "Sha256": "DDC3C369CD07017FA95B5F5957021DC967E916ADC7A75170BF7913D40E5B801A"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "flip",
+    "Layout": "Planar",
+    "BigEndian": false,
+    "Mode": "Linear",
+    "Sha256": "AAEAB3B64E0AF7B6707F9A00C5E68AB0AF8C2D91D7193B11B8F5899BB4C4C614"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "flip",
+    "Layout": "Planar",
+    "BigEndian": false,
+    "Mode": "Auto",
+    "Sha256": "C57FF1BAA3C598A8F71EB6E21199B23C8CD4853301B2E9B6B65AFAF1DB106394"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "flip",
+    "Layout": "Planar",
+    "BigEndian": false,
+    "Mode": "DisplayFunction",
+    "Sha256": "99125153EBF30CD16A167DBBF1B57A6BC08FAD41265B001C1F85A001EDB52A6E"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "flip",
+    "Layout": "Planar",
+    "BigEndian": true,
+    "Mode": "Linear",
+    "Sha256": "AAEAB3B64E0AF7B6707F9A00C5E68AB0AF8C2D91D7193B11B8F5899BB4C4C614"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "flip",
+    "Layout": "Planar",
+    "BigEndian": true,
+    "Mode": "Auto",
+    "Sha256": "C57FF1BAA3C598A8F71EB6E21199B23C8CD4853301B2E9B6B65AFAF1DB106394"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "flip",
+    "Layout": "Planar",
+    "BigEndian": true,
+    "Mode": "DisplayFunction",
+    "Sha256": "99125153EBF30CD16A167DBBF1B57A6BC08FAD41265B001C1F85A001EDB52A6E"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "flip",
+    "Layout": "Interleaved",
+    "BigEndian": false,
+    "Mode": "Linear",
+    "Sha256": "47EBBA541264F7000C9B4A86B2FE74106AAAFE51B992DBAEC3C3C76032EEFE5C"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "flip",
+    "Layout": "Interleaved",
+    "BigEndian": false,
+    "Mode": "Auto",
+    "Sha256": "EA96E07AC5B2256141641F0C1CFA6F1FF935F90B3141BDA64E98BBE2882B002D"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "flip",
+    "Layout": "Interleaved",
+    "BigEndian": false,
+    "Mode": "DisplayFunction",
+    "Sha256": "EB91DF5AD21957AD344556C9A5F81D4BCD46A374B6E342C193F0D4E411466AEC"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "flip",
+    "Layout": "Interleaved",
+    "BigEndian": true,
+    "Mode": "Linear",
+    "Sha256": "47EBBA541264F7000C9B4A86B2FE74106AAAFE51B992DBAEC3C3C76032EEFE5C"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "flip",
+    "Layout": "Interleaved",
+    "BigEndian": true,
+    "Mode": "Auto",
+    "Sha256": "EA96E07AC5B2256141641F0C1CFA6F1FF935F90B3141BDA64E98BBE2882B002D"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "flip",
+    "Layout": "Interleaved",
+    "BigEndian": true,
+    "Mode": "DisplayFunction",
+    "Sha256": "EB91DF5AD21957AD344556C9A5F81D4BCD46A374B6E342C193F0D4E411466AEC"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "90",
+    "Layout": "Planar",
+    "BigEndian": false,
+    "Mode": "Linear",
+    "Sha256": "4A41F3AC98F77DC484926C96D3884A5C00D38C516B3DDF4A77809175D2F53F2D"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "90",
+    "Layout": "Planar",
+    "BigEndian": false,
+    "Mode": "Auto",
+    "Sha256": "AE5059DBC64C420B3E71C677F6F2BB988B953ED0FB611B8E2A6AAD4F5A2FA589"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "90",
+    "Layout": "Planar",
+    "BigEndian": false,
+    "Mode": "DisplayFunction",
+    "Sha256": "BD23412F9B54F43B44E3E2E477CED27C589CE28D201FB7B48F6A016349FE9B69"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "90",
+    "Layout": "Planar",
+    "BigEndian": true,
+    "Mode": "Linear",
+    "Sha256": "4A41F3AC98F77DC484926C96D3884A5C00D38C516B3DDF4A77809175D2F53F2D"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "90",
+    "Layout": "Planar",
+    "BigEndian": true,
+    "Mode": "Auto",
+    "Sha256": "AE5059DBC64C420B3E71C677F6F2BB988B953ED0FB611B8E2A6AAD4F5A2FA589"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "90",
+    "Layout": "Planar",
+    "BigEndian": true,
+    "Mode": "DisplayFunction",
+    "Sha256": "BD23412F9B54F43B44E3E2E477CED27C589CE28D201FB7B48F6A016349FE9B69"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "90",
+    "Layout": "Interleaved",
+    "BigEndian": false,
+    "Mode": "Linear",
+    "Sha256": "8E6D490B104E05559DF788A8645026E4457F57A1C2F242C4FAEE9E1B92DE3C86"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "90",
+    "Layout": "Interleaved",
+    "BigEndian": false,
+    "Mode": "Auto",
+    "Sha256": "666CCCF29002B87EDB891876F9EBEFF40B75A799684DD0804DD90FDFD7495C44"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "90",
+    "Layout": "Interleaved",
+    "BigEndian": false,
+    "Mode": "DisplayFunction",
+    "Sha256": "7E15442A3EE58829D286E17B827135AF047C1A49ADD441D2E994D7D690D1F57A"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "90",
+    "Layout": "Interleaved",
+    "BigEndian": true,
+    "Mode": "Linear",
+    "Sha256": "8E6D490B104E05559DF788A8645026E4457F57A1C2F242C4FAEE9E1B92DE3C86"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "90",
+    "Layout": "Interleaved",
+    "BigEndian": true,
+    "Mode": "Auto",
+    "Sha256": "666CCCF29002B87EDB891876F9EBEFF40B75A799684DD0804DD90FDFD7495C44"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "90",
+    "Layout": "Interleaved",
+    "BigEndian": true,
+    "Mode": "DisplayFunction",
+    "Sha256": "7E15442A3EE58829D286E17B827135AF047C1A49ADD441D2E994D7D690D1F57A"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "90;flip",
+    "Layout": "Planar",
+    "BigEndian": false,
+    "Mode": "Linear",
+    "Sha256": "FCF838BC770C3A3D1994F09BAE0739CBFDE2E3E81916506F371A192534D32619"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "90;flip",
+    "Layout": "Planar",
+    "BigEndian": false,
+    "Mode": "Auto",
+    "Sha256": "F5DBA7A7BEA62E776E9EB8610AA673A2300388502B6BA52D03A48CEBF9FF814E"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "90;flip",
+    "Layout": "Planar",
+    "BigEndian": false,
+    "Mode": "DisplayFunction",
+    "Sha256": "F836722B6ECE137E226860BDE13BCFD42925F7C71CC43A89F5D00BA2AD697E4A"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "90;flip",
+    "Layout": "Planar",
+    "BigEndian": true,
+    "Mode": "Linear",
+    "Sha256": "FCF838BC770C3A3D1994F09BAE0739CBFDE2E3E81916506F371A192534D32619"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "90;flip",
+    "Layout": "Planar",
+    "BigEndian": true,
+    "Mode": "Auto",
+    "Sha256": "F5DBA7A7BEA62E776E9EB8610AA673A2300388502B6BA52D03A48CEBF9FF814E"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "90;flip",
+    "Layout": "Planar",
+    "BigEndian": true,
+    "Mode": "DisplayFunction",
+    "Sha256": "F836722B6ECE137E226860BDE13BCFD42925F7C71CC43A89F5D00BA2AD697E4A"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "90;flip",
+    "Layout": "Interleaved",
+    "BigEndian": false,
+    "Mode": "Linear",
+    "Sha256": "02E05B195FF0A860CB8FED1E07586E5EB65E7EA0B6832CDC7B887CA4B52D5846"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "90;flip",
+    "Layout": "Interleaved",
+    "BigEndian": false,
+    "Mode": "Auto",
+    "Sha256": "A44FB18B217309A8A2F53F9826164E88DC2D073DFF2720E8A19DBB19C1F0C2FE"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "90;flip",
+    "Layout": "Interleaved",
+    "BigEndian": false,
+    "Mode": "DisplayFunction",
+    "Sha256": "10181C3B69DD333673AF2910CFABBBA555C1B133D76D76F64254869DC668970D"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "90;flip",
+    "Layout": "Interleaved",
+    "BigEndian": true,
+    "Mode": "Linear",
+    "Sha256": "02E05B195FF0A860CB8FED1E07586E5EB65E7EA0B6832CDC7B887CA4B52D5846"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "90;flip",
+    "Layout": "Interleaved",
+    "BigEndian": true,
+    "Mode": "Auto",
+    "Sha256": "A44FB18B217309A8A2F53F9826164E88DC2D073DFF2720E8A19DBB19C1F0C2FE"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "90;flip",
+    "Layout": "Interleaved",
+    "BigEndian": true,
+    "Mode": "DisplayFunction",
+    "Sha256": "10181C3B69DD333673AF2910CFABBBA555C1B133D76D76F64254869DC668970D"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "-90",
+    "Layout": "Planar",
+    "BigEndian": false,
+    "Mode": "Linear",
+    "Sha256": "7E92A06669D13215E6EF14A759AD4CC3CC8BBC59C689A19E23F497442CA9C919"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "-90",
+    "Layout": "Planar",
+    "BigEndian": false,
+    "Mode": "Auto",
+    "Sha256": "AFDE4DA80AEE37ACCAE482C052239C3C5600D07D08F9BC861F69C7A5CE42E207"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "-90",
+    "Layout": "Planar",
+    "BigEndian": false,
+    "Mode": "DisplayFunction",
+    "Sha256": "3EE99921FF720FDD0F918CA68682B1A80D8383D67AA5D4544FF3394685C33E74"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "-90",
+    "Layout": "Planar",
+    "BigEndian": true,
+    "Mode": "Linear",
+    "Sha256": "7E92A06669D13215E6EF14A759AD4CC3CC8BBC59C689A19E23F497442CA9C919"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "-90",
+    "Layout": "Planar",
+    "BigEndian": true,
+    "Mode": "Auto",
+    "Sha256": "AFDE4DA80AEE37ACCAE482C052239C3C5600D07D08F9BC861F69C7A5CE42E207"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "-90",
+    "Layout": "Planar",
+    "BigEndian": true,
+    "Mode": "DisplayFunction",
+    "Sha256": "3EE99921FF720FDD0F918CA68682B1A80D8383D67AA5D4544FF3394685C33E74"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "-90",
+    "Layout": "Interleaved",
+    "BigEndian": false,
+    "Mode": "Linear",
+    "Sha256": "5AE5549F0EAC8FF65F2370CF364D172153BA3105A9285F316133CB0140F09828"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "-90",
+    "Layout": "Interleaved",
+    "BigEndian": false,
+    "Mode": "Auto",
+    "Sha256": "765A585B9E44C5618FC8D408E3383B198353E47F38514015B1FD203BC169987A"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "-90",
+    "Layout": "Interleaved",
+    "BigEndian": false,
+    "Mode": "DisplayFunction",
+    "Sha256": "D2EBB33B88B312FD798C3CE116AFC23EEDCD4F41E5817FD87A8E6B9A9ABAED48"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "-90",
+    "Layout": "Interleaved",
+    "BigEndian": true,
+    "Mode": "Linear",
+    "Sha256": "5AE5549F0EAC8FF65F2370CF364D172153BA3105A9285F316133CB0140F09828"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "-90",
+    "Layout": "Interleaved",
+    "BigEndian": true,
+    "Mode": "Auto",
+    "Sha256": "765A585B9E44C5618FC8D408E3383B198353E47F38514015B1FD203BC169987A"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "-90",
+    "Layout": "Interleaved",
+    "BigEndian": true,
+    "Mode": "DisplayFunction",
+    "Sha256": "D2EBB33B88B312FD798C3CE116AFC23EEDCD4F41E5817FD87A8E6B9A9ABAED48"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "-90;flip",
+    "Layout": "Planar",
+    "BigEndian": false,
+    "Mode": "Linear",
+    "Sha256": "71406660897F78AB4101F1B89F9D1927D2411BD5AC88803F7F84950A5C1A9533"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "-90;flip",
+    "Layout": "Planar",
+    "BigEndian": false,
+    "Mode": "Auto",
+    "Sha256": "34825FE4E09DD6784C18A0A6DDF0ADF957C1D972CE64DF0A71A36AEA637E3EDD"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "-90;flip",
+    "Layout": "Planar",
+    "BigEndian": false,
+    "Mode": "DisplayFunction",
+    "Sha256": "5E500BF1DD576F7072CCA0D85D84CA3F7FAC91EA8F98DC667117D85B09E88BC6"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "-90;flip",
+    "Layout": "Planar",
+    "BigEndian": true,
+    "Mode": "Linear",
+    "Sha256": "71406660897F78AB4101F1B89F9D1927D2411BD5AC88803F7F84950A5C1A9533"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "-90;flip",
+    "Layout": "Planar",
+    "BigEndian": true,
+    "Mode": "Auto",
+    "Sha256": "34825FE4E09DD6784C18A0A6DDF0ADF957C1D972CE64DF0A71A36AEA637E3EDD"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "-90;flip",
+    "Layout": "Planar",
+    "BigEndian": true,
+    "Mode": "DisplayFunction",
+    "Sha256": "5E500BF1DD576F7072CCA0D85D84CA3F7FAC91EA8F98DC667117D85B09E88BC6"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "-90;flip",
+    "Layout": "Interleaved",
+    "BigEndian": false,
+    "Mode": "Linear",
+    "Sha256": "D97CF7DDD45234A624CFF919BED6A1099196FB86A9ABC8A3F92040EBAEB84DA1"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "-90;flip",
+    "Layout": "Interleaved",
+    "BigEndian": false,
+    "Mode": "Auto",
+    "Sha256": "F5B7FDEF0503C44A404A8196EE82AB77E304A1698A351249F55093E1FA385FBA"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "-90;flip",
+    "Layout": "Interleaved",
+    "BigEndian": false,
+    "Mode": "DisplayFunction",
+    "Sha256": "B322DA3E2CC836EB6E29D3587BAC143752FA7AC2338C1FCDE7177A03164D4B7A"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "-90;flip",
+    "Layout": "Interleaved",
+    "BigEndian": true,
+    "Mode": "Linear",
+    "Sha256": "D97CF7DDD45234A624CFF919BED6A1099196FB86A9ABC8A3F92040EBAEB84DA1"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "-90;flip",
+    "Layout": "Interleaved",
+    "BigEndian": true,
+    "Mode": "Auto",
+    "Sha256": "F5B7FDEF0503C44A404A8196EE82AB77E304A1698A351249F55093E1FA385FBA"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "-90;flip",
+    "Layout": "Interleaved",
+    "BigEndian": true,
+    "Mode": "DisplayFunction",
+    "Sha256": "B322DA3E2CC836EB6E29D3587BAC143752FA7AC2338C1FCDE7177A03164D4B7A"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "180",
+    "Layout": "Planar",
+    "BigEndian": false,
+    "Mode": "Linear",
+    "Sha256": "802B687315EDF49CC3CBFCBF1DD9E0AAF8C16AF9CC64F969900879ACCAF8DAFE"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "180",
+    "Layout": "Planar",
+    "BigEndian": false,
+    "Mode": "Auto",
+    "Sha256": "A14E8193E623E53A0458A5217B20B09229C0EB60C633C242F3E7264B4D955DA1"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "180",
+    "Layout": "Planar",
+    "BigEndian": false,
+    "Mode": "DisplayFunction",
+    "Sha256": "ECB188B9E4B4DF1AAA702E3DCFB3C1B6267B1F25706A626A4DB303B1E56B3A05"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "180",
+    "Layout": "Planar",
+    "BigEndian": true,
+    "Mode": "Linear",
+    "Sha256": "802B687315EDF49CC3CBFCBF1DD9E0AAF8C16AF9CC64F969900879ACCAF8DAFE"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "180",
+    "Layout": "Planar",
+    "BigEndian": true,
+    "Mode": "Auto",
+    "Sha256": "A14E8193E623E53A0458A5217B20B09229C0EB60C633C242F3E7264B4D955DA1"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "180",
+    "Layout": "Planar",
+    "BigEndian": true,
+    "Mode": "DisplayFunction",
+    "Sha256": "ECB188B9E4B4DF1AAA702E3DCFB3C1B6267B1F25706A626A4DB303B1E56B3A05"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "180",
+    "Layout": "Interleaved",
+    "BigEndian": false,
+    "Mode": "Linear",
+    "Sha256": "5D518EACA84638D566B9EC51AA24F70BC4FA45BF5CA228C4FC4B307F69E94C89"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "180",
+    "Layout": "Interleaved",
+    "BigEndian": false,
+    "Mode": "Auto",
+    "Sha256": "69A809EBEAA33683FAB3EFC53137A7027DD89ADB5B932A151F194BC84ED6915C"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "180",
+    "Layout": "Interleaved",
+    "BigEndian": false,
+    "Mode": "DisplayFunction",
+    "Sha256": "58BA612B5D8F46D3CDDBB46D58048DA7A3A1F09A02186EEB79FA8CCF029CEE10"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "180",
+    "Layout": "Interleaved",
+    "BigEndian": true,
+    "Mode": "Linear",
+    "Sha256": "5D518EACA84638D566B9EC51AA24F70BC4FA45BF5CA228C4FC4B307F69E94C89"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "180",
+    "Layout": "Interleaved",
+    "BigEndian": true,
+    "Mode": "Auto",
+    "Sha256": "69A809EBEAA33683FAB3EFC53137A7027DD89ADB5B932A151F194BC84ED6915C"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "180",
+    "Layout": "Interleaved",
+    "BigEndian": true,
+    "Mode": "DisplayFunction",
+    "Sha256": "58BA612B5D8F46D3CDDBB46D58048DA7A3A1F09A02186EEB79FA8CCF029CEE10"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "180;flip",
+    "Layout": "Planar",
+    "BigEndian": false,
+    "Mode": "Linear",
+    "Sha256": "56F8974169372DB5BD966FB1E990021B4C7891444E5B4C5774218D05C79E4C07"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "180;flip",
+    "Layout": "Planar",
+    "BigEndian": false,
+    "Mode": "Auto",
+    "Sha256": "281C8D31F7C42A330B66581A7C7C3594AE7CAF938195F5A9990451FE11BB7866"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "180;flip",
+    "Layout": "Planar",
+    "BigEndian": false,
+    "Mode": "DisplayFunction",
+    "Sha256": "42009B0891A3BEC8B035ADE2427B71C10605E6EC6D25295B406C49C19A2D1521"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "180;flip",
+    "Layout": "Planar",
+    "BigEndian": true,
+    "Mode": "Linear",
+    "Sha256": "56F8974169372DB5BD966FB1E990021B4C7891444E5B4C5774218D05C79E4C07"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "180;flip",
+    "Layout": "Planar",
+    "BigEndian": true,
+    "Mode": "Auto",
+    "Sha256": "281C8D31F7C42A330B66581A7C7C3594AE7CAF938195F5A9990451FE11BB7866"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "180;flip",
+    "Layout": "Planar",
+    "BigEndian": true,
+    "Mode": "DisplayFunction",
+    "Sha256": "42009B0891A3BEC8B035ADE2427B71C10605E6EC6D25295B406C49C19A2D1521"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "180;flip",
+    "Layout": "Interleaved",
+    "BigEndian": false,
+    "Mode": "Linear",
+    "Sha256": "8B1EAE8CCC51321491B2CACA2A2867429522E57DE411D37C3718628AE0875853"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "180;flip",
+    "Layout": "Interleaved",
+    "BigEndian": false,
+    "Mode": "Auto",
+    "Sha256": "7E04AB0F6F23E6C231E97C81EBF3E369892F0227594E846B298E3C0A9F572D6D"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "180;flip",
+    "Layout": "Interleaved",
+    "BigEndian": false,
+    "Mode": "DisplayFunction",
+    "Sha256": "BFEAD6FAAC586C3F304B5C9627F982D3F211D0B8CC6145BE30CE108251BF3952"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "180;flip",
+    "Layout": "Interleaved",
+    "BigEndian": true,
+    "Mode": "Linear",
+    "Sha256": "8B1EAE8CCC51321491B2CACA2A2867429522E57DE411D37C3718628AE0875853"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "180;flip",
+    "Layout": "Interleaved",
+    "BigEndian": true,
+    "Mode": "Auto",
+    "Sha256": "7E04AB0F6F23E6C231E97C81EBF3E369892F0227594E846B298E3C0A9F572D6D"
+  },
+  {
+    "Color": "Gray",
+    "Orientation": "180;flip",
+    "Layout": "Interleaved",
+    "BigEndian": true,
+    "Mode": "DisplayFunction",
+    "Sha256": "BFEAD6FAAC586C3F304B5C9627F982D3F211D0B8CC6145BE30CE108251BF3952"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "0",
+    "Layout": "Planar",
+    "BigEndian": false,
+    "Mode": "Linear",
+    "Sha256": "ACB8A9A5A75867D19AE8E0072131C6E8ECED274DF65C24101ACCA4475D469116"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "0",
+    "Layout": "Planar",
+    "BigEndian": false,
+    "Mode": "Auto",
+    "Sha256": "070C5DC49FDF74558402DA0328CF5970B8FB471AB2C5570FAC4FDE5B257D9719"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "0",
+    "Layout": "Planar",
+    "BigEndian": false,
+    "Mode": "DisplayFunction",
+    "Sha256": "C3BD4A7602E1EB0B151FCDE2F96FAAE9227BC05BEACD1C0A368E5E593CEBA047"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "0",
+    "Layout": "Planar",
+    "BigEndian": true,
+    "Mode": "Linear",
+    "Sha256": "ACB8A9A5A75867D19AE8E0072131C6E8ECED274DF65C24101ACCA4475D469116"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "0",
+    "Layout": "Planar",
+    "BigEndian": true,
+    "Mode": "Auto",
+    "Sha256": "070C5DC49FDF74558402DA0328CF5970B8FB471AB2C5570FAC4FDE5B257D9719"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "0",
+    "Layout": "Planar",
+    "BigEndian": true,
+    "Mode": "DisplayFunction",
+    "Sha256": "C3BD4A7602E1EB0B151FCDE2F96FAAE9227BC05BEACD1C0A368E5E593CEBA047"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "0",
+    "Layout": "Interleaved",
+    "BigEndian": false,
+    "Mode": "Linear",
+    "Sha256": "1E058FE12D9423B4DFD1069A2C4910FCB514759110A497DEB37EA277B3CD02A5"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "0",
+    "Layout": "Interleaved",
+    "BigEndian": false,
+    "Mode": "Auto",
+    "Sha256": "E0B466AD75FBE59E7EFB427BAA8F3A2CF85F2D87EB42E503E3A5CB8E22282CDF"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "0",
+    "Layout": "Interleaved",
+    "BigEndian": false,
+    "Mode": "DisplayFunction",
+    "Sha256": "AF67F8825B115E42C369CCC37F289DE0F2A93B634B3ED16A93735C1F5FE2D157"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "0",
+    "Layout": "Interleaved",
+    "BigEndian": true,
+    "Mode": "Linear",
+    "Sha256": "1E058FE12D9423B4DFD1069A2C4910FCB514759110A497DEB37EA277B3CD02A5"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "0",
+    "Layout": "Interleaved",
+    "BigEndian": true,
+    "Mode": "Auto",
+    "Sha256": "E0B466AD75FBE59E7EFB427BAA8F3A2CF85F2D87EB42E503E3A5CB8E22282CDF"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "0",
+    "Layout": "Interleaved",
+    "BigEndian": true,
+    "Mode": "DisplayFunction",
+    "Sha256": "AF67F8825B115E42C369CCC37F289DE0F2A93B634B3ED16A93735C1F5FE2D157"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "flip",
+    "Layout": "Planar",
+    "BigEndian": false,
+    "Mode": "Linear",
+    "Sha256": "5A27627C5DA2994431A7B00EAE541811191D5AA398C783534A029A9DACC94CAA"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "flip",
+    "Layout": "Planar",
+    "BigEndian": false,
+    "Mode": "Auto",
+    "Sha256": "1F22CA17397C6BC98F0614B1CEEF0D5472CA9789E525BE227ADAF46CAE5222BF"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "flip",
+    "Layout": "Planar",
+    "BigEndian": false,
+    "Mode": "DisplayFunction",
+    "Sha256": "FB81293189D628B7364531EA2E5F6FA2148A525FCC37311D6AF79CBAC5ADB91E"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "flip",
+    "Layout": "Planar",
+    "BigEndian": true,
+    "Mode": "Linear",
+    "Sha256": "5A27627C5DA2994431A7B00EAE541811191D5AA398C783534A029A9DACC94CAA"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "flip",
+    "Layout": "Planar",
+    "BigEndian": true,
+    "Mode": "Auto",
+    "Sha256": "1F22CA17397C6BC98F0614B1CEEF0D5472CA9789E525BE227ADAF46CAE5222BF"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "flip",
+    "Layout": "Planar",
+    "BigEndian": true,
+    "Mode": "DisplayFunction",
+    "Sha256": "FB81293189D628B7364531EA2E5F6FA2148A525FCC37311D6AF79CBAC5ADB91E"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "flip",
+    "Layout": "Interleaved",
+    "BigEndian": false,
+    "Mode": "Linear",
+    "Sha256": "B1EF113D2ACF3045C7A9DC19BAF0FE03774884E1757DE9429FBCA84E08998959"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "flip",
+    "Layout": "Interleaved",
+    "BigEndian": false,
+    "Mode": "Auto",
+    "Sha256": "37D94B1612D118AA218AEC69E446D61907177D5ABFD7EF1716797E19E3A34F58"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "flip",
+    "Layout": "Interleaved",
+    "BigEndian": false,
+    "Mode": "DisplayFunction",
+    "Sha256": "40F41CB106020965B1635140B0613173E5154A162BDE856209AF66FAA1468A42"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "flip",
+    "Layout": "Interleaved",
+    "BigEndian": true,
+    "Mode": "Linear",
+    "Sha256": "B1EF113D2ACF3045C7A9DC19BAF0FE03774884E1757DE9429FBCA84E08998959"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "flip",
+    "Layout": "Interleaved",
+    "BigEndian": true,
+    "Mode": "Auto",
+    "Sha256": "37D94B1612D118AA218AEC69E446D61907177D5ABFD7EF1716797E19E3A34F58"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "flip",
+    "Layout": "Interleaved",
+    "BigEndian": true,
+    "Mode": "DisplayFunction",
+    "Sha256": "40F41CB106020965B1635140B0613173E5154A162BDE856209AF66FAA1468A42"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "90",
+    "Layout": "Planar",
+    "BigEndian": false,
+    "Mode": "Linear",
+    "Sha256": "F3DE413A61306527E1CA6F0E71664BA34A9BAA60BF532AD96CB77C83D9304A39"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "90",
+    "Layout": "Planar",
+    "BigEndian": false,
+    "Mode": "Auto",
+    "Sha256": "84F2E6DB331921E7BBC1740C2685FC843684E4691EB45AEEA2AB32AF096AF81B"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "90",
+    "Layout": "Planar",
+    "BigEndian": false,
+    "Mode": "DisplayFunction",
+    "Sha256": "94E11A894C8240025E3B6ED91191DA8DBAC7CBCE25F57DC6E225353180F4FA3E"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "90",
+    "Layout": "Planar",
+    "BigEndian": true,
+    "Mode": "Linear",
+    "Sha256": "F3DE413A61306527E1CA6F0E71664BA34A9BAA60BF532AD96CB77C83D9304A39"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "90",
+    "Layout": "Planar",
+    "BigEndian": true,
+    "Mode": "Auto",
+    "Sha256": "84F2E6DB331921E7BBC1740C2685FC843684E4691EB45AEEA2AB32AF096AF81B"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "90",
+    "Layout": "Planar",
+    "BigEndian": true,
+    "Mode": "DisplayFunction",
+    "Sha256": "94E11A894C8240025E3B6ED91191DA8DBAC7CBCE25F57DC6E225353180F4FA3E"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "90",
+    "Layout": "Interleaved",
+    "BigEndian": false,
+    "Mode": "Linear",
+    "Sha256": "9F21A5AD1546937BDA957CB9E8267C1DBC0B2F87AAA8270F0B2E19C29782565E"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "90",
+    "Layout": "Interleaved",
+    "BigEndian": false,
+    "Mode": "Auto",
+    "Sha256": "B91E616B14DDAE6B9C305F43F6907A1D95DB0F9265744B43C2F62CE88897720B"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "90",
+    "Layout": "Interleaved",
+    "BigEndian": false,
+    "Mode": "DisplayFunction",
+    "Sha256": "058961361E516810FE1C4EA4F914615380DD4B79664D98A5D10082B2025AB70E"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "90",
+    "Layout": "Interleaved",
+    "BigEndian": true,
+    "Mode": "Linear",
+    "Sha256": "9F21A5AD1546937BDA957CB9E8267C1DBC0B2F87AAA8270F0B2E19C29782565E"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "90",
+    "Layout": "Interleaved",
+    "BigEndian": true,
+    "Mode": "Auto",
+    "Sha256": "B91E616B14DDAE6B9C305F43F6907A1D95DB0F9265744B43C2F62CE88897720B"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "90",
+    "Layout": "Interleaved",
+    "BigEndian": true,
+    "Mode": "DisplayFunction",
+    "Sha256": "058961361E516810FE1C4EA4F914615380DD4B79664D98A5D10082B2025AB70E"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "90;flip",
+    "Layout": "Planar",
+    "BigEndian": false,
+    "Mode": "Linear",
+    "Sha256": "034DC3DC6BCAFA83EAEC9271E5AB2DE7D08839D4D9F99CDD5CDFB48944DF2CE9"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "90;flip",
+    "Layout": "Planar",
+    "BigEndian": false,
+    "Mode": "Auto",
+    "Sha256": "4299C639AD17323EDBD1D6517A0DDB1FF71863FAFBCA1224CD9C6A83F8B63137"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "90;flip",
+    "Layout": "Planar",
+    "BigEndian": false,
+    "Mode": "DisplayFunction",
+    "Sha256": "A669D6A002F898FF9CBF9CE714C3C04962658BAF0EA40E1AB456579D522BA178"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "90;flip",
+    "Layout": "Planar",
+    "BigEndian": true,
+    "Mode": "Linear",
+    "Sha256": "034DC3DC6BCAFA83EAEC9271E5AB2DE7D08839D4D9F99CDD5CDFB48944DF2CE9"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "90;flip",
+    "Layout": "Planar",
+    "BigEndian": true,
+    "Mode": "Auto",
+    "Sha256": "4299C639AD17323EDBD1D6517A0DDB1FF71863FAFBCA1224CD9C6A83F8B63137"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "90;flip",
+    "Layout": "Planar",
+    "BigEndian": true,
+    "Mode": "DisplayFunction",
+    "Sha256": "A669D6A002F898FF9CBF9CE714C3C04962658BAF0EA40E1AB456579D522BA178"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "90;flip",
+    "Layout": "Interleaved",
+    "BigEndian": false,
+    "Mode": "Linear",
+    "Sha256": "A77DB102832BA338F2A30BF18C72A1D4E996F7B9EC6B89DFE45AD1F6AAFDC2B4"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "90;flip",
+    "Layout": "Interleaved",
+    "BigEndian": false,
+    "Mode": "Auto",
+    "Sha256": "7576933FF177430E7E0EFD3A989682305E6F43BF67F8BCFE9486B3DB9F1E94AD"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "90;flip",
+    "Layout": "Interleaved",
+    "BigEndian": false,
+    "Mode": "DisplayFunction",
+    "Sha256": "14DB5147AA419631B4D3523FC498D771FBF3E596C5955EB2729218BCAB324FD8"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "90;flip",
+    "Layout": "Interleaved",
+    "BigEndian": true,
+    "Mode": "Linear",
+    "Sha256": "A77DB102832BA338F2A30BF18C72A1D4E996F7B9EC6B89DFE45AD1F6AAFDC2B4"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "90;flip",
+    "Layout": "Interleaved",
+    "BigEndian": true,
+    "Mode": "Auto",
+    "Sha256": "7576933FF177430E7E0EFD3A989682305E6F43BF67F8BCFE9486B3DB9F1E94AD"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "90;flip",
+    "Layout": "Interleaved",
+    "BigEndian": true,
+    "Mode": "DisplayFunction",
+    "Sha256": "14DB5147AA419631B4D3523FC498D771FBF3E596C5955EB2729218BCAB324FD8"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "-90",
+    "Layout": "Planar",
+    "BigEndian": false,
+    "Mode": "Linear",
+    "Sha256": "AB09E792C75395053DBE5998EAF75778304D18A0FBB24715328BD4A6F310E2C5"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "-90",
+    "Layout": "Planar",
+    "BigEndian": false,
+    "Mode": "Auto",
+    "Sha256": "55C04CC9138DE9EF19D9352118605C10EBED4BAD63CE28470324296EB262A127"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "-90",
+    "Layout": "Planar",
+    "BigEndian": false,
+    "Mode": "DisplayFunction",
+    "Sha256": "7E8D3EB5603B0B4F39647FCCD2A1134AEC2AC5A5C7C2B21344E0792DE2B0704C"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "-90",
+    "Layout": "Planar",
+    "BigEndian": true,
+    "Mode": "Linear",
+    "Sha256": "AB09E792C75395053DBE5998EAF75778304D18A0FBB24715328BD4A6F310E2C5"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "-90",
+    "Layout": "Planar",
+    "BigEndian": true,
+    "Mode": "Auto",
+    "Sha256": "55C04CC9138DE9EF19D9352118605C10EBED4BAD63CE28470324296EB262A127"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "-90",
+    "Layout": "Planar",
+    "BigEndian": true,
+    "Mode": "DisplayFunction",
+    "Sha256": "7E8D3EB5603B0B4F39647FCCD2A1134AEC2AC5A5C7C2B21344E0792DE2B0704C"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "-90",
+    "Layout": "Interleaved",
+    "BigEndian": false,
+    "Mode": "Linear",
+    "Sha256": "41DD50F12533E474088052F1796E08CBC57636D1297B9A2F832E47769B957584"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "-90",
+    "Layout": "Interleaved",
+    "BigEndian": false,
+    "Mode": "Auto",
+    "Sha256": "750105F4422D5FA9194605F1B6D2BD294A7398A24D5F0625DE44E7F0F2629405"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "-90",
+    "Layout": "Interleaved",
+    "BigEndian": false,
+    "Mode": "DisplayFunction",
+    "Sha256": "FB7574246DC7D6A55C75B93A9232129D84522431F3F50B9B03644872E334BD54"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "-90",
+    "Layout": "Interleaved",
+    "BigEndian": true,
+    "Mode": "Linear",
+    "Sha256": "41DD50F12533E474088052F1796E08CBC57636D1297B9A2F832E47769B957584"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "-90",
+    "Layout": "Interleaved",
+    "BigEndian": true,
+    "Mode": "Auto",
+    "Sha256": "750105F4422D5FA9194605F1B6D2BD294A7398A24D5F0625DE44E7F0F2629405"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "-90",
+    "Layout": "Interleaved",
+    "BigEndian": true,
+    "Mode": "DisplayFunction",
+    "Sha256": "FB7574246DC7D6A55C75B93A9232129D84522431F3F50B9B03644872E334BD54"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "-90;flip",
+    "Layout": "Planar",
+    "BigEndian": false,
+    "Mode": "Linear",
+    "Sha256": "EDC69030713A127194EF80FCBE46041F90238413C9159EC8BFC61BE4FB359098"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "-90;flip",
+    "Layout": "Planar",
+    "BigEndian": false,
+    "Mode": "Auto",
+    "Sha256": "D81770714606779A2D0518F78F55A35E48E2EAA842D0E484BFE118B55EF3F7E8"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "-90;flip",
+    "Layout": "Planar",
+    "BigEndian": false,
+    "Mode": "DisplayFunction",
+    "Sha256": "A351A091F88F1CB742E09079118FA1E2D1C47A3599C40387011097958936FE1E"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "-90;flip",
+    "Layout": "Planar",
+    "BigEndian": true,
+    "Mode": "Linear",
+    "Sha256": "EDC69030713A127194EF80FCBE46041F90238413C9159EC8BFC61BE4FB359098"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "-90;flip",
+    "Layout": "Planar",
+    "BigEndian": true,
+    "Mode": "Auto",
+    "Sha256": "D81770714606779A2D0518F78F55A35E48E2EAA842D0E484BFE118B55EF3F7E8"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "-90;flip",
+    "Layout": "Planar",
+    "BigEndian": true,
+    "Mode": "DisplayFunction",
+    "Sha256": "A351A091F88F1CB742E09079118FA1E2D1C47A3599C40387011097958936FE1E"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "-90;flip",
+    "Layout": "Interleaved",
+    "BigEndian": false,
+    "Mode": "Linear",
+    "Sha256": "E6E609A77EDAC0D1443E8F911F6A99988080618F52E22F4D091E2113EA5A71C8"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "-90;flip",
+    "Layout": "Interleaved",
+    "BigEndian": false,
+    "Mode": "Auto",
+    "Sha256": "419704CF4057CF063431DC50ABE6236C11FF1DE19F3B81CFE110D3080F52C507"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "-90;flip",
+    "Layout": "Interleaved",
+    "BigEndian": false,
+    "Mode": "DisplayFunction",
+    "Sha256": "045AB37C715BCC1F1FBC0BD0620A288303813742B2718D2F19DA18865348CDA3"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "-90;flip",
+    "Layout": "Interleaved",
+    "BigEndian": true,
+    "Mode": "Linear",
+    "Sha256": "E6E609A77EDAC0D1443E8F911F6A99988080618F52E22F4D091E2113EA5A71C8"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "-90;flip",
+    "Layout": "Interleaved",
+    "BigEndian": true,
+    "Mode": "Auto",
+    "Sha256": "419704CF4057CF063431DC50ABE6236C11FF1DE19F3B81CFE110D3080F52C507"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "-90;flip",
+    "Layout": "Interleaved",
+    "BigEndian": true,
+    "Mode": "DisplayFunction",
+    "Sha256": "045AB37C715BCC1F1FBC0BD0620A288303813742B2718D2F19DA18865348CDA3"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "180",
+    "Layout": "Planar",
+    "BigEndian": false,
+    "Mode": "Linear",
+    "Sha256": "DE9A62BFC74AA10020AD8DC4B945E5FD3809ED4FCC1275B84F4669F744B6013D"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "180",
+    "Layout": "Planar",
+    "BigEndian": false,
+    "Mode": "Auto",
+    "Sha256": "26742626D3EB8E252508CECFA322DA6C8097B48299D6683F765D401BBC4D0726"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "180",
+    "Layout": "Planar",
+    "BigEndian": false,
+    "Mode": "DisplayFunction",
+    "Sha256": "A2227243F8A81AB0A852FFAA67D01CBAFC7B61D99CE90AF3EF0F930EA4A3384D"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "180",
+    "Layout": "Planar",
+    "BigEndian": true,
+    "Mode": "Linear",
+    "Sha256": "DE9A62BFC74AA10020AD8DC4B945E5FD3809ED4FCC1275B84F4669F744B6013D"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "180",
+    "Layout": "Planar",
+    "BigEndian": true,
+    "Mode": "Auto",
+    "Sha256": "26742626D3EB8E252508CECFA322DA6C8097B48299D6683F765D401BBC4D0726"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "180",
+    "Layout": "Planar",
+    "BigEndian": true,
+    "Mode": "DisplayFunction",
+    "Sha256": "A2227243F8A81AB0A852FFAA67D01CBAFC7B61D99CE90AF3EF0F930EA4A3384D"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "180",
+    "Layout": "Interleaved",
+    "BigEndian": false,
+    "Mode": "Linear",
+    "Sha256": "A87760A189F80FC6D58CBE9A57FF4C49B9DC6F2884CC5FDA47B4E839B9EFBE9F"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "180",
+    "Layout": "Interleaved",
+    "BigEndian": false,
+    "Mode": "Auto",
+    "Sha256": "47CC3F47ABE8690F4F5FC84DFBC8AE1E86F797CAB71A99B0BE16B9089B575A67"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "180",
+    "Layout": "Interleaved",
+    "BigEndian": false,
+    "Mode": "DisplayFunction",
+    "Sha256": "DE32FD27FD30918ED38C29388812C444C0BD7805DAB2CD530DF5B20AD2F66480"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "180",
+    "Layout": "Interleaved",
+    "BigEndian": true,
+    "Mode": "Linear",
+    "Sha256": "A87760A189F80FC6D58CBE9A57FF4C49B9DC6F2884CC5FDA47B4E839B9EFBE9F"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "180",
+    "Layout": "Interleaved",
+    "BigEndian": true,
+    "Mode": "Auto",
+    "Sha256": "47CC3F47ABE8690F4F5FC84DFBC8AE1E86F797CAB71A99B0BE16B9089B575A67"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "180",
+    "Layout": "Interleaved",
+    "BigEndian": true,
+    "Mode": "DisplayFunction",
+    "Sha256": "DE32FD27FD30918ED38C29388812C444C0BD7805DAB2CD530DF5B20AD2F66480"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "180;flip",
+    "Layout": "Planar",
+    "BigEndian": false,
+    "Mode": "Linear",
+    "Sha256": "F301BDB3C24585D541C69ACEC7453475E23C73B130E8DA2C03D7BE39DBE7F433"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "180;flip",
+    "Layout": "Planar",
+    "BigEndian": false,
+    "Mode": "Auto",
+    "Sha256": "FBA2084D58E898EDE71A64D56376FCF0384199AA08F6C9679B24AFF7A23C93D9"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "180;flip",
+    "Layout": "Planar",
+    "BigEndian": false,
+    "Mode": "DisplayFunction",
+    "Sha256": "6EB68D6CAFAB174BB52817D5D8D91BE3D76C7CABE9C6E89824320D7FB3CC344D"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "180;flip",
+    "Layout": "Planar",
+    "BigEndian": true,
+    "Mode": "Linear",
+    "Sha256": "F301BDB3C24585D541C69ACEC7453475E23C73B130E8DA2C03D7BE39DBE7F433"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "180;flip",
+    "Layout": "Planar",
+    "BigEndian": true,
+    "Mode": "Auto",
+    "Sha256": "FBA2084D58E898EDE71A64D56376FCF0384199AA08F6C9679B24AFF7A23C93D9"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "180;flip",
+    "Layout": "Planar",
+    "BigEndian": true,
+    "Mode": "DisplayFunction",
+    "Sha256": "6EB68D6CAFAB174BB52817D5D8D91BE3D76C7CABE9C6E89824320D7FB3CC344D"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "180;flip",
+    "Layout": "Interleaved",
+    "BigEndian": false,
+    "Mode": "Linear",
+    "Sha256": "369CD8844F6C29402EFCF6BFA01CC0B76EB72E2EB57DC0CB6441052455CC9E31"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "180;flip",
+    "Layout": "Interleaved",
+    "BigEndian": false,
+    "Mode": "Auto",
+    "Sha256": "1258996F5F46C41605B08E1A6DB599594F00C0CFCDD19D3FC47912A29372ABE5"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "180;flip",
+    "Layout": "Interleaved",
+    "BigEndian": false,
+    "Mode": "DisplayFunction",
+    "Sha256": "3BC8116DEB63DCF2520E3172D26966CAC6D5BD41E1DA367121C03110805FD1FB"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "180;flip",
+    "Layout": "Interleaved",
+    "BigEndian": true,
+    "Mode": "Linear",
+    "Sha256": "369CD8844F6C29402EFCF6BFA01CC0B76EB72E2EB57DC0CB6441052455CC9E31"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "180;flip",
+    "Layout": "Interleaved",
+    "BigEndian": true,
+    "Mode": "Auto",
+    "Sha256": "1258996F5F46C41605B08E1A6DB599594F00C0CFCDD19D3FC47912A29372ABE5"
+  },
+  {
+    "Color": "RGB",
+    "Orientation": "180;flip",
+    "Layout": "Interleaved",
+    "BigEndian": true,
+    "Mode": "DisplayFunction",
+    "Sha256": "3BC8116DEB63DCF2520E3172D26966CAC6D5BD41E1DA367121C03110805FD1FB"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "0",
+    "Layout": "Planar",
+    "BigEndian": false,
+    "Mode": "Linear",
+    "Sha256": "987B96FCBF985E464EF8D8538DBF3F79D45C49A86D4638A84C3695542E09CB99"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "0",
+    "Layout": "Planar",
+    "BigEndian": false,
+    "Mode": "Auto",
+    "Sha256": "5C8031EEA6DCDEDA4492587A191897D7CD3A21BEFE647C9A1EA05660922252EF"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "0",
+    "Layout": "Planar",
+    "BigEndian": false,
+    "Mode": "DisplayFunction",
+    "Sha256": "464B8CE7235F8CE3587C2B23B1ECB3006C4A7F8869262B426844CCC3CE90841E"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "0",
+    "Layout": "Planar",
+    "BigEndian": true,
+    "Mode": "Linear",
+    "Sha256": "987B96FCBF985E464EF8D8538DBF3F79D45C49A86D4638A84C3695542E09CB99"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "0",
+    "Layout": "Planar",
+    "BigEndian": true,
+    "Mode": "Auto",
+    "Sha256": "5C8031EEA6DCDEDA4492587A191897D7CD3A21BEFE647C9A1EA05660922252EF"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "0",
+    "Layout": "Planar",
+    "BigEndian": true,
+    "Mode": "DisplayFunction",
+    "Sha256": "464B8CE7235F8CE3587C2B23B1ECB3006C4A7F8869262B426844CCC3CE90841E"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "0",
+    "Layout": "Interleaved",
+    "BigEndian": false,
+    "Mode": "Linear",
+    "Sha256": "96013D18C968C80B11FCAB262DB956E50FFE96B8562275E196932F272B85B12E"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "0",
+    "Layout": "Interleaved",
+    "BigEndian": false,
+    "Mode": "Auto",
+    "Sha256": "A0747E0C1108721B39C7A15BCE8EBDB3BFCF7989553FEF5F6716627E58B6F609"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "0",
+    "Layout": "Interleaved",
+    "BigEndian": false,
+    "Mode": "DisplayFunction",
+    "Sha256": "7960B95E2EA835A2053988C93B7CC7FED8F93FBD6232491DA8BC9EA270CD58E9"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "0",
+    "Layout": "Interleaved",
+    "BigEndian": true,
+    "Mode": "Linear",
+    "Sha256": "96013D18C968C80B11FCAB262DB956E50FFE96B8562275E196932F272B85B12E"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "0",
+    "Layout": "Interleaved",
+    "BigEndian": true,
+    "Mode": "Auto",
+    "Sha256": "A0747E0C1108721B39C7A15BCE8EBDB3BFCF7989553FEF5F6716627E58B6F609"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "0",
+    "Layout": "Interleaved",
+    "BigEndian": true,
+    "Mode": "DisplayFunction",
+    "Sha256": "7960B95E2EA835A2053988C93B7CC7FED8F93FBD6232491DA8BC9EA270CD58E9"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "flip",
+    "Layout": "Planar",
+    "BigEndian": false,
+    "Mode": "Linear",
+    "Sha256": "E79CDF02AD667BA0FD1014A52E3EFB00E1DF044D0A4A66C083CA6844A70699D1"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "flip",
+    "Layout": "Planar",
+    "BigEndian": false,
+    "Mode": "Auto",
+    "Sha256": "B7CCEF6585DC7806083140B6E56CC535EF429B399ABEDA98A4928F5F69CB4EA9"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "flip",
+    "Layout": "Planar",
+    "BigEndian": false,
+    "Mode": "DisplayFunction",
+    "Sha256": "343406CCA7B12B596F2052E72FF60B91CDAB545C39DB0CB78CE8153FD5BB10FF"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "flip",
+    "Layout": "Planar",
+    "BigEndian": true,
+    "Mode": "Linear",
+    "Sha256": "E79CDF02AD667BA0FD1014A52E3EFB00E1DF044D0A4A66C083CA6844A70699D1"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "flip",
+    "Layout": "Planar",
+    "BigEndian": true,
+    "Mode": "Auto",
+    "Sha256": "B7CCEF6585DC7806083140B6E56CC535EF429B399ABEDA98A4928F5F69CB4EA9"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "flip",
+    "Layout": "Planar",
+    "BigEndian": true,
+    "Mode": "DisplayFunction",
+    "Sha256": "343406CCA7B12B596F2052E72FF60B91CDAB545C39DB0CB78CE8153FD5BB10FF"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "flip",
+    "Layout": "Interleaved",
+    "BigEndian": false,
+    "Mode": "Linear",
+    "Sha256": "83126A9E6E8771C9FBAAC60B6EE4F3BF004977EC99AD3438624001D5F4307DA9"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "flip",
+    "Layout": "Interleaved",
+    "BigEndian": false,
+    "Mode": "Auto",
+    "Sha256": "55728432E5F86C0BF19376AC306B9BF3DF7392D75677E07A0AEAC26DDF0D48D2"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "flip",
+    "Layout": "Interleaved",
+    "BigEndian": false,
+    "Mode": "DisplayFunction",
+    "Sha256": "0794FF983F312B6188D446CD2C9BCB9B66723C2576009B29551869AC7FEE5007"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "flip",
+    "Layout": "Interleaved",
+    "BigEndian": true,
+    "Mode": "Linear",
+    "Sha256": "83126A9E6E8771C9FBAAC60B6EE4F3BF004977EC99AD3438624001D5F4307DA9"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "flip",
+    "Layout": "Interleaved",
+    "BigEndian": true,
+    "Mode": "Auto",
+    "Sha256": "55728432E5F86C0BF19376AC306B9BF3DF7392D75677E07A0AEAC26DDF0D48D2"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "flip",
+    "Layout": "Interleaved",
+    "BigEndian": true,
+    "Mode": "DisplayFunction",
+    "Sha256": "0794FF983F312B6188D446CD2C9BCB9B66723C2576009B29551869AC7FEE5007"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "90",
+    "Layout": "Planar",
+    "BigEndian": false,
+    "Mode": "Linear",
+    "Sha256": "1EE96941EE7270A73BD6DC366428E9C322C1864DB66B9171CEE1155C4A2942FE"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "90",
+    "Layout": "Planar",
+    "BigEndian": false,
+    "Mode": "Auto",
+    "Sha256": "C5AFAC94619169FA125E67EF38CDD0C5015B5518D2EB4D388393740ED6ECBBAE"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "90",
+    "Layout": "Planar",
+    "BigEndian": false,
+    "Mode": "DisplayFunction",
+    "Sha256": "F511158888EDB13D665863A0268279C5E482B421840C3F1800ECF912CEFB7E2F"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "90",
+    "Layout": "Planar",
+    "BigEndian": true,
+    "Mode": "Linear",
+    "Sha256": "1EE96941EE7270A73BD6DC366428E9C322C1864DB66B9171CEE1155C4A2942FE"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "90",
+    "Layout": "Planar",
+    "BigEndian": true,
+    "Mode": "Auto",
+    "Sha256": "C5AFAC94619169FA125E67EF38CDD0C5015B5518D2EB4D388393740ED6ECBBAE"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "90",
+    "Layout": "Planar",
+    "BigEndian": true,
+    "Mode": "DisplayFunction",
+    "Sha256": "F511158888EDB13D665863A0268279C5E482B421840C3F1800ECF912CEFB7E2F"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "90",
+    "Layout": "Interleaved",
+    "BigEndian": false,
+    "Mode": "Linear",
+    "Sha256": "0F6ED549CB471B939A1DF7349816D5A0B9892A4C904524ABAACD3A45DA7BCC6D"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "90",
+    "Layout": "Interleaved",
+    "BigEndian": false,
+    "Mode": "Auto",
+    "Sha256": "A89AB8D2F0564F7E19721DC6DDBB2C9802FB626984A924205CF3FA35D56C43AD"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "90",
+    "Layout": "Interleaved",
+    "BigEndian": false,
+    "Mode": "DisplayFunction",
+    "Sha256": "A0DA921CA6DE3FA5C5F435FEAB6E4B1DEC507490E8FE3D1CCD6BFF99FD45B51F"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "90",
+    "Layout": "Interleaved",
+    "BigEndian": true,
+    "Mode": "Linear",
+    "Sha256": "0F6ED549CB471B939A1DF7349816D5A0B9892A4C904524ABAACD3A45DA7BCC6D"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "90",
+    "Layout": "Interleaved",
+    "BigEndian": true,
+    "Mode": "Auto",
+    "Sha256": "A89AB8D2F0564F7E19721DC6DDBB2C9802FB626984A924205CF3FA35D56C43AD"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "90",
+    "Layout": "Interleaved",
+    "BigEndian": true,
+    "Mode": "DisplayFunction",
+    "Sha256": "A0DA921CA6DE3FA5C5F435FEAB6E4B1DEC507490E8FE3D1CCD6BFF99FD45B51F"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "90;flip",
+    "Layout": "Planar",
+    "BigEndian": false,
+    "Mode": "Linear",
+    "Sha256": "0F4365F4FB4D6989ADB8733F934C712CBE4EBEA41129D575C78C33787B4B40D4"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "90;flip",
+    "Layout": "Planar",
+    "BigEndian": false,
+    "Mode": "Auto",
+    "Sha256": "01C5DF41B2B68406C0B953502485E0D50F753BC6C0AF48C5FB8AD85FEA7A5294"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "90;flip",
+    "Layout": "Planar",
+    "BigEndian": false,
+    "Mode": "DisplayFunction",
+    "Sha256": "8062CD54447A1378BF5BFC21151B0E0248B6A9ACF3F9C9F6E7F8FECC80BA766C"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "90;flip",
+    "Layout": "Planar",
+    "BigEndian": true,
+    "Mode": "Linear",
+    "Sha256": "0F4365F4FB4D6989ADB8733F934C712CBE4EBEA41129D575C78C33787B4B40D4"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "90;flip",
+    "Layout": "Planar",
+    "BigEndian": true,
+    "Mode": "Auto",
+    "Sha256": "01C5DF41B2B68406C0B953502485E0D50F753BC6C0AF48C5FB8AD85FEA7A5294"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "90;flip",
+    "Layout": "Planar",
+    "BigEndian": true,
+    "Mode": "DisplayFunction",
+    "Sha256": "8062CD54447A1378BF5BFC21151B0E0248B6A9ACF3F9C9F6E7F8FECC80BA766C"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "90;flip",
+    "Layout": "Interleaved",
+    "BigEndian": false,
+    "Mode": "Linear",
+    "Sha256": "35053DC6ED990173B5715E3D29F606D70026DB1B3C060D6AE1E09580105761CA"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "90;flip",
+    "Layout": "Interleaved",
+    "BigEndian": false,
+    "Mode": "Auto",
+    "Sha256": "4A19426822C092BF6CE436F10D9C4EADFE5AFD60F560A39102A299C780C4EF7F"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "90;flip",
+    "Layout": "Interleaved",
+    "BigEndian": false,
+    "Mode": "DisplayFunction",
+    "Sha256": "F65FFA9E69895DF16E134346E576E38FFD81BA2F0B05A7FE9C675C2E3EB6F655"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "90;flip",
+    "Layout": "Interleaved",
+    "BigEndian": true,
+    "Mode": "Linear",
+    "Sha256": "35053DC6ED990173B5715E3D29F606D70026DB1B3C060D6AE1E09580105761CA"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "90;flip",
+    "Layout": "Interleaved",
+    "BigEndian": true,
+    "Mode": "Auto",
+    "Sha256": "4A19426822C092BF6CE436F10D9C4EADFE5AFD60F560A39102A299C780C4EF7F"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "90;flip",
+    "Layout": "Interleaved",
+    "BigEndian": true,
+    "Mode": "DisplayFunction",
+    "Sha256": "F65FFA9E69895DF16E134346E576E38FFD81BA2F0B05A7FE9C675C2E3EB6F655"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "-90",
+    "Layout": "Planar",
+    "BigEndian": false,
+    "Mode": "Linear",
+    "Sha256": "001EB0B2B197963810B25D9AFABDAF43DEB42C45F1633EE4B099B3D53333DA04"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "-90",
+    "Layout": "Planar",
+    "BigEndian": false,
+    "Mode": "Auto",
+    "Sha256": "B9C47C3149932FD7D94155588FB330F4061AECB516DAC3AF115E025334F32583"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "-90",
+    "Layout": "Planar",
+    "BigEndian": false,
+    "Mode": "DisplayFunction",
+    "Sha256": "B636543FD0B41F816DA2AA98BF57B610E81BA433BA7ADD458846DD700C55AD2C"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "-90",
+    "Layout": "Planar",
+    "BigEndian": true,
+    "Mode": "Linear",
+    "Sha256": "001EB0B2B197963810B25D9AFABDAF43DEB42C45F1633EE4B099B3D53333DA04"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "-90",
+    "Layout": "Planar",
+    "BigEndian": true,
+    "Mode": "Auto",
+    "Sha256": "B9C47C3149932FD7D94155588FB330F4061AECB516DAC3AF115E025334F32583"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "-90",
+    "Layout": "Planar",
+    "BigEndian": true,
+    "Mode": "DisplayFunction",
+    "Sha256": "B636543FD0B41F816DA2AA98BF57B610E81BA433BA7ADD458846DD700C55AD2C"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "-90",
+    "Layout": "Interleaved",
+    "BigEndian": false,
+    "Mode": "Linear",
+    "Sha256": "C123098DB99D6A9A0EB02FD278492FD98C09F6826B6A04342EFDE8C06B287853"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "-90",
+    "Layout": "Interleaved",
+    "BigEndian": false,
+    "Mode": "Auto",
+    "Sha256": "430923D6569E7F2FF89EEFA69A71BEB7D73363C8EFE594B561D29C6025C003AA"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "-90",
+    "Layout": "Interleaved",
+    "BigEndian": false,
+    "Mode": "DisplayFunction",
+    "Sha256": "8F4E7790FEF56FDBFB93521FC555361849CB89A018811870BA83DDCE522246D0"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "-90",
+    "Layout": "Interleaved",
+    "BigEndian": true,
+    "Mode": "Linear",
+    "Sha256": "C123098DB99D6A9A0EB02FD278492FD98C09F6826B6A04342EFDE8C06B287853"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "-90",
+    "Layout": "Interleaved",
+    "BigEndian": true,
+    "Mode": "Auto",
+    "Sha256": "430923D6569E7F2FF89EEFA69A71BEB7D73363C8EFE594B561D29C6025C003AA"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "-90",
+    "Layout": "Interleaved",
+    "BigEndian": true,
+    "Mode": "DisplayFunction",
+    "Sha256": "8F4E7790FEF56FDBFB93521FC555361849CB89A018811870BA83DDCE522246D0"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "-90;flip",
+    "Layout": "Planar",
+    "BigEndian": false,
+    "Mode": "Linear",
+    "Sha256": "C342239DD6457AC43F6C9CC69BF575095ADB2C93CBA6239F92BC98EA55AF5643"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "-90;flip",
+    "Layout": "Planar",
+    "BigEndian": false,
+    "Mode": "Auto",
+    "Sha256": "A01014694D849D9891C7EDCDA0BC9AE3EA7D5779B740833A2CF78D0D9A1659CB"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "-90;flip",
+    "Layout": "Planar",
+    "BigEndian": false,
+    "Mode": "DisplayFunction",
+    "Sha256": "F10876F5ECA8AA4B58B1B2AEE9454D8ADF501EA65CB03E3BE0FB326E1A7A578C"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "-90;flip",
+    "Layout": "Planar",
+    "BigEndian": true,
+    "Mode": "Linear",
+    "Sha256": "C342239DD6457AC43F6C9CC69BF575095ADB2C93CBA6239F92BC98EA55AF5643"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "-90;flip",
+    "Layout": "Planar",
+    "BigEndian": true,
+    "Mode": "Auto",
+    "Sha256": "A01014694D849D9891C7EDCDA0BC9AE3EA7D5779B740833A2CF78D0D9A1659CB"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "-90;flip",
+    "Layout": "Planar",
+    "BigEndian": true,
+    "Mode": "DisplayFunction",
+    "Sha256": "F10876F5ECA8AA4B58B1B2AEE9454D8ADF501EA65CB03E3BE0FB326E1A7A578C"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "-90;flip",
+    "Layout": "Interleaved",
+    "BigEndian": false,
+    "Mode": "Linear",
+    "Sha256": "1A00928CCA1FAF95FEB739AE2ACE302FB590887E4DF70345A28F028BBCCBC7D4"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "-90;flip",
+    "Layout": "Interleaved",
+    "BigEndian": false,
+    "Mode": "Auto",
+    "Sha256": "D9159AB4A1219B9338C503D5A407D623FEFC3A8E7CDAB3E5F30AD4FC93FFA6DE"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "-90;flip",
+    "Layout": "Interleaved",
+    "BigEndian": false,
+    "Mode": "DisplayFunction",
+    "Sha256": "637B5BB112C2E3FB0D532A6EE72D944307DBCFEF85A5853D3D733C165E87D3DB"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "-90;flip",
+    "Layout": "Interleaved",
+    "BigEndian": true,
+    "Mode": "Linear",
+    "Sha256": "1A00928CCA1FAF95FEB739AE2ACE302FB590887E4DF70345A28F028BBCCBC7D4"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "-90;flip",
+    "Layout": "Interleaved",
+    "BigEndian": true,
+    "Mode": "Auto",
+    "Sha256": "D9159AB4A1219B9338C503D5A407D623FEFC3A8E7CDAB3E5F30AD4FC93FFA6DE"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "-90;flip",
+    "Layout": "Interleaved",
+    "BigEndian": true,
+    "Mode": "DisplayFunction",
+    "Sha256": "637B5BB112C2E3FB0D532A6EE72D944307DBCFEF85A5853D3D733C165E87D3DB"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "180",
+    "Layout": "Planar",
+    "BigEndian": false,
+    "Mode": "Linear",
+    "Sha256": "855E539D6444CF6A733068078EC18DFEA9CF55099669117CF216EF762BC6EB06"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "180",
+    "Layout": "Planar",
+    "BigEndian": false,
+    "Mode": "Auto",
+    "Sha256": "9E587C28BB377CD9081D4681683B89669D43C5ACE58302A1659C4789016E61F3"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "180",
+    "Layout": "Planar",
+    "BigEndian": false,
+    "Mode": "DisplayFunction",
+    "Sha256": "1EDF3AC264D42898E4C9B8E5A275C639127E1E9EABCF3916449AE1FFA9BA7F86"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "180",
+    "Layout": "Planar",
+    "BigEndian": true,
+    "Mode": "Linear",
+    "Sha256": "855E539D6444CF6A733068078EC18DFEA9CF55099669117CF216EF762BC6EB06"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "180",
+    "Layout": "Planar",
+    "BigEndian": true,
+    "Mode": "Auto",
+    "Sha256": "9E587C28BB377CD9081D4681683B89669D43C5ACE58302A1659C4789016E61F3"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "180",
+    "Layout": "Planar",
+    "BigEndian": true,
+    "Mode": "DisplayFunction",
+    "Sha256": "1EDF3AC264D42898E4C9B8E5A275C639127E1E9EABCF3916449AE1FFA9BA7F86"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "180",
+    "Layout": "Interleaved",
+    "BigEndian": false,
+    "Mode": "Linear",
+    "Sha256": "467E40E91D18A28A19FB945B2F07291516639FE29B5B5E26C2486BFD4972CCF0"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "180",
+    "Layout": "Interleaved",
+    "BigEndian": false,
+    "Mode": "Auto",
+    "Sha256": "239D2E3A75C3FAFCECC020D6EC4862B64637C9AE36AA47D1923395BC5FBEB7E0"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "180",
+    "Layout": "Interleaved",
+    "BigEndian": false,
+    "Mode": "DisplayFunction",
+    "Sha256": "31FA1205596686C45D4D1EBD421F2B859D5C86715AAB1D9EA4140FCC4FA42FF8"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "180",
+    "Layout": "Interleaved",
+    "BigEndian": true,
+    "Mode": "Linear",
+    "Sha256": "467E40E91D18A28A19FB945B2F07291516639FE29B5B5E26C2486BFD4972CCF0"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "180",
+    "Layout": "Interleaved",
+    "BigEndian": true,
+    "Mode": "Auto",
+    "Sha256": "239D2E3A75C3FAFCECC020D6EC4862B64637C9AE36AA47D1923395BC5FBEB7E0"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "180",
+    "Layout": "Interleaved",
+    "BigEndian": true,
+    "Mode": "DisplayFunction",
+    "Sha256": "31FA1205596686C45D4D1EBD421F2B859D5C86715AAB1D9EA4140FCC4FA42FF8"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "180;flip",
+    "Layout": "Planar",
+    "BigEndian": false,
+    "Mode": "Linear",
+    "Sha256": "60DBBFF154F388C932F9D0F9F59D0AEEAA31341241058E2E022D26F9D92C2CA7"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "180;flip",
+    "Layout": "Planar",
+    "BigEndian": false,
+    "Mode": "Auto",
+    "Sha256": "95183AA5C67306EDDC1F0D75A795502FE35C2ED95D1C396D46A078EE15C7666E"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "180;flip",
+    "Layout": "Planar",
+    "BigEndian": false,
+    "Mode": "DisplayFunction",
+    "Sha256": "12EE528C001A89A3FF86DFF042D7901DDD858476CB84FBC905124CEC077FDA67"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "180;flip",
+    "Layout": "Planar",
+    "BigEndian": true,
+    "Mode": "Linear",
+    "Sha256": "60DBBFF154F388C932F9D0F9F59D0AEEAA31341241058E2E022D26F9D92C2CA7"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "180;flip",
+    "Layout": "Planar",
+    "BigEndian": true,
+    "Mode": "Auto",
+    "Sha256": "95183AA5C67306EDDC1F0D75A795502FE35C2ED95D1C396D46A078EE15C7666E"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "180;flip",
+    "Layout": "Planar",
+    "BigEndian": true,
+    "Mode": "DisplayFunction",
+    "Sha256": "12EE528C001A89A3FF86DFF042D7901DDD858476CB84FBC905124CEC077FDA67"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "180;flip",
+    "Layout": "Interleaved",
+    "BigEndian": false,
+    "Mode": "Linear",
+    "Sha256": "EA3F6245433F1AF9AB44B2BBD857BBC3E765ABEBB682C04AEDA1FC31F1BCFB43"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "180;flip",
+    "Layout": "Interleaved",
+    "BigEndian": false,
+    "Mode": "Auto",
+    "Sha256": "F05702A89FC5D23C6BB67A386DB6AB68E1EC49D4FB665777FC2AE885A0F94EA5"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "180;flip",
+    "Layout": "Interleaved",
+    "BigEndian": false,
+    "Mode": "DisplayFunction",
+    "Sha256": "FDE3D48410132F54C03F47676DD4C7803130369FF400F252A7553E320252ED52"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "180;flip",
+    "Layout": "Interleaved",
+    "BigEndian": true,
+    "Mode": "Linear",
+    "Sha256": "EA3F6245433F1AF9AB44B2BBD857BBC3E765ABEBB682C04AEDA1FC31F1BCFB43"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "180;flip",
+    "Layout": "Interleaved",
+    "BigEndian": true,
+    "Mode": "Auto",
+    "Sha256": "F05702A89FC5D23C6BB67A386DB6AB68E1EC49D4FB665777FC2AE885A0F94EA5"
+  },
+  {
+    "Color": "CIELab",
+    "Orientation": "180;flip",
+    "Layout": "Interleaved",
+    "BigEndian": true,
+    "Mode": "DisplayFunction",
+    "Sha256": "FDE3D48410132F54C03F47676DD4C7803130369FF400F252A7553E320252ED52"
+  }
+]

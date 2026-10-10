@@ -1,0 +1,71 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:viewer="using:XISFLib.Viewer"
+        x:Class="XISFLib.AvaloniaViewer.MainWindow" x:DataType="viewer:WorkbenchViewModel"
+        Title="XISF Library Workbench — Avalonia" Width="1450" Height="900" MinWidth="1050" MinHeight="650">
+  <Grid ColumnDefinitions="330,*">
+    <Border Padding="16" BorderBrush="#404040" BorderThickness="0,0,1,0">
+      <DockPanel>
+        <TextBlock DockPanel.Dock="Bottom" Text="{Binding Status}" TextWrapping="Wrap" Margin="0,16,0,0" />
+        <ScrollViewer>
+          <StackPanel Spacing="12">
+            <TextBlock Text="XISF Library Workbench" FontSize="22" FontWeight="SemiBold" />
+            <TextBlock Text="File" FontWeight="SemiBold" />
+            <Grid ColumnDefinitions="*,Auto">
+              <TextBox Text="{Binding FilePath}" IsEnabled="{Binding CanInteract}" />
+              <Button Grid.Column="1" Content="Browse…" Click="Browse_Click" Margin="8,0,0,0" IsEnabled="{Binding CanInteract}" />
+            </Grid>
+            <Button Content="Load XISF or FITS" Command="{Binding LoadCommand}" HorizontalAlignment="Stretch" />
+            <Button Content="Unload image" Command="{Binding UnloadCommand}" HorizontalAlignment="Stretch" />
+            <Button Content="Import PNG, JPEG, TIFF, BMP or GIF…" IsEnabled="False" />
+            <TextBlock Text="Image in document" FontWeight="SemiBold" />
+            <ComboBox ItemsSource="{Binding ImageLabels}" SelectedIndex="{Binding SelectedImageIndex}"
+                      SelectionChanged="ImageSelection_Changed" IsEnabled="{Binding CanInteract}" />
+            <TextBlock Text="{Binding ImageDetails}" TextWrapping="Wrap" />
+            <Separator />
+            <TextBlock Text="Display configuration" FontWeight="SemiBold" />
+            <StackPanel Spacing="8" IsEnabled="{Binding CanInteract}">
+              <CheckBox Content="Automatic screen stretch" IsChecked="{Binding AutoStretch}" />
+              <CheckBox Content="Link RGB channels" IsChecked="{Binding LinkChannels}" />
+              <TextBlock Text="Target background (0–1)" />
+              <TextBox Text="{Binding TargetBackground}" />
+              <TextBlock Text="Shadows clipping (≤ 0)" />
+              <TextBox Text="{Binding ShadowsClipping}" />
+            </StackPanel>
+            <Button Content="Apply display settings" Command="{Binding ApplyCommand}" />
+          </StackPanel>
+        </ScrollViewer>
+      </DockPanel>
+    </Border>
+    <TabControl Grid.Column="1">
+      <TabItem Header="Image">
+        <Border Background="#181818" ClipToBounds="True" Padding="16">
+          <Grid x:Name="ImageViewport" Background="Transparent" ClipToBounds="True"
+                PointerWheelChanged="Viewport_Wheel" PointerPressed="Viewport_Pressed"
+                PointerMoved="Viewport_Moved" PointerReleased="Viewport_Released" PointerCaptureLost="Viewport_CaptureLost">
+            <TextBlock x:Name="EmptyView" Text="No image loaded" Foreground="#A0A0A0" FontSize="18"
+                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+            <Image x:Name="ImageView" Stretch="Uniform" IsHitTestVisible="False" RenderTransformOrigin="0%,0%">
+              <Image.RenderTransform>
+                <TransformGroup><ScaleTransform /><TranslateTransform /></TransformGroup>
+              </Image.RenderTransform>
+            </Image>
+          </Grid>
+        </Border>
+      </TabItem>
+      <TabItem Header="Information" IsEnabled="False" />
+      <TabItem Header="Utilities" IsEnabled="False" />
+      <TabItem Header="Image metadata" IsEnabled="False" />
+      <TabItem Header="Writer" IsEnabled="False" />
+      <TabItem Header="Diagnostics">
+        <DataGrid Margin="12" ItemsSource="{Binding Diagnostics}" IsReadOnly="True" AutoGenerateColumns="False">
+          <DataGrid.Columns>
+            <DataGridTextColumn Header="Severity" Binding="{ReflectionBinding Severity}" Width="Auto" />
+            <DataGridTextColumn Header="Code" Binding="{ReflectionBinding Code}" Width="Auto" />
+            <DataGridTextColumn Header="Message" Binding="{ReflectionBinding Message}" Width="*" />
+          </DataGrid.Columns>
+        </DataGrid>
+      </TabItem>
+    </TabControl>
+  </Grid>
+</Window>

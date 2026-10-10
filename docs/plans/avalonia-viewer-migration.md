@@ -1,6 +1,6 @@
 # Avalonia viewer implementation plan
 
-Status: **planned; implementation has not started**. All checkboxes below are initially unchecked. This document is the implementation handoff, not a claim that an Avalonia project already exists.
+Status: **in progress; initial loading/display slice implemented on 2026-10-10**. Avalonia and shared viewer projects exist. Full feature parity remains pending. Checkboxes indicate completed requirements; partial phases and their evidence are recorded below.
 
 Prepared on 2026-10-10 against repository HEAD `a7d788c1a6995b0b753a7b578d67d48e0ec21666` and the current WPF sources. Re-inventory functionality if the WPF application changes before implementation.
 
@@ -112,7 +112,7 @@ Each phase should be a reviewable commit with a green applicable build/test set.
 
 - [ ] Recheck every WPF event handler/control against F01–F27; record defaults, supported edits, commit/discard behavior, and error paths.
 - [ ] Build/test existing solution and capture representative render hashes, save/reload results, metadata trees, utility values and load-stage timings under ignored `artifacts/avalonia-baseline/`.
-- [ ] Verify compatible stable Avalonia desktop/theme/grid/headless packages, licensing, diagnostics changes, and .NET 10 support.
+- [x] Verify compatible stable Avalonia desktop/theme/grid/headless packages, licensing, diagnostics changes, and .NET 10 support.
 - [ ] Prototype framebuffer transfer (BGRA, alpha, stride, DPI), editable-grid row addition/deletion and commit, metadata-tree performance, and native local-path dialogs.
 - [ ] Run raster import compatibility spikes for PNG/JPEG/TIFF/BMP/GIF; choose decoder(s) and record platform gaps with a concrete implementation path.
 
@@ -122,9 +122,9 @@ Exit: baseline evidence exists; dependencies and difficult platform features hav
 
 Depends on phase 1.
 
-- [ ] Move the numeric/display part of `XisfWindowsExtensions` into core `Imaging`, including options, orientation and DPI helpers.
-- [ ] Keep `ToBitmap`, `ToBitmapSource`, and `ToBgra32Pixels` Windows APIs as wrappers over the same renderer; avoid duplicate image-sized buffers.
-- [ ] Add core render tests and retain Windows adapter tests, including all orientations, layouts/endians, RGB/Lab/alpha, non-finite values and stored display functions.
+- [x] Move the numeric/display part of `XisfWindowsExtensions` into core `Imaging`, including options, orientation and DPI helpers.
+- [x] Keep `ToBitmap`, `ToBitmapSource`, and `ToBgra32Pixels` Windows APIs as wrappers over the same renderer; avoid duplicate image-sized buffers.
+- [x] Add core render tests and retain Windows adapter tests, including all orientations, layouts/endians, RGB/Lab/alpha, non-finite values and stored display functions.
 - [ ] Compare against frozen baseline hashes and measure allocation changes; update API docs and any type forwarding.
 
 Exit: WPF output matches baseline, the renderer builds/tests without Windows, and no UI framework has entered core.
@@ -133,7 +133,7 @@ Exit: WPF output matches baseline, the renderer builds/tests without Windows, an
 
 Depends on phase 2.
 
-- [ ] Add `XISFLib.Viewer.Core` and its tests to the solution.
+- [x] Add `XISFLib.Viewer.Core` and its tests to the solution.
 - [ ] Extract session loading/selection, row models, property/table codecs, metadata-tree construction, save mode selection, diagnostics and utility orchestration.
 - [ ] Introduce testable async operation state and framework service interfaces. Stage editor parsing before mutation; keep buffer ownership/source lifetime explicit.
 - [ ] Adapt WPF handlers incrementally to the shared view models/services. Preserve control names or update existing reflection-based benchmarks alongside them.
@@ -146,10 +146,10 @@ Exit: WPF consumes the shared behavior with equivalent output and performance. S
 
 Depends on phase 3.
 
-- [ ] Create `XISFLib.AvaloniaViewer` with desktop `Program.cs`, `App.axaml`, `MainWindow.axaml`, selected theme and compiled bindings.
-- [ ] Add solution entries and references to viewer core/core library; verify there is no WPF, WinForms, `System.Drawing.Common`, or `XISFLib.Windows` dependency in the portable frontend.
+- [x] Create `XISFLib.AvaloniaViewer` with desktop `Program.cs`, `App.axaml`, `MainWindow.axaml`, selected theme and compiled bindings.
+- [x] Add solution entries and references to viewer core/core library; verify there is no WPF, WinForms, `System.Drawing.Common`, or `XISFLib.Windows` dependency in the portable frontend.
 - [ ] Build the sidebar and six tabs, compose dialog/error/scheduler services, wire status and command enablement.
-- [ ] Add `XISFLib.AvaloniaViewer.Tests`, the actual selected headless package/theme, and a startup/binding test. Confirm xUnit package compatibility with the repository.
+- [x] Add `XISFLib.AvaloniaViewer.Tests`, the actual selected headless package/theme, and a startup/binding test. Confirm xUnit package compatibility with the repository.
 
 Exit: both applications build and start; the Avalonia shell binds to shared state. Empty tabs are still marked pending, not completed features.
 
@@ -158,7 +158,7 @@ Exit: both applications build and start; the Avalonia shell binds to shared stat
 Depends on phase 4.
 
 - [ ] Wire F01–F06 with the shared loader, lazy selection and BGRA renderer.
-- [ ] Transfer rows into Avalonia bitmap storage with explicit alpha mode/stride/DPI and deterministic disposal.
+- [x] Transfer rows into Avalonia bitmap storage with explicit alpha mode/stride/DPI and deterministic disposal.
 - [ ] Port pointer anchoring, zoom clamp/step, pan capture/loss/release and viewport reset/resize behavior.
 - [ ] Present the bitmap before metadata/editor work; guard session replacement/window closure and suppress obsolete results.
 - [ ] Test malformed files, unsupported render types, multi-image files, failed loads and operation recovery. Preserve useful diagnostics even if an image cannot be displayed.
@@ -258,8 +258,31 @@ Completion requires every F-row to be Done with evidence, both viewers' applicab
 
 | Phase | State | Evidence/decisions | Next action |
 | --- | --- | --- | --- |
-| 1 | Not started | Planning source inventory complete; no packages/projects added | Freeze baseline and run compatibility spikes |
-| 2–12 | Not started | Follow dependency order above | Begin after predecessor exit criteria |
+| 1 | Partial | Pre-extraction binary baseline, 288 render hashes and WPF load timings captured. Package/bitmap integration verified. Editor/tree/dialog/codec spikes and complete save/utility baseline remain pending. | Finish platform spikes and baseline inventory |
+| 2 | Mostly complete | Portable renderer, independent hash regressions, Windows wrappers and type forwarding implemented. Allocation measurement remains pending. | Measure allocations alongside staged timings |
+| 3 | Partial | Shared ViewerSession and initial WorkbenchViewModel; WPF uses shared loader/rendering. Session and failure-recovery tests added. | Extract metadata tree/row models/codecs, then editors/save/utilities and WPF adoption |
+| 4 | Initial shell complete | Compiled bindings, six tabs, native browse, status/commands and headless startup/loading test. Pending tabs remain disabled. | Extend services as shared behavior is extracted |
+| 5 | Partial | Loading, selection, preview/stretch Apply, unload, zoom/pan and initial validation wired. Bitmap alpha/stride/orientation/DPI tested. | Complete F01–F06 error/input/focus/desktop evidence |
+| 6–12 | Pending | Initial diagnostics and Windows CI coverage added ahead of these phases; complete requirements remain open. | Follow remaining dependency order |
+
+### First implementation slice: 2026-10-10
+
+The initial shell/loading integration overlaps phase 1 spikes and phase 3 extraction to verify framework integration early. This does not waive their remaining exit criteria. No F-row is yet marked Done: rendering has independent byte evidence, but complete user-action and desktop evidence remains outstanding.
+
+Selected packages: Avalonia.Desktop, Avalonia.Themes.Fluent and Avalonia.Headless.XUnit **12.1.4**; Avalonia.Controls.DataGrid **12.1.2**; CommunityToolkit.Mvvm **8.4.2**. Avalonia/MVVM dependencies use MIT licensing. No raster decoder has been selected or installed. Avalonia 12 headless requires xUnit v3: its test project uses **3.2.2** and OutputType Exe, while existing/shared tests remain xUnit v2. Real Skia/HarfBuzz with UseHeadlessDrawing=false is necessary for framebuffer tests; the default dummy headless bitmap does not establish alpha-format behavior.
+
+Durable evidence:
+
+- `XISFLib.Tests/Fixtures/RenderingBaseline.json` and `DisplayRendererTests.cs`: 288 pre-extraction SHA-256 hashes for Gray/RGB/Lab plus alpha, eight orientations, two layouts, both byte orders, three stretch modes and non-finite samples. Original binaries generated the hashes before extraction.
+- `XISFLib.Viewer.Core.Tests`: lazy multi-image materialization, FITS channel interpretation, selection/unload, failed-load preservation, operation recovery and closure guards.
+- `XISFLib.AvaloniaViewer.Tests`: real Skia bitmap transfer and actual window load/unload through shared state.
+- Windows CI builds the full solution and runs all four test projects. WPF release/Pages behavior remains unchanged.
+
+Ignored experiment evidence is under `artifacts/avalonia-baseline/`: reference binaries/harness, `wpf-load.json`, `wpf-load-after.json`, and `desktop-startup.json`. Startup confirms a running Windows process reaching input idle; it is not an interactive visual/DPI test. Load timings use one warm iteration and are insufficient for a performance conclusion. Dedicated allocation, cold-load and native memory measurements remain pending.
+
+Next implementation: finish codec/grid/tree/dialog spikes, extract the shared information tree and editor row/parsing models, adopt them in WPF, then bind the Avalonia information/editor views. Retain the existing scientific and preservation contracts.
+
+Checks for this slice: Release solution build passed without warnings; `dotnet test XISFLib.Net.slnx -c Release --no-restore` passed 212 tests (182 core, 24 Windows, 4 shared viewer, 2 Avalonia). `docfx docfx.json --warningsAsErrors` passed with zero warnings/errors. Solution dependency auditing found no vulnerable packages. These counts record this implementation, not permanent completion criteria.
 
 For each implementation turn, update the relevant phase/feature status, tests run, actual package versions, unresolved issues and next concrete action. Store experimental/generated artifacts under `artifacts/`; commit durable small test fixtures and authored docs normally.
 

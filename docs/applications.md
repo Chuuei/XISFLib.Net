@@ -2,6 +2,20 @@
 
 The solution includes a Windows WPF workbench, a batch converter, and a benchmark harness. They demonstrate the public library APIs; reference `XISFLib` or `XISFLib.Windows` directly when integrating the library into another application.
 
+## Avalonia viewer (development)
+
+Run the initial migration slice with the .NET 10 SDK:
+
+```powershell
+dotnet run --project XISFLib.AvaloniaViewer -c Release
+```
+
+It supports XISF/FITS loading, lazy image selection, full-resolution previews, linear/automatic stretching, Apply, zoom/pan, unload, and initial validation diagnostics. Session loading and rendering are shared with WPF. The image is presented before validation; failed loads retain the previous session.
+
+Information trees, raster import, metadata editing, writer/save modes, and utilities remain pending. Their tabs are marked accordingly. Desktop interaction and Linux/macOS verification are also incomplete. WPF remains the complete workbench and released application. Avalonia release packaging is a later phase; the existing WPF release workflow is unchanged.
+
+The implementation handoff is `docs/plans/avalonia-viewer-migration.md` in the repository, with evidence and remaining parity requirements.
+
 ## WPF workbench
 
 Run on Windows with the .NET 10 SDK:

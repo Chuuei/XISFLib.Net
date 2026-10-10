@@ -22,6 +22,8 @@ jobs:
       - run: dotnet build .\XISFLib.Net.slnx -c Release --no-restore
       - run: dotnet test .\XISFLib.Tests\XISFLib.Tests.csproj -c Release --no-build
       - run: dotnet test .\XISFLib.Windows.Tests\XISFLib.Windows.Tests.csproj -c Release --no-build
+      - run: dotnet test .\XISFLib.Viewer.Core.Tests\XISFLib.Viewer.Core.Tests.csproj -c Release --no-build
+      - run: dotnet test .\XISFLib.AvaloniaViewer.Tests\XISFLib.AvaloniaViewer.Tests.csproj -c Release --no-build
       - run: dotnet pack .\XISFLib\XISFLib.csproj -c Release --no-build --output .\artifacts
       - run: dotnet list .\XISFLib.Net.slnx package --vulnerable --include-transitive
       - name: Publish standalone WPF viewer

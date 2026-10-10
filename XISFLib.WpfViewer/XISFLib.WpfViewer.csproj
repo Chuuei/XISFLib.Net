@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\XISFLib.Windows\XISFLib.Windows.csproj" />
+    <ProjectReference Include="../XISFLib.Viewer.Core/XISFLib.Viewer.Core.csproj" />
   </ItemGroup>
 
 </Project>

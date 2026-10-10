@@ -4,6 +4,21 @@ See [API contracts and migration](api-migration.md) for editable documents, type
 
 ## Documents and image storage
 
+### Portable display rendering
+
+Core rendering accepts parsed or editable two-dimensional real images without Windows dependencies:
+
+```csharp
+XisfBgra32Image frame = XisfDisplayRenderer.Render(image, XisfStretchOptions.Auto);
+byte[] pixels = frame.Pixels;
+// Copy rows using frame.Stride into a BGRA32, straight-alpha surface.
+// Use frame.Width, frame.Height, frame.DpiX and frame.DpiY.
+```
+
+Each frame owns a new mutable display buffer independent of scientific samples. Rendering preserves orientation, resolution and alpha handling. Stretching affects display colors only; null options request linear rendering. Windows `ToBitmap`, `ToBitmapSource` and `ToBgra32Pixels` delegate to this renderer; frozen WPF bitmap behavior remains unchanged.
+
+### Scientific storage
+
 `XisfDocument` exposes XML, global properties, creation metadata, tables, and images. `XisfImage` represents a parsed image and decodes its data when requested. `XisfImageData` owns sample bytes and supports editing known metadata before writing.
 
 Dimensions are ordered width, height, then additional axes. Channels are a separate count. A planar buffer contains every pixel of channel zero, followed by every pixel of channel one. An interleaved buffer stores every channel of the first pixel, then every channel of the next pixel. `GetSamples<T>` and `GetComplexSamples` can reorder either representation. Raw reads preserve the source layout and byte order.

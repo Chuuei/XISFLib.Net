@@ -101,19 +101,8 @@ public partial class MainWindow : Window
 
     private static LoadedFile LoadFile(string path)
     {
-        if (IsFitsPath(path))
-        {
-            FitsDocument fits = FitsReader.Load(path);
-            IReadOnlyList<XisfImageData> converted = FitsConverter.ToXisf(fits, new() { AxisInterpretation = FitsAxisInterpretation.RgbOrRgba, LossPolicy = ConversionLossPolicy.Allow });
-            if (converted.Count == 0) throw new FitsFormatException("The FITS document does not contain a convertible image HDU.");
-            return new LoadedFile(null, fits, converted.Select(image => (XisfImageData?)image).ToArray());
-        }
-
-        XisfDocument xisf = XisfReader.Load(path);
-        if (xisf.Images.Count == 0) throw new XisfFormatException("The XISF document does not contain an image.");
-        XisfImageData?[] images = new XisfImageData?[xisf.Images.Count];
-        images[0] = XisfImageData.FromImage(xisf.Images[0]);
-        return new LoadedFile(xisf, null, images);
+        var session = XISFLib.Viewer.ViewerSession.Load(path);
+        return new LoadedFile(session.Xisf, session.Fits, session.Images.ToArray());
     }
 
     private string GetImageLabel(int index) => $"{index + 1}: {(_document?.Images[index].Id ?? _editableImages[index]?.Id) ?? "unnamed image"}";

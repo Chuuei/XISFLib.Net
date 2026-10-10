@@ -5,7 +5,11 @@
 | Project | Responsibility |
 | --- | --- |
 | `XISFLib` | Platform-independent XISF/FITS models, I/O, conversion, validation, image utilities, astronomy metadata, and WCS |
-| `XISFLib.Windows` | Windows Forms/WPF rendering and display stretching |
+| `XISFLib.Windows` | Windows Forms/WPF adapters over portable rendering |
+| `XISFLib.Viewer.Core` | Shared session loading, lazy selection and initial async workbench state |
+| `XISFLib.AvaloniaViewer` | Portable desktop frontend under development |
+| `XISFLib.Viewer.Core.Tests` | Session, operation-state and failure-recovery tests |
+| `XISFLib.AvaloniaViewer.Tests` | Headless loading and real Skia framebuffer transfer tests |
 | `XISFLib.Convert` | Command-line batch XISF-to-FITS conversion and metadata mapping |
 | `XISFLib.WpfViewer` | Interactive library workbench and reference application |
 | `XISFLib.Benchmarks` | Timing/allocation measurements using example images |
@@ -35,6 +39,10 @@ Source files are grouped under `Xisf`, `Fits`, `Imaging`, `Astronomy` and `Inter
 `FitsConverter` interprets FITS storage conventions and optional channel axes. Standard unsigned storage has typed conversion paths; other supported storage is represented through physical floating-point samples. Conversion retains supported astronomy metadata but is not a lossless container-to-container transformation.
 
 ## Applications and utilities
+
+Core `XisfDisplayRenderer` returns an owned straight-alpha BGRA32 frame without Windows dependencies. Windows and Avalonia adapters transfer that frame into bitmap storage. `XisfStretchOptions` now lives in core; the Windows assembly forwards its previous type identity. Scientific samples remain unchanged.
+
+`ViewerSession` shares XISF/FITS loading and lazy XISF materialization. Access is serialized by the application worker. Avalonia's `WorkbenchViewModel` manages initial commands, busy/status state and obsolete-result suppression after closure. Bitmap presentation and dispatcher yielding are frontend callbacks; bitmap lifetimes belong to the frontend. WPF currently adopts the shared loader and renderer; its editors, saves and utilities still require extraction from existing code-behind.
 
 Writer implementation is divided into property serialization (`XisfWriter.Properties.cs`), block encoding (`XisfWriter.Blocks.cs`), attachment layout (`XisfWriter.Layout.cs`), signing (`XisfWriter.Signing.cs`) and async entry points (`XisfWriter.Async.cs`). FITS card and table parsing live in `FitsReader.Cards.cs` and `FitsReader.Tables.cs`; checksums live in `FitsChecksum.cs`. `ApiContracts` centralizes enum/value validation and `XisfNumericTypes` supplies shared sample/property mappings.
 

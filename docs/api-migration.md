@@ -1,5 +1,7 @@
 # API contracts and migration
 
+Display rendering is now portable through core `XisfDisplayRenderer.Render` and its independently owned `XisfBgra32Image` result. `XisfStretchOptions` moved to core with its existing namespace/API; the Windows assembly forwards its previous type identity. Existing Windows rendering extensions remain available.
+
 Typed metadata now includes `XisfAdditionalProperties` for observed application properties and `FitsKnownKeywords` for native FITS headers and XISF-carried FITS keyword creation. Existing string-based access remains supported. Each key exposes its source and unit; see [typed metadata](metadata-properties.md) for conversion rules and ambiguous names.
 
 These changes replace ambiguous editing, layout and conversion behavior before the API is frozen. Format codecs, numeric precision guards and specification support remain in place.

@@ -9,6 +9,8 @@ dotnet restore XISFLib.Net.slnx
 dotnet build XISFLib.Net.slnx -c Release --no-restore
 dotnet test XISFLib.Tests/XISFLib.Tests.csproj -c Release --no-build
 dotnet test XISFLib.Windows.Tests/XISFLib.Windows.Tests.csproj -c Release --no-build
+dotnet test XISFLib.Viewer.Core.Tests/XISFLib.Viewer.Core.Tests.csproj -c Release --no-build
+dotnet test XISFLib.AvaloniaViewer.Tests/XISFLib.AvaloniaViewer.Tests.csproj -c Release --no-build
 dotnet pack XISFLib/XISFLib.csproj -c Release --no-build --output artifacts
 dotnet pack XISFLib.Windows/XISFLib.Windows.csproj -c Release --no-build --output artifacts
 ```
@@ -25,6 +27,8 @@ The core and Windows test projects use xUnit. Tests create temporary outputs and
 
 ## Documentation
 
+Shared viewer tests use xUnit v2. Avalonia 12 headless tests use xUnit v3 3.2.2 with an executable test project. Their test application uses Skia/HarfBuzz with headless drawing disabled to exercise the real bitmap backend. CI runs all four test suites. See the repository migration plan for pending parity work.
+
 Document public APIs with C# XML comments. Add a useful `<summary>`, then `<param>`, `<returns>`, `<remarks>`, and `<exception>` where callers need contracts beyond the name. For positional records, document primary-constructor parameters so generated properties receive documentation. Include units, index origins, buffer ownership, stream lifetime, and precision limits when relevant.
 
 Both library projects generate XML documentation and treat missing public documentation (`CS1591`) as an error. Update the [documentation guides](docs/index.md) and README when behavior changes. Keep implementation architecture in the architecture guide and usage contracts in the API/I/O guides.
@@ -35,7 +39,7 @@ Optional website generation uses `docfx docfx.json`. Normal builds and package g
 
 Describe the concrete behavior changed, its compatibility implications, and tests performed. Single-file path output must preserve existing files when serialization fails. Distributed output and stream output have different failure contracts; keep those distinctions documented.
 
-CI runs on Windows and covers Release builds, both test suites, core NuGet packaging, and dependency auditing. Vulnerability warnings are errors under `Directory.Build.props`. Do not suppress these warnings to make a build pass.
+CI runs on Windows and covers Release builds, all four test suites, core NuGet packaging, and dependency auditing. Vulnerability warnings are errors under `Directory.Build.props`. Do not suppress these warnings to make a build pass.
 
 CI also installs DocFX 2.81.0, builds the documentation with warnings treated as errors, and uploads the generated site as the `documentation` artifact. Pull requests validate documentation without deploying it. Successful pushes to the repository's default branch, or manual CI runs on that branch, deploy the artifact to GitHub Pages through the `github-pages` environment. Pages deployment concurrency is limited to one active job.
 

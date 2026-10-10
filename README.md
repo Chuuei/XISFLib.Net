@@ -10,6 +10,8 @@ The WPF sample viewer is available as a standalone Windows x64 executable in Git
 
 ## Usage
 
+An [Avalonia viewer is under development](docs/applications.md#avalonia-viewer-development). The initial loading/display workflow is runnable; editing, imports, saving and utilities remain migration work.
+
 See [API contracts and migration](docs/api-migration.md) for editable documents, consistent sample layouts, typed metadata, conversion reports, and safe defaults.
 
 ```csharp

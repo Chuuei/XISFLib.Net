@@ -17,12 +17,16 @@ Raster import in the viewers is limited to PNG, JPEG, TIFF, BMP, and GIF. Keep t
 | Location | Responsibility |
 | --- | --- |
 | `XISFLib/` | Platform-independent `net10.0` library: XISF/FITS models, codecs, validation, conversion, imaging utilities, astronomy |
-| `XISFLib.Windows/` | `net10.0-windows` WPF/Windows Forms rendering, stretching, frozen bitmap sources |
+| `XISFLib.Windows/` | `net10.0-windows` WPF/Windows Forms bitmap adapters, frozen bitmap sources |
 | `XISFLib.Convert/` | Batch XISF-to-FITS console application; testable logic in `BatchConversion.cs` |
 | `XISFLib.WpfViewer/` | WPF workbench/sample; `MainWindow.xaml.cs`, `.Workbench.cs`, and `.Utilities.cs` divide responsibilities |
 | `XISFLib.Benchmarks/` | Elapsed-time and allocation measurements, including the actual WPF load path |
 | `XISFLib.Tests/` | xUnit core, malformed-input, numeric, conversion, astronomy, metadata, and converter tests |
 | `XISFLib.Windows.Tests/` | xUnit rendering and Windows adapter tests |
+| `XISFLib.Viewer.Core/` | Shared session loader, lazy selection and initial async workbench state |
+| `XISFLib.AvaloniaViewer/` | Avalonia desktop frontend under development |
+| `XISFLib.Viewer.Core.Tests/` | Shared session/state regressions |
+| `XISFLib.AvaloniaViewer.Tests/` | xUnit v3 headless tests with real Skia bitmap backend |
 | `Examples/` | Large independent/user-supplied fixtures, provenance, validation hashes, metadata inventory |
 | `docs/` | Authored Markdown guides; DocFX generates `api/` and `_site/` |
 | `.github/workflows/ci.yml` | Windows build/test/package, documentation, viewer publication, releases, Pages |
@@ -36,7 +40,7 @@ Useful implementation entry points:
 - `FitsDocument.cs`: FITS header/HDU/image/table models. `FitsReader.Cards.cs` and `.Tables.cs`: parsing. `FitsChecksum.cs`: shared checksums. `FitsConverter.cs`: format conversion.
 - `ApiContracts` and `XisfNumericTypes`: shared value validation and type mappings.
 - `XisfImageUtilities`, `AstronomyMetadata`, `CelestialWorldCoordinateSystem`, `XisfAstrometricSolution`.
-- `XisfWindowsExtensions.cs`: direct sample-to-display rendering. `Internal/AtomicFile.cs`: staged single-file publication.
+- `XisfDisplayRenderer.cs`: portable sample-to-display rendering; `XisfWindowsExtensions.cs`: Windows adapters. `Internal/AtomicFile.cs`: staged single-file publication.
 
 ## Build and validation
 
@@ -49,6 +53,8 @@ dotnet restore XISFLib.Net.slnx
 dotnet build XISFLib.Net.slnx -c Release --no-restore
 dotnet test XISFLib.Tests/XISFLib.Tests.csproj -c Release --no-build
 dotnet test XISFLib.Windows.Tests/XISFLib.Windows.Tests.csproj -c Release --no-build
+dotnet test XISFLib.Viewer.Core.Tests/XISFLib.Viewer.Core.Tests.csproj -c Release --no-build
+dotnet test XISFLib.AvaloniaViewer.Tests/XISFLib.AvaloniaViewer.Tests.csproj -c Release --no-build
 docfx docfx.json --warningsAsErrors
 ```
 
@@ -148,11 +154,13 @@ Do not edit or commit generated `docs/api`, `docs/_site`, `bin`, `obj`, or `arti
 
 The `WinX64` publish profile produces exactly `artifacts/wpf/win-x64/XISFLib.WpfViewer.exe`, self-contained with .NET. Native libraries self-extract at runtime. Trimming is disabled for WPF; symbols are embedded/excluded to keep publication to one executable.
 
-CI validates both test suites, core packaging, dependency auditing, strict DocFX generation, and single-executable publication. Default-branch successful builds/manual runs deploy GitHub Pages; pull requests validate without deployment. Version tags beginning with `v` publish a GitHub release with the viewer executable; hyphenated tags are prereleases. Reruns replace the executable asset while preserving release notes. Do not broaden deployment triggers or write permissions unintentionally.
+CI validates all four test suites, core packaging, dependency auditing, strict DocFX generation, and single-executable publication. Default-branch successful builds/manual runs deploy GitHub Pages; pull requests validate without deployment. Version tags beginning with `v` publish a GitHub release with the viewer executable; hyphenated tags are prereleases. Reruns replace the executable asset while preserving release notes. Do not broaden deployment triggers or write permissions unintentionally.
 
 ## Further reading
 
-- [Avalonia viewer migration plan](docs/plans/avalonia-viewer-migration.md): future project creation, shared-code extraction, ordered implementation phases and feature-parity checklist. This is a plan; the listed new projects do not exist until their implementation phases are completed. Update its progress/evidence as work proceeds.
+The initial Avalonia shell, shared loading/state and portable renderer now exist. Editors, import, saves and utilities remain pending. Continue extracting shared behavior rather than duplicating WPF algorithms. Rendering now lives in core `XisfDisplayRenderer`; `XisfWindowsExtensions` supplies Windows adapters. Avalonia desktop/theme/headless are pinned to 12.1.4, DataGrid to 12.1.2, CommunityToolkit.Mvvm to 8.4.2. Avalonia headless tests use xUnit v3 3.2.2, OutputType Exe, and Skia/HarfBuzz with UseHeadlessDrawing=false. CI covers all four test suites; Avalonia publication and Linux/macOS verification remain pending.
+
+- [Avalonia viewer migration plan](docs/plans/avalonia-viewer-migration.md): future project creation, shared-code extraction, ordered implementation phases and feature-parity checklist. Initial projects are implemented; remaining functionality and evidence are tracked in the plan. Update its progress/evidence as work proceeds.
 
 - [Contributing](CONTRIBUTING.md): development, packaging, documentation, CI.
 - [API guide](docs/api-guide.md) and [migration](docs/api-migration.md): recommended public usage.
