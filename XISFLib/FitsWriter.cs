@@ -3,11 +3,14 @@ using System.Text;
 
 namespace XISFLib;
 
+/// <summary>Controls optional FITS checksum generation.</summary>
 public sealed class FitsWriterOptions
 {
+    /// <summary>Whether DATASUM and CHECKSUM cards are generated for each HDU.</summary>
     public bool WriteChecksums { get; set; }
 }
 
+/// <summary>Serializes FITS documents with optional HDU checksums.</summary>
 public static class FitsWriter
 {
     private const int BlockSize = 2880;
@@ -17,23 +20,40 @@ public static class FitsWriter
         "BSCALE", "BZERO", "BLANK"
     };
 
+    /// <summary>Serializes a document or images to the supplied file or stream.</summary>
+    /// <param name="path">The destination file path.</param>
+    /// <param name="document">The document to read, validate, sign, or serialize.</param>
+    /// <param name="options">The operation settings, or null to use defaults.</param>
+    /// <remarks>File output is staged beside the destination and committed only after successful serialization.</remarks>
     public static void Write(string path, FitsDocument document, FitsWriterOptions? options = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(path);
-        using FileStream stream = new(path, FileMode.Create, FileAccess.Write, FileShare.None);
-        Write(stream, document, options);
+        AtomicFile.Write(path, stream => Write(stream, document, options));
     }
 
-    public static async Task WriteAsync(string path, FitsDocument document, FitsWriterOptions? options = null, CancellationToken cancellationToken = default)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(path);
-        await using FileStream stream = new(path, FileMode.Create, FileAccess.Write, FileShare.None, 81920, true);
-        using MemoryStream buffer = new();
-        Write(buffer, document, options);
-        buffer.Position = 0;
-        await buffer.CopyToAsync(stream, cancellationToken).ConfigureAwait(false);
-    }
+    /// <summary>Serializes FITS on a worker thread and checks cancellation before replacing the destination.</summary>
+    /// <param name="path">The destination file path.</param>
+    /// <param name="document">The document to read, validate, sign, or serialize.</param>
+    /// <param name="options">The operation settings, or null to use defaults.</param>
+    /// <param name="cancellationToken">A token observed at the documented cooperative cancellation boundaries.</param>
+    /// <returns>A task completing after the staged file is written and committed.</returns>
+    public static Task WriteAsync(string path, FitsDocument document, FitsWriterOptions? options = null, CancellationToken cancellationToken = default) =>
+        Task.Run(() =>
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ArgumentException.ThrowIfNullOrWhiteSpace(path);
+            AtomicFile.Write(path, stream =>
+            {
+                Write(stream, document, options);
+                cancellationToken.ThrowIfCancellationRequested();
+            });
+        }, cancellationToken);
 
+    /// <summary>Serializes a document or images to the supplied file or stream.</summary>
+    /// <param name="stream">The caller-owned stream, positioned at the file origin; it remains open.</param>
+    /// <param name="document">The document to read, validate, sign, or serialize.</param>
+    /// <param name="options">The operation settings, or null to use defaults.</param>
+    /// <remarks>The caller owns the stream. An error can leave partial output.</remarks>
     public static void Write(Stream stream, FitsDocument document, FitsWriterOptions? options = null)
     {
         ArgumentNullException.ThrowIfNull(stream);

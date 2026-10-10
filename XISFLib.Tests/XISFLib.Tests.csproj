@@ -21,6 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\XISFLib.Convert\XISFLib.Convert.csproj" />
     <ProjectReference Include="..\XISFLib\XISFLib.csproj" />
   </ItemGroup>
 

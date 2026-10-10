@@ -2,6 +2,20 @@ using System.Globalization;
 
 namespace XISFLib;
 
+/// <summary>Common observation and instrument metadata extracted from XISF properties or FITS keywords.</summary>
+/// <param name="ObjectName">The observed object name, when present.</param>
+/// <param name="Observer">The observer name, when present.</param>
+/// <param name="Instrument">The camera or instrument name, when present.</param>
+/// <param name="Telescope">The telescope name, when present.</param>
+/// <param name="Filter">The filter name, when present.</param>
+/// <param name="ExposureSeconds">The exposure duration in seconds, when present.</param>
+/// <param name="Gain">The camera gain, when present.</param>
+/// <param name="Offset">The camera offset, when present.</param>
+/// <param name="BinningX">The horizontal sensor binning, when present.</param>
+/// <param name="BinningY">The vertical sensor binning, when present.</param>
+/// <param name="SensorTemperatureCelsius">The sensor temperature in Celsius, when present.</param>
+/// <param name="ObservationTime">The observation timestamp, when present.</param>
+/// <param name="Values">The normalized raw keyword and property values.</param>
 public sealed record AstronomyImageMetadata(
     string? ObjectName,
     string? Observer,
@@ -17,14 +31,21 @@ public sealed record AstronomyImageMetadata(
     DateTimeOffset? ObservationTime,
     IReadOnlyDictionary<string, string> Values);
 
+/// <summary>Extracts common observation and instrument metadata without changing the source.</summary>
 public static class AstronomyMetadata
 {
+    /// <summary>Extracts common observation and instrument metadata from properties and FITS keywords.</summary>
+    /// <param name="image">The source image.</param>
+    /// <returns>The common astronomy metadata view.</returns>
     public static AstronomyImageMetadata From(XisfImage image)
     {
         ArgumentNullException.ThrowIfNull(image);
         return Create(image.FitsKeywords, image.Properties.ToDictionary(pair => pair.Key, pair => pair.Value.Value, StringComparer.OrdinalIgnoreCase));
     }
 
+    /// <summary>Extracts common observation and instrument metadata from properties and FITS keywords.</summary>
+    /// <param name="image">The source image.</param>
+    /// <returns>The common astronomy metadata view.</returns>
     public static AstronomyImageMetadata From(XisfImageData image)
     {
         ArgumentNullException.ThrowIfNull(image);
@@ -32,6 +53,9 @@ public static class AstronomyMetadata
             pair => pair.Value is XisfPropertyData property ? property.Value : pair.Value, StringComparer.OrdinalIgnoreCase));
     }
 
+    /// <summary>Extracts common observation and instrument metadata from properties and FITS keywords.</summary>
+    /// <param name="header">The FITS header cards.</param>
+    /// <returns>The common astronomy metadata view.</returns>
     public static AstronomyImageMetadata From(FitsHeader header)
     {
         ArgumentNullException.ThrowIfNull(header);
@@ -82,6 +106,7 @@ public static class AstronomyMetadata
     private static int? TryInt(string? value) => int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out int result) ? result : null;
 }
 
+/// <summary>Transforms between pixel and celestial coordinates using supported FITS WCS keywords.</summary>
 public sealed class CelestialWorldCoordinateSystem
 {
     private readonly double _determinant;
@@ -103,18 +128,33 @@ public sealed class CelestialWorldCoordinateSystem
             throw new ArgumentException("The WCS transformation matrix is singular.");
     }
 
+    /// <summary>The FITS reference pixel on the first axis, using FITS one-based coordinates.</summary>
     public double ReferencePixelX { get; }
+    /// <summary>The FITS reference pixel on the second axis, using FITS one-based coordinates.</summary>
     public double ReferencePixelY { get; }
+    /// <summary>Right ascension at the reference pixel, in degrees.</summary>
     public double ReferenceRightAscension { get; }
+    /// <summary>Declination at the reference pixel, in degrees.</summary>
     public double ReferenceDeclination { get; }
+    /// <summary>The row 1, column 1 CD coefficient in degrees per pixel.</summary>
     public double Cd11 { get; }
+    /// <summary>The row 1, column 2 CD coefficient in degrees per pixel.</summary>
     public double Cd12 { get; }
+    /// <summary>The row 2, column 1 CD coefficient in degrees per pixel.</summary>
     public double Cd21 { get; }
+    /// <summary>The row 2, column 2 CD coefficient in degrees per pixel.</summary>
     public double Cd22 { get; }
+    /// <summary>Whether the WCS uses the supported TAN projection.</summary>
     public bool IsTangentPlane { get; }
+    /// <summary>The area-equivalent pixel scale in arcseconds per pixel.</summary>
     public double PixelScaleArcseconds => 3600 * Math.Sqrt(Math.Abs(_determinant));
+    /// <summary>Rotation inferred from the first CD matrix column, in degrees.</summary>
     public double RotationDegrees => Math.Atan2(Cd21, Cd11) * 180 / Math.PI;
 
+    /// <summary>Attempts to construct a celestial WCS; returns false when required coefficients are absent or invalid.</summary>
+    /// <param name="keywords">The FITS keywords used to construct the WCS.</param>
+    /// <param name="wcs">The resulting WCS, or null when construction fails.</param>
+    /// <returns>True if supported WCS coefficients could be constructed; otherwise false.</returns>
     public static bool TryCreate(IEnumerable<XisfFitsKeyword> keywords, out CelestialWorldCoordinateSystem? wcs)
     {
         ArgumentNullException.ThrowIfNull(keywords);
@@ -123,6 +163,10 @@ public sealed class CelestialWorldCoordinateSystem
         return TryCreate(values, out wcs);
     }
 
+    /// <summary>Attempts to construct a celestial WCS; returns false when required coefficients are absent or invalid.</summary>
+    /// <param name="header">The FITS header cards.</param>
+    /// <param name="wcs">The resulting WCS, or null when construction fails.</param>
+    /// <returns>True if supported WCS coefficients could be constructed; otherwise false.</returns>
     public static bool TryCreate(FitsHeader header, out CelestialWorldCoordinateSystem? wcs)
     {
         ArgumentNullException.ThrowIfNull(header);
@@ -132,6 +176,10 @@ public sealed class CelestialWorldCoordinateSystem
         return TryCreate(values, out wcs);
     }
 
+    /// <summary>Transforms a zero-based pixel position to right ascension and declination in degrees.</summary>
+    /// <param name="x">The zero-based horizontal pixel coordinate.</param>
+    /// <param name="y">The zero-based vertical pixel coordinate.</param>
+    /// <returns>Right ascension and declination in degrees.</returns>
     public (double RightAscension, double Declination) PixelToSky(double x, double y)
     {
         double dx = x + 1 - ReferencePixelX;
@@ -151,6 +199,10 @@ public sealed class CelestialWorldCoordinateSystem
         return (NormalizeDegrees(ra * 180 / Math.PI), dec * 180 / Math.PI);
     }
 
+    /// <summary>Transforms right ascension and declination in degrees to a zero-based pixel position.</summary>
+    /// <param name="rightAscension">Right ascension in degrees.</param>
+    /// <param name="declination">Declination in degrees.</param>
+    /// <returns>Zero-based horizontal and vertical pixel coordinates.</returns>
     public (double X, double Y) SkyToPixel(double rightAscension, double declination)
     {
         double xi;

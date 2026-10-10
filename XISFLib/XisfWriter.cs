@@ -11,39 +11,63 @@ using K4os.Compression.LZ4;
 
 namespace XISFLib;
 
+/// <summary>The compression codec applied to serialized data blocks.</summary>
 public enum XisfCompression
 {
+    /// <summary>Disables this operation.</summary>
     None,
+    /// <summary>Uses zlib compression.</summary>
     Zlib,
+    /// <summary>Uses the fast LZ4 compression codec.</summary>
     Lz4,
+    /// <summary>Uses high-compression LZ4.</summary>
     Lz4Hc
 }
 
+/// <summary>The digest algorithm applied to serialized data blocks.</summary>
 public enum XisfChecksum
 {
+    /// <summary>Disables this operation.</summary>
     None,
+    /// <summary>Uses the SHA1 digest algorithm.</summary>
     Sha1,
+    /// <summary>Uses the SHA256 digest algorithm.</summary>
     Sha256,
+    /// <summary>Uses the SHA512 digest algorithm.</summary>
     Sha512,
+    /// <summary>Uses the SHA3-256 digest algorithm.</summary>
     Sha3_256,
+    /// <summary>Uses the SHA3-512 digest algorithm.</summary>
     Sha3_512
 }
 
+/// <summary>Controls attachment compression, checksums, and creation metadata.</summary>
 public sealed class XisfWriterOptions
 {
+    /// <summary>The attachment codec; the default is uncompressed.</summary>
     public XisfCompression Compression { get; set; }
+    /// <summary>Whether sample bytes are shuffled before compression.</summary>
     public bool Shuffle { get; set; }
+    /// <summary>The attachment digest algorithm; the default is SHA-256.</summary>
     public XisfChecksum Checksum { get; set; } = XisfChecksum.Sha256;
+    /// <summary>The application name written to XISF creation metadata.</summary>
     public string CreatorApplication { get; set; } = "XISFLib.Net";
+    /// <summary>The timestamp written to XISF creation metadata.</summary>
     public DateTimeOffset CreationTime { get; set; } = DateTimeOffset.UtcNow;
+    /// <summary>Document-level metadata indexed by property identifiers.</summary>
     public IDictionary<string, object?> Metadata { get; } = new Dictionary<string, object?>(StringComparer.Ordinal);
+    /// <summary>Typed properties indexed by case-sensitive identifiers.</summary>
     public IDictionary<string, object?> Properties { get; } = new Dictionary<string, object?>(StringComparer.Ordinal);
 }
 
+/// <summary>Serializes XISF images and documents, including distributed output and XML signatures.</summary>
 public static class XisfWriter
 {
     private static readonly XNamespace Namespace = "http://www.pixinsight.com/xisf";
 
+    /// <summary>Replaces existing XML signatures with an enveloped RSA signature on the current header.</summary>
+    /// <param name="document">The document to read, validate, sign, or serialize.</param>
+    /// <param name="key">The RSA key used to sign the XML header.</param>
     public static void Sign(XisfDocument document, RSA key)
     {
         ArgumentNullException.ThrowIfNull(document);
@@ -70,20 +94,31 @@ public static class XisfWriter
         document.Root!.ReplaceWith(XElement.Parse(xml.DocumentElement.OuterXml, LoadOptions.PreserveWhitespace));
     }
 
+    /// <summary>Serializes a document or images to the supplied file or stream.</summary>
+    /// <param name="path">The destination file path.</param>
+    /// <param name="images">The images in output order; at least one image is required.</param>
+    /// <param name="options">The operation settings, or null to use defaults.</param>
+    /// <remarks>File output is staged beside the destination and committed only after successful serialization.</remarks>
     public static void Write(string path, IEnumerable<XisfImageData> images, XisfWriterOptions? options = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(path);
-        using FileStream stream = new(path, FileMode.Create, FileAccess.Write, FileShare.None);
-        Write(stream, images, options);
+        AtomicFile.Write(path, stream => Write(stream, images, options));
     }
 
+    /// <summary>Serializes a document or images to the supplied file or stream.</summary>
+    /// <param name="path">The destination file path.</param>
+    /// <param name="document">The document to read, validate, sign, or serialize.</param>
+    /// <remarks>File output is staged beside the destination and committed only after successful serialization.</remarks>
     public static void Write(string path, XisfDocument document)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(path);
-        using FileStream stream = new(path, FileMode.Create, FileAccess.Write, FileShare.None);
-        Write(stream, document);
+        AtomicFile.Write(path, stream => Write(stream, document));
     }
 
+    /// <summary>Serializes a document or images to the supplied file or stream.</summary>
+    /// <param name="stream">The caller-owned stream, positioned at the file origin; it remains open.</param>
+    /// <param name="document">The document to read, validate, sign, or serialize.</param>
+    /// <remarks>The caller owns the stream. An error can leave partial output.</remarks>
     public static void Write(Stream stream, XisfDocument document)
     {
         ArgumentNullException.ThrowIfNull(stream);
@@ -93,6 +128,10 @@ public static class XisfWriter
         WriteMonolithic(stream, copy, attachments);
     }
 
+    /// <summary>Rebuilds attachment locations and writes a fresh enveloped RSA XML signature.</summary>
+    /// <param name="stream">The caller-owned stream, positioned at the file origin; it remains open.</param>
+    /// <param name="document">The document to read, validate, sign, or serialize.</param>
+    /// <param name="key">The RSA key used to sign the XML header.</param>
     public static void WriteSigned(Stream stream, XisfDocument document, RSA key)
     {
         ArgumentNullException.ThrowIfNull(stream);
@@ -126,6 +165,11 @@ public static class XisfWriter
         return (copy, attachments);
     }
 
+    /// <summary>Serializes a document or images to the supplied file or stream.</summary>
+    /// <param name="stream">The caller-owned stream, positioned at the file origin; it remains open.</param>
+    /// <param name="images">The images in output order; at least one image is required.</param>
+    /// <param name="options">The operation settings, or null to use defaults.</param>
+    /// <remarks>The caller owns the stream. An error can leave partial output.</remarks>
     public static void Write(Stream stream, IEnumerable<XisfImageData> images, XisfWriterOptions? options = null)
     {
         ArgumentNullException.ThrowIfNull(stream);
@@ -176,6 +220,11 @@ public static class XisfWriter
         return location is not null || element.Elements().Any(e => e.Name.LocalName == "Data");
     }
 
+    /// <summary>Writes an XML header and indexed data-block file in the same directory.</summary>
+    /// <param name="headerPath">The destination path for the distributed XML header.</param>
+    /// <param name="dataBlockPath">The destination path for indexed data blocks, in the same directory as the header.</param>
+    /// <param name="images">The images in output order; at least one image is required.</param>
+    /// <param name="options">The operation settings, or null to use defaults.</param>
     public static void WriteDistributed(string headerPath, string dataBlockPath, IEnumerable<XisfImageData> images, XisfWriterOptions? options = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(headerPath);

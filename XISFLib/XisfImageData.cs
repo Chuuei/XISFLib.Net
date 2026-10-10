@@ -3,6 +3,7 @@ using System.Numerics;
 
 namespace XISFLib;
 
+/// <summary>An owned pixel buffer with editable metadata for serialization.</summary>
 public sealed class XisfImageData
 {
     private XisfImageData(byte[] data, int[] dimensions, int channelCount, XisfSampleFormat sampleFormat, XisfPixelLayout pixelStorage, bool isBigEndian)
@@ -22,28 +23,51 @@ public sealed class XisfImageData
         }
     }
 
+    /// <summary>Axis lengths in storage order, beginning with width and height; channels are separate.</summary>
     public IReadOnlyList<int> Dimensions { get; }
+    /// <summary>The number of samples associated with each pixel.</summary>
     public int ChannelCount { get; }
+    /// <summary>The numeric storage type of each sample.</summary>
     public XisfSampleFormat SampleFormat { get; }
+    /// <summary>Whether channels occupy separate planes or alternate within each pixel.</summary>
     public XisfPixelLayout PixelStorage { get; }
+    /// <summary>Whether multi-byte samples store their most significant byte first.</summary>
     public bool IsBigEndian { get; }
+    /// <summary>The identifier of this item within its containing document.</summary>
     public string? Id { get; set; }
+    /// <summary>The declared color space, such as Gray, RGB, or CIELab.</summary>
     public string? ColorSpace { get; set; }
+    /// <summary>The astronomical image classification, such as Light, Dark, or Flat.</summary>
     public string? ImageType { get; set; }
+    /// <summary>The image pedestal offset recorded in metadata.</summary>
     public double Offset { get; set; }
+    /// <summary>The declared image orientation.</summary>
     public string? Orientation { get; set; }
+    /// <summary>The optional globally unique image identifier.</summary>
     public Guid? Uuid { get; set; }
+    /// <summary>The lower sample bound used for normalization.</summary>
     public double? LowerBound { get; set; }
+    /// <summary>The upper sample bound used for normalization.</summary>
     public double? UpperBound { get; set; }
+    /// <summary>Typed properties indexed by case-sensitive identifiers.</summary>
     public IDictionary<string, object?> Properties { get; } = new Dictionary<string, object?>(StringComparer.Ordinal);
+    /// <summary>The ordered FITS keywords associated with the image.</summary>
     public IList<XisfFitsKeyword> FitsKeywords { get; } = [];
+    /// <summary>The tables associated with this image or document.</summary>
     public IList<XisfTableData> Tables { get; } = [];
+    /// <summary>The embedded ICC profile bytes, or null when absent.</summary>
     public byte[]? IccProfile { get; set; }
+    /// <summary>The optional thumbnail image.</summary>
     public XisfImageData? Thumbnail { get; set; }
+    /// <summary>The optional repeating color-filter mosaic.</summary>
     public XisfColorFilterArray? ColorFilterArray { get; set; }
+    /// <summary>The optional RGB working-space definition.</summary>
     public XisfRgbWorkingSpace? RgbWorkingSpace { get; set; }
+    /// <summary>The optional per-channel display transformation.</summary>
     public XisfDisplayFunction? DisplayFunction { get; set; }
+    /// <summary>The optional horizontal and vertical resolution metadata.</summary>
     public XisfResolution? Resolution { get; set; }
+    /// <summary>A read-only view of the owned sample buffer in its declared byte order and layout.</summary>
     public ReadOnlySpan<byte> RawData => Data;
 
     internal byte[] Data { get; }
@@ -51,6 +75,9 @@ public sealed class XisfImageData
     internal static XisfImageData FromOwnedRaw(byte[] data, IReadOnlyList<int> dimensions, int channelCount, XisfSampleFormat sampleFormat, XisfPixelLayout pixelStorage, bool isBigEndian) =>
         new(data, CopyDimensions(dimensions), channelCount, sampleFormat, pixelStorage, isBigEndian);
 
+    /// <summary>Copies decoded samples and known metadata into an editable image model.</summary>
+    /// <param name="image">The source image.</param>
+    /// <returns>An editable image with materialized samples and copied known metadata.</returns>
     public static XisfImageData FromImage(XisfImage image)
     {
         ArgumentNullException.ThrowIfNull(image);
@@ -85,6 +112,14 @@ public sealed class XisfImageData
         return copy;
     }
 
+    /// <summary>Copies typed samples into an owned buffer with the specified geometry and channel layout.</summary>
+    /// <param name="samples">The samples to copy; the count must match the supplied geometry.</param>
+    /// <param name="dimensions">Axis lengths in storage order; channels are specified separately for XISF.</param>
+    /// <param name="channelCount">The positive number of channels per pixel.</param>
+    /// <param name="pixelStorage">The channel order in the supplied sample buffer.</param>
+    /// <param name="isBigEndian">Whether multi-byte storage uses most-significant-byte-first order.</param>
+    /// <typeparam name="T">The numeric sample or header-value type.</typeparam>
+    /// <returns>An image owning a copy of the supplied samples.</returns>
     public static XisfImageData FromSamples<T>(T[] samples, IReadOnlyList<int> dimensions, int channelCount, XisfPixelLayout pixelStorage = XisfPixelLayout.Planar, bool isBigEndian = false)
         where T : unmanaged
     {
@@ -92,6 +127,14 @@ public sealed class XisfImageData
         return FromSamples((ReadOnlyMemory<T>)samples, dimensions, channelCount, pixelStorage, isBigEndian);
     }
 
+    /// <summary>Copies typed samples into an owned buffer with the specified geometry and channel layout.</summary>
+    /// <param name="samples">The samples to copy; the count must match the supplied geometry.</param>
+    /// <param name="dimensions">Axis lengths in storage order; channels are specified separately for XISF.</param>
+    /// <param name="channelCount">The positive number of channels per pixel.</param>
+    /// <param name="pixelStorage">The channel order in the supplied sample buffer.</param>
+    /// <param name="isBigEndian">Whether multi-byte storage uses most-significant-byte-first order.</param>
+    /// <typeparam name="T">The numeric sample or header-value type.</typeparam>
+    /// <returns>An image owning a copy of the supplied samples.</returns>
     public static XisfImageData FromSamples<T>(ReadOnlyMemory<T> samples, IReadOnlyList<int> dimensions, int channelCount, XisfPixelLayout pixelStorage = XisfPixelLayout.Planar, bool isBigEndian = false)
         where T : unmanaged
     {
@@ -104,6 +147,11 @@ public sealed class XisfImageData
         return new XisfImageData(data, CopyDimensions(dimensions), channelCount, format, pixelStorage, isBigEndian);
     }
 
+    /// <summary>Copies an array into image storage; indices are height, width, then optional channels.</summary>
+    /// <param name="samples">The samples to copy; the count must match the supplied geometry.</param>
+    /// <param name="isBigEndian">Whether multi-byte storage uses most-significant-byte-first order.</param>
+    /// <typeparam name="T">The numeric sample or header-value type.</typeparam>
+    /// <returns>An image owning a copy of the supplied array values.</returns>
     public static XisfImageData FromArray<T>(T[,] samples, bool isBigEndian = false) where T : unmanaged
     {
         ArgumentNullException.ThrowIfNull(samples);
@@ -113,6 +161,13 @@ public sealed class XisfImageData
         return FromSamples(flattened, [samples.GetLength(1), samples.GetLength(0)], 1, XisfPixelLayout.Planar, isBigEndian);
     }
 
+    /// <summary>Copies an array into image storage; indices are height, width, then optional channels.</summary>
+    /// <param name="samples">The samples to copy; the count must match the supplied geometry.</param>
+    /// <param name="lowerBound">The lower normalization or histogram bound.</param>
+    /// <param name="upperBound">The upper normalization or histogram bound.</param>
+    /// <param name="isBigEndian">Whether multi-byte storage uses most-significant-byte-first order.</param>
+    /// <typeparam name="T">The numeric sample or header-value type.</typeparam>
+    /// <returns>An image owning a copy of the supplied array values.</returns>
     public static XisfImageData FromArray<T>(T[,,] samples, double lowerBound = 0, double upperBound = 1, bool isBigEndian = false) where T : unmanaged
     {
         ArgumentNullException.ThrowIfNull(samples);
@@ -128,11 +183,27 @@ public sealed class XisfImageData
         return image;
     }
 
+    /// <summary>Copies raw storage bytes after validating the declared geometry and storage type.</summary>
+    /// <param name="data">The raw storage bytes to copy.</param>
+    /// <param name="dimensions">Axis lengths in storage order; channels are specified separately for XISF.</param>
+    /// <param name="channelCount">The positive number of channels per pixel.</param>
+    /// <param name="sampleFormat">The numeric representation of each raw sample.</param>
+    /// <param name="pixelStorage">The channel order in the supplied sample buffer.</param>
+    /// <param name="isBigEndian">Whether multi-byte storage uses most-significant-byte-first order.</param>
+    /// <returns>An image owning a copy of the supplied storage bytes.</returns>
     public static XisfImageData FromRaw(ReadOnlyMemory<byte> data, IReadOnlyList<int> dimensions, int channelCount, XisfSampleFormat sampleFormat, XisfPixelLayout pixelStorage = XisfPixelLayout.Planar, bool isBigEndian = false)
     {
         return new XisfImageData(data.ToArray(), CopyDimensions(dimensions), channelCount, sampleFormat, pixelStorage, isBigEndian);
     }
 
+    /// <summary>Copies raw storage bytes after validating the declared geometry and storage type.</summary>
+    /// <param name="data">The raw storage bytes to copy.</param>
+    /// <param name="dimensions">Axis lengths in storage order; channels are specified separately for XISF.</param>
+    /// <param name="channelCount">The positive number of channels per pixel.</param>
+    /// <param name="sampleFormat">The numeric representation of each raw sample.</param>
+    /// <param name="pixelStorage">The channel order in the supplied sample buffer.</param>
+    /// <param name="isBigEndian">Whether multi-byte storage uses most-significant-byte-first order.</param>
+    /// <returns>An image owning a copy of the supplied storage bytes.</returns>
     public static XisfImageData FromRaw(byte[] data, IReadOnlyList<int> dimensions, int channelCount, XisfSampleFormat sampleFormat, XisfPixelLayout pixelStorage = XisfPixelLayout.Planar, bool isBigEndian = false)
     {
         ArgumentNullException.ThrowIfNull(data);

@@ -4,14 +4,20 @@
     <TargetFramework>net10.0-windows</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <WarningsAsErrors>$(WarningsAsErrors);CS1591;CS1570;CS1572;CS1573;CS1587;CS1658</WarningsAsErrors>
     <UseWindowsForms>true</UseWindowsForms>
     <UseWPF>true</UseWPF>
     <PackageId>XISFLib.Windows</PackageId>
     <Description>Windows Forms and WPF image adapters for XISFLib.</Description>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\XISFLib\XISFLib.csproj" />
+    <None Include="..\README.md" Pack="true" PackagePath="\" />
+    <None Include="..\CONTRIBUTING.md" Pack="true" PackagePath="\" />
+    <None Include="..\docs\*.md" Pack="true" PackagePath="docs\" />
   </ItemGroup>
 
 </Project>

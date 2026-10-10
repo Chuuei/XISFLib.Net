@@ -1,0 +1,23 @@
+{
+  "metadata": [
+    {
+      "src": [
+        { "files": ["XISFLib/XISFLib.csproj", "XISFLib.Windows/XISFLib.Windows.csproj"] }
+      ],
+      "dest": "docs/api"
+    }
+  ],
+  "build": {
+    "content": [
+      {
+        "files": ["index.md", "README.md", "CONTRIBUTING.md", "toc.yml", "docs/*.md", "docs/toc.yml", "docs/api/**.yml"]
+      }
+    ],
+    "dest": "docs/_site",
+    "template": ["default", "modern"],
+    "globalMetadata": {
+      "_appTitle": "XISFLib.Net",
+      "_enableSearch": true
+    }
+  }
+}

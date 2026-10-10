@@ -1,0 +1,1 @@
+return XISFLib.BatchConversion.Run(args, Console.Out, Console.Error);

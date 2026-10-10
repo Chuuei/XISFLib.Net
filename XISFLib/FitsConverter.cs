@@ -3,12 +3,16 @@ using System.Globalization;
 
 namespace XISFLib;
 
+/// <summary>Controls axis interpretation and preservation of structural keywords.</summary>
 public sealed class FitsConversionOptions
 {
+    /// <summary>Whether a third axis of length three or four is interpreted as color channels.</summary>
     public bool TreatThirdAxisAsColorChannels { get; set; } = true;
+    /// <summary>Whether structural FITS cards are also preserved as XISF FITS keywords.</summary>
     public bool IncludeStructuralKeywords { get; set; }
 }
 
+/// <summary>Converts supported images and metadata between FITS and XISF.</summary>
 public static class FitsConverter
 {
     private static readonly HashSet<string> StructuralKeywords = new(StringComparer.OrdinalIgnoreCase)
@@ -16,6 +20,11 @@ public static class FitsConverter
         "SIMPLE", "XTENSION", "BITPIX", "NAXIS", "PCOUNT", "GCOUNT", "EXTEND", "BSCALE", "BZERO", "BLANK", "CHECKSUM", "DATASUM", "END"
     };
 
+    /// <summary>Converts FITS images to editable XISF images and retains supported storage metadata.</summary>
+    /// <param name="document">The document to read, validate, sign, or serialize.</param>
+    /// <param name="options">The operation settings, or null to use defaults.</param>
+    /// <returns>The converted image or images with known metadata.</returns>
+    /// <exception cref="NotSupportedException">Signed 64-bit FITS storage cannot be represented exactly by the floating-point conversion path.</exception>
     public static IReadOnlyList<XisfImageData> ToXisf(FitsDocument document, FitsConversionOptions? options = null)
     {
         ArgumentNullException.ThrowIfNull(document);
@@ -37,6 +46,11 @@ public static class FitsConverter
         return result;
     }
 
+    /// <summary>Converts FITS images to editable XISF images and retains supported storage metadata.</summary>
+    /// <param name="image">The source image.</param>
+    /// <param name="options">The operation settings, or null to use defaults.</param>
+    /// <returns>The converted image or images with known metadata.</returns>
+    /// <exception cref="NotSupportedException">Signed 64-bit FITS storage cannot be represented exactly by the floating-point conversion path.</exception>
     public static XisfImageData ToXisf(FitsImage image, FitsConversionOptions? options = null)
     {
         ArgumentNullException.ThrowIfNull(image);
@@ -62,6 +76,13 @@ public static class FitsConverter
             result = XisfImageData.FromOwnedRaw(image.RawData, dimensions, channels, image.BitPix == -32 ? XisfSampleFormat.Float32 : XisfSampleFormat.Float64, XisfPixelLayout.Planar, true);
         else
         {
+            if (image.BitPix == 64)
+                for (int offset = 0; offset < image.RawData.Length; offset += 8)
+                {
+                    long stored = BinaryPrimitives.ReadInt64BigEndian(image.RawData.AsSpan(offset, 8));
+                    if ((Int128)(double)stored != stored)
+                        throw new NotSupportedException("This signed FITS sample cannot be represented exactly by the floating-point conversion path.");
+                }
             double[] physical = image.GetPhysicalSamples();
             result = XisfImageData.FromSamples(physical, dimensions, channels, XisfPixelLayout.Planar, true);
             double[] finite = physical.Where(double.IsFinite).ToArray();
@@ -79,6 +100,9 @@ public static class FitsConverter
         return result;
     }
 
+    /// <summary>Converts XISF images to FITS with the first image as the primary HDU.</summary>
+    /// <param name="images">The images in output order; at least one image is required.</param>
+    /// <returns>A FITS document containing an HDU per image.</returns>
     public static FitsDocument FromXisf(IEnumerable<XisfImageData> images)
     {
         ArgumentNullException.ThrowIfNull(images);
@@ -89,6 +113,9 @@ public static class FitsConverter
         return new FitsDocument(hdus);
     }
 
+    /// <summary>Converts XISF images to FITS with the first image as the primary HDU.</summary>
+    /// <param name="images">The images in output order; at least one image is required.</param>
+    /// <returns>A FITS document containing an HDU per image.</returns>
     public static FitsDocument FromXisf(IEnumerable<XisfImage> images)
     {
         ArgumentNullException.ThrowIfNull(images);
@@ -99,15 +126,24 @@ public static class FitsConverter
         return new FitsDocument(hdus);
     }
 
+    /// <summary>Loads FITS and writes its supported images and metadata as XISF.</summary>
+    /// <param name="fitsPath">The FITS input or output path.</param>
+    /// <param name="xisfPath">The XISF input or output path.</param>
+    /// <param name="writerOptions">The output serialization settings, or null for defaults.</param>
+    /// <param name="conversionOptions">The conversion settings, or null for defaults.</param>
     public static void ConvertFitsToXisf(string fitsPath, string xisfPath, XisfWriterOptions? writerOptions = null, FitsConversionOptions? conversionOptions = null) =>
         XisfWriter.Write(xisfPath, ToXisf(FitsReader.Load(fitsPath), conversionOptions), writerOptions);
 
+    /// <summary>Loads XISF and writes its images as FITS HDUs.</summary>
+    /// <param name="xisfPath">The XISF input or output path.</param>
+    /// <param name="fitsPath">The FITS input or output path.</param>
+    /// <param name="writerOptions">The output serialization settings, or null for defaults.</param>
     public static void ConvertXisfToFits(string xisfPath, string fitsPath, FitsWriterOptions? writerOptions = null) =>
         FitsWriter.Write(fitsPath, FromXisf(XisfReader.Load(xisfPath).Images), writerOptions);
 
     private static FitsHdu CreateHdu(XisfImageData image, bool primary)
     {
-        FitsImage fits = TryGetNumber(image.Properties, "FITS:BITPIX") is { } bitPix
+        FitsImage fits = TryCreateExactFitsImage(image) ?? (TryGetNumber(image.Properties, "FITS:BITPIX") is { } bitPix
             ? FromPreservedFitsStorage(ReadPhysicalSamples(image), FitsDimensions(image), checked((int)bitPix),
                 TryGetNumber(image.Properties, "FITS:BSCALE") ?? 1, TryGetNumber(image.Properties, "FITS:BZERO") ?? 0,
                 TryGetNumber(image.Properties, "FITS:BLANK") is { } blank ? checked((long)blank) : null)
@@ -120,7 +156,7 @@ public static class FitsConverter
             XisfSampleFormat.Float32 => FitsImage.FromPhysicalSamples(ReadPlanarSamples<float>(image), FitsDimensions(image)),
             XisfSampleFormat.Float64 => FitsImage.FromPhysicalSamples(ReadPlanarSamples<double>(image), FitsDimensions(image)),
             _ => throw new NotSupportedException("Complex XISF images cannot be represented by a standard FITS image HDU.")
-        };
+        });
         FitsHdu hdu = FitsHdu.CreateImage(fits, primary);
         AddXisfKeywords(hdu.Header, image.FitsKeywords);
         if (!string.IsNullOrWhiteSpace(image.Id)) hdu.Header.Add(new FitsHeaderCard("EXTNAME", image.Id));
@@ -130,7 +166,7 @@ public static class FitsConverter
     private static FitsHdu CreateHdu(XisfImage image, bool primary)
     {
         IReadOnlyList<int> dimensions = FitsDimensions(image.Dimensions, image.ChannelCount);
-        FitsImage fits = TryGetNumber(image.Properties, "FITS:BITPIX") is { } bitPix
+        FitsImage fits = TryCreateExactFitsImage(image) ?? (TryGetNumber(image.Properties, "FITS:BITPIX") is { } bitPix
             ? FromPreservedFitsStorage(image.GetSamples<double>(), dimensions, checked((int)bitPix),
                 TryGetNumber(image.Properties, "FITS:BSCALE") ?? 1, TryGetNumber(image.Properties, "FITS:BZERO") ?? 0,
                 TryGetNumber(image.Properties, "FITS:BLANK") is { } blank ? checked((long)blank) : null)
@@ -143,11 +179,50 @@ public static class FitsConverter
             XisfSampleFormat.Float32 => FitsImage.FromPhysicalSamples(image.GetSamples<float>(), dimensions),
             XisfSampleFormat.Float64 => FitsImage.FromPhysicalSamples(image.GetSamples<double>(), dimensions),
             _ => throw new NotSupportedException("Complex XISF images cannot be represented by a standard FITS image HDU.")
-        };
+        });
         FitsHdu hdu = FitsHdu.CreateImage(fits, primary);
         AddXisfKeywords(hdu.Header, image.FitsKeywords);
         if (!string.IsNullOrWhiteSpace(image.Id)) hdu.Header.Add(new FitsHeaderCard("EXTNAME", image.Id));
         return hdu;
+    }
+
+    private static bool HasStandardUnsignedStorage(XisfSampleFormat format, double? bitPix, double scale, double zero, bool hasBlank) =>
+        scale == 1 && !hasBlank && (format, bitPix, zero) is
+            (XisfSampleFormat.UInt8, 8, 0) or
+            (XisfSampleFormat.UInt16, 16, 32768) or
+            (XisfSampleFormat.UInt32, 32, 2147483648) or
+            (XisfSampleFormat.UInt64, 64, 9223372036854775808d);
+
+    private static FitsImage? TryCreateExactFitsImage(XisfImage image)
+    {
+        if (!HasStandardUnsignedStorage(image.SampleFormat, TryGetNumber(image.Properties, "FITS:BITPIX"),
+                TryGetNumber(image.Properties, "FITS:BSCALE") ?? 1, TryGetNumber(image.Properties, "FITS:BZERO") ?? 0,
+                image.Properties.ContainsKey("FITS:BLANK"))) return null;
+        IReadOnlyList<int> dimensions = FitsDimensions(image.Dimensions, image.ChannelCount);
+        return image.SampleFormat switch
+        {
+            XisfSampleFormat.UInt8 => FitsImage.FromPhysicalSamples(image.GetSamples<byte>(), dimensions),
+            XisfSampleFormat.UInt16 => FitsImage.FromPhysicalSamples(image.GetSamples<ushort>(), dimensions),
+            XisfSampleFormat.UInt32 => FitsImage.FromPhysicalSamples(image.GetSamples<uint>(), dimensions),
+            XisfSampleFormat.UInt64 => FitsImage.FromPhysicalSamples(image.GetSamples<ulong>(), dimensions),
+            _ => null
+        };
+    }
+
+    private static FitsImage? TryCreateExactFitsImage(XisfImageData image)
+    {
+        if (!HasStandardUnsignedStorage(image.SampleFormat, TryGetNumber(image.Properties, "FITS:BITPIX"),
+                TryGetNumber(image.Properties, "FITS:BSCALE") ?? 1, TryGetNumber(image.Properties, "FITS:BZERO") ?? 0,
+                image.Properties.ContainsKey("FITS:BLANK"))) return null;
+        IReadOnlyList<int> dimensions = FitsDimensions(image);
+        return image.SampleFormat switch
+        {
+            XisfSampleFormat.UInt8 => FitsImage.FromPhysicalSamples(ReadPlanarSamples<byte>(image), dimensions),
+            XisfSampleFormat.UInt16 => FitsImage.FromPhysicalSamples(ReadPlanarSamples<ushort>(image), dimensions),
+            XisfSampleFormat.UInt32 => FitsImage.FromPhysicalSamples(ReadPlanarSamples<uint>(image), dimensions),
+            XisfSampleFormat.UInt64 => FitsImage.FromPhysicalSamples(ReadPlanarSamples<ulong>(image), dimensions),
+            _ => null
+        };
     }
 
     private static IReadOnlyList<int> FitsDimensions(XisfImageData image) => FitsDimensions(image.Dimensions, image.ChannelCount);

@@ -3,12 +3,26 @@ using System.Numerics;
 
 namespace XISFLib;
 
+/// <summary>Controls sample normalization and sampling density for statistics.</summary>
 public sealed class XisfStatisticsOptions
 {
+    /// <summary>Whether statistics normalize samples using the declared image bounds.</summary>
     public bool Normalize { get; set; }
+    /// <summary>The maximum values sampled per channel when estimating statistics.</summary>
     public int MaximumSamplesPerChannel { get; set; } = 1_000_000;
 }
 
+/// <summary>Sampled per-channel counts, extrema, location, and dispersion estimates.</summary>
+/// <param name="Channel">The zero-based channel index.</param>
+/// <param name="SampleCount">The number of sampled values.</param>
+/// <param name="FiniteCount">The number of finite sampled values.</param>
+/// <param name="NonFiniteCount">The number of NaN or infinite values.</param>
+/// <param name="Minimum">The minimum finite sampled value.</param>
+/// <param name="Maximum">The maximum finite sampled value.</param>
+/// <param name="Mean">The arithmetic mean of finite sampled values.</param>
+/// <param name="StandardDeviation">The standard deviation of finite sampled values.</param>
+/// <param name="Median">The median of finite sampled values.</param>
+/// <param name="MedianAbsoluteDeviation">The median absolute deviation of finite sampled values.</param>
 public sealed record XisfChannelStatistics(
     int Channel,
     long SampleCount,
@@ -21,6 +35,14 @@ public sealed record XisfChannelStatistics(
     double Median,
     double MedianAbsoluteDeviation);
 
+/// <summary>A channel histogram with underflow, overflow, and non-finite counts.</summary>
+/// <param name="Channel">The zero-based channel index.</param>
+/// <param name="LowerBound">The lower histogram bound.</param>
+/// <param name="UpperBound">The upper histogram bound.</param>
+/// <param name="Bins">The count in each equal-width bin.</param>
+/// <param name="UnderflowCount">The count below the lower bound.</param>
+/// <param name="OverflowCount">The count above the upper bound.</param>
+/// <param name="NonFiniteCount">The number of NaN or infinite values.</param>
 public sealed record XisfHistogram(
     int Channel,
     double LowerBound,
@@ -30,8 +52,18 @@ public sealed record XisfHistogram(
     long OverflowCount,
     long NonFiniteCount);
 
+/// <summary>Provides rectangular reads, channel extraction, sampled statistics, and full histograms.</summary>
 public static class XisfImageExtensions
 {
+    /// <summary>Extracts a zero-based rectangle from a two-dimensional real image; loaded images still decode the full raw block.</summary>
+    /// <param name="image">The source image.</param>
+    /// <param name="x">The zero-based horizontal pixel coordinate.</param>
+    /// <param name="y">The zero-based vertical pixel coordinate.</param>
+    /// <param name="width">The positive region width in pixels.</param>
+    /// <param name="height">The positive region height in pixels.</param>
+    /// <param name="layout">The channel order of the returned samples.</param>
+    /// <typeparam name="T">The numeric sample or header-value type.</typeparam>
+    /// <returns>A new array of region samples in the requested layout.</returns>
     public static T[] ReadRegion<T>(this XisfImage image, int x, int y, int width, int height,
         XisfPixelLayout layout = XisfPixelLayout.Interleaved) where T : INumberBase<T>
     {
@@ -40,6 +72,15 @@ public static class XisfImageExtensions
             image.PixelStorage, image.IsBigEndian, x, y, width, height, layout);
     }
 
+    /// <summary>Extracts a zero-based rectangle from a two-dimensional real image; loaded images still decode the full raw block.</summary>
+    /// <param name="image">The source image.</param>
+    /// <param name="x">The zero-based horizontal pixel coordinate.</param>
+    /// <param name="y">The zero-based vertical pixel coordinate.</param>
+    /// <param name="width">The positive region width in pixels.</param>
+    /// <param name="height">The positive region height in pixels.</param>
+    /// <param name="layout">The channel order of the returned samples.</param>
+    /// <typeparam name="T">The numeric sample or header-value type.</typeparam>
+    /// <returns>A new array of region samples in the requested layout.</returns>
     public static T[] ReadRegion<T>(this XisfImageData image, int x, int y, int width, int height,
         XisfPixelLayout layout = XisfPixelLayout.Interleaved) where T : INumberBase<T>
     {
@@ -48,6 +89,11 @@ public static class XisfImageExtensions
             image.PixelStorage, image.IsBigEndian, x, y, width, height, layout);
     }
 
+    /// <summary>Extracts one zero-based channel from a two-dimensional real image.</summary>
+    /// <param name="image">The source image.</param>
+    /// <param name="channel">The zero-based channel index.</param>
+    /// <typeparam name="T">The numeric sample or header-value type.</typeparam>
+    /// <returns>A new array containing the selected channel in pixel order.</returns>
     public static T[] ReadChannel<T>(this XisfImage image, int channel) where T : INumberBase<T>
     {
         ArgumentNullException.ThrowIfNull(image);
@@ -55,6 +101,11 @@ public static class XisfImageExtensions
             image.PixelStorage, image.IsBigEndian, channel);
     }
 
+    /// <summary>Extracts one zero-based channel from a two-dimensional real image.</summary>
+    /// <param name="image">The source image.</param>
+    /// <param name="channel">The zero-based channel index.</param>
+    /// <typeparam name="T">The numeric sample or header-value type.</typeparam>
+    /// <returns>A new array containing the selected channel in pixel order.</returns>
     public static T[] ReadChannel<T>(this XisfImageData image, int channel) where T : INumberBase<T>
     {
         ArgumentNullException.ThrowIfNull(image);
@@ -62,6 +113,10 @@ public static class XisfImageExtensions
             image.PixelStorage, image.IsBigEndian, channel);
     }
 
+    /// <summary>Estimates per-channel statistics using bounded sampling and optional normalization.</summary>
+    /// <param name="image">The source image.</param>
+    /// <param name="options">The operation settings, or null to use defaults.</param>
+    /// <returns>Sampled statistics for each channel.</returns>
     public static IReadOnlyList<XisfChannelStatistics> CalculateStatistics(this XisfImage image, XisfStatisticsOptions? options = null)
     {
         ArgumentNullException.ThrowIfNull(image);
@@ -69,6 +124,10 @@ public static class XisfImageExtensions
             image.PixelStorage, image.IsBigEndian, image.LowerBound, image.UpperBound, options);
     }
 
+    /// <summary>Estimates per-channel statistics using bounded sampling and optional normalization.</summary>
+    /// <param name="image">The source image.</param>
+    /// <param name="options">The operation settings, or null to use defaults.</param>
+    /// <returns>Sampled statistics for each channel.</returns>
     public static IReadOnlyList<XisfChannelStatistics> CalculateStatistics(this XisfImageData image, XisfStatisticsOptions? options = null)
     {
         ArgumentNullException.ThrowIfNull(image);
@@ -76,6 +135,13 @@ public static class XisfImageExtensions
             image.PixelStorage, image.IsBigEndian, image.LowerBound ?? 0, image.UpperBound ?? IntegerMaximum(image.SampleFormat), options);
     }
 
+    /// <summary>Counts every sample in one channel, including out-of-range and non-finite values.</summary>
+    /// <param name="image">The source image.</param>
+    /// <param name="channel">The zero-based channel index.</param>
+    /// <param name="binCount">The positive number of histogram bins.</param>
+    /// <param name="lowerBound">The lower normalization or histogram bound.</param>
+    /// <param name="upperBound">The upper normalization or histogram bound.</param>
+    /// <returns>The selected channel histogram with out-of-range and non-finite counts.</returns>
     public static XisfHistogram CalculateHistogram(this XisfImage image, int channel, int binCount = 256,
         double? lowerBound = null, double? upperBound = null)
     {
@@ -84,6 +150,13 @@ public static class XisfImageExtensions
             image.PixelStorage, image.IsBigEndian, channel, binCount, lowerBound ?? image.LowerBound, upperBound ?? image.UpperBound);
     }
 
+    /// <summary>Counts every sample in one channel, including out-of-range and non-finite values.</summary>
+    /// <param name="image">The source image.</param>
+    /// <param name="channel">The zero-based channel index.</param>
+    /// <param name="binCount">The positive number of histogram bins.</param>
+    /// <param name="lowerBound">The lower normalization or histogram bound.</param>
+    /// <param name="upperBound">The upper normalization or histogram bound.</param>
+    /// <returns>The selected channel histogram with out-of-range and non-finite counts.</returns>
     public static XisfHistogram CalculateHistogram(this XisfImageData image, int channel, int binCount = 256,
         double? lowerBound = null, double? upperBound = null)
     {

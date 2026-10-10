@@ -121,9 +121,9 @@ internal sealed class XisfDataBlock
         if (!isUrl && !isPath)
             throw new XisfFormatException($"Unsupported data block location '{location}'.");
         int close = location.LastIndexOf(')');
-        if (close < 5)
+        if (close < (isUrl ? 4 : 5))
             throw new XisfFormatException("Invalid external data block location.");
-        string resource = location[5..close];
+        string resource = location[(isUrl ? 4 : 5)..close];
         string? indexText = close + 1 < location.Length && location[close + 1] == ':' ? location[(close + 2)..] : null;
         byte[] file;
         if (isUrl)
@@ -308,7 +308,7 @@ internal sealed class XisfDataBlock
         foreach (string item in definition.Split(':', StringSplitOptions.RemoveEmptyEntries))
         {
             string[] sizes = item.Split(',');
-            if (sizes.Length != 2 || !int.TryParse(sizes[0], out int compressed) || !int.TryParse(sizes[1], out int uncompressed) || compressed < 0 || uncompressed < 0 || offset + compressed > data.Length)
+            if (sizes.Length != 2 || !int.TryParse(sizes[0], out int compressed) || !int.TryParse(sizes[1], out int uncompressed) || compressed < 0 || uncompressed < 0 || compressed > data.Length - offset || uncompressed > expectedSize - output.Length)
                 throw new XisfFormatException("Invalid compression subblocks attribute.");
             byte[] block = DecompressOne(data.AsSpan(offset, compressed).ToArray(), codec, uncompressed);
             output.Write(block);

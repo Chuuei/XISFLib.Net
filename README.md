@@ -2,6 +2,8 @@
 
 `XISFLib` is a `net10.0` library for reading, writing, and converting Extensible Image Serialization Format (XISF) 1.0 and FITS astrophotography files.
 
+See the [project documentation](docs/index.md) for setup, the API guide, I/O contracts, conversion limits, and architecture, and [CONTRIBUTING.md](CONTRIBUTING.md) for development and packaging. Both library projects generate XML documentation for IntelliSense and NuGet consumers; undocumented public APIs fail the build.
+
 ## Usage
 
 ```csharp
@@ -99,6 +101,20 @@ FitsConverter.ConvertXisfToFits("capture.xisf", "capture.fits",
 
 FITS integer `BITPIX` images, standard unsigned `BZERO` conventions, floating-point images, arbitrary-dimensional cubes, and common three- or four-plane color cubes are converted. Original `BITPIX`, scaling, and blank-value metadata are stored as XISF properties so a FITS → XISF → FITS round trip can reconstruct the original storage. Standard FITS image HDUs have no complex pixel type, so complex XISF images are rejected rather than silently losing their imaginary components.
 
+### Batch XISF to FITS conversion
+
+```powershell
+dotnet run --project .\XISFLib.Convert -- "D:\Astro\Captures"
+```
+
+An optional second argument sets the maximum number of parallel conversions (default: 8): `dotnet run --project .\XISFLib.Convert -- "D:\Astro\Captures" 4`. The count must be a positive integer; use `1` for sequential processing. Progress messages may appear in any order. Reduce the count to limit memory usage when converting large images.
+
+Converts all `.xisf` files (case-insensitive) directly in the folder, without recursion, to sibling `.fits` files. All images are retained as image HDUs; source files are untouched. Existing outputs are never overwritten. Failed files are reported and processing continues; exit codes are 0 for success (including an empty folder), 1 for conversion/enumeration failures, and 2 for invalid arguments. Outputs are published only after writing succeeds.
+
+Existing FITS keywords, including target, WCS, comments and history, are retained by the library (structural cards and checksums are regenerated). Missing standard headers are filled from native XISF target, observer, camera, telescope, filter, exposure, observation time, gain, offset, binning, temperature and center-coordinate properties. Image properties take precedence over global properties; existing FITS cards always win. Center coordinates are recorded as RA/DEC in degrees, not synthesized into a WCS solution.
+
+Each output also includes an `XISFMETA` binary-table extension: one row containing a `METADATA` byte column of UTF-8 XML. It archives the original XML header and decoded global/image property values (including array dimensions), preserving Unicode and metadata that ordinary FITS headers cannot express. Ordinary FITS applications need not interpret this archive. Original XML block locations still refer to the source XISF: ancillary binary attachments such as ICC profiles and thumbnails are not copied, and XISF tables are archived as XML rather than converted to FITS tables. Keep the source files for full-fidelity recovery. FITS headers themselves are ASCII and may truncate long comments; the archive retains their original text. Complex-valued images are rejected by the library rather than silently altered.
+
 ### Windows Forms and WPF
 
 Reference the `XISFLib.Windows` project or package from a `net10.0-windows` application. It provides extension methods for loaded images:
@@ -117,6 +133,12 @@ Both methods normalize samples through the XISF image bounds and support graysca
 `ToBgra32Pixels()` accepts the same stretch options and exposes the converted pixel buffer for custom Windows UI controls. WPF bitmap sources are frozen for safe use across UI threads, and XISF resolution metadata is applied when available.
 
 The solution also includes `XISFLib.WpfViewer`, a WPF library workbench and example implementation. It can browse and load `.xisf`, `.xish`, `.fit`, `.fits`, or `.fts` files, import PNG/JPEG/TIFF/BMP/GIF images, edit document and image properties, FITS keywords, tables and ancillary image metadata, configure compression/checksums/shuffling, and write FITS or monolithic/distributed XISF output. Its Utilities tab demonstrates unified astronomy metadata, sampled channel statistics, full histograms, region/channel reads, and bidirectional pixel/sky WCS transforms by calling the same public APIs shown above. For a loaded monolithic `.xisf`, **Byte-identical copy** is enabled by default: saving copies the complete source unchanged, including every image, unknown extension, signature, data-block representation, and metadata item. Clear that option to apply editor changes or writer settings; re-encoding intentionally rebuilds the selected image and can change XML ordering, creation metadata, block locations, compression, checksums, and file size. Saved files are reloaded immediately and shown with XISF or FITS conformance diagnostics. It also supports multi-image selection, comparison of linear display with configurable automatic stretching, mouse-wheel zooming, and left-button drag panning. Run it with `dotnet run --project XISFLib.WpfViewer`.
+
+### Windows Explorer previews
+
+`XISFLib.ExplorerPreviewHandler` is a 64-bit Windows Explorer preview handler for `.xisf`, `.xish`, `.fit`, `.fits`, and `.fts` files. It displays the first two-dimensional image (including RGB/RGBA FITS cubes), applies the automatic screen stretch, and shows basic dimensions and sample information. Loading happens asynchronously in an isolated `Prevhost.exe` process with network and arbitrary external XISF resources disabled.
+
+Build the project in Release mode, keep the complete output directory together, then run `Install-PreviewHandler.ps1` from that output directory in an elevated PowerShell window. Enable Explorer's Preview pane to use it. Run `Uninstall-PreviewHandler.ps1` before moving or deleting the output directory. The handler is framework-dependent and requires the matching .NET 10 Windows Desktop Runtime.
 
 Large file loading is performed away from the UI thread. Path-backed zlib XISF attachments are checksum-verified while streaming directly into their final decoded buffer, FITS conversion reuses its source pixel storage when possible, and WPF rendering reads samples directly without allocating full normalized or reordered arrays. Additional images in multi-image XISF documents are decoded on first selection.
 

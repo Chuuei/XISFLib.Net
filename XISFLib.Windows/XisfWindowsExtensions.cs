@@ -7,8 +7,13 @@ using System.Windows.Media.Imaging;
 
 namespace XISFLib;
 
+/// <summary>Creates Windows Forms bitmaps, frozen WPF sources, and BGRA display buffers.</summary>
 public static class XisfWindowsExtensions
 {
+    /// <summary>Creates a Windows Forms bitmap; the caller must dispose the returned bitmap.</summary>
+    /// <param name="image">The source image.</param>
+    /// <param name="stretch">The display stretch, or null for normalized linear rendering.</param>
+    /// <returns>A new bitmap that the caller must dispose.</returns>
     public static Bitmap ToBitmap(this XisfImage image, XisfStretchOptions? stretch = null)
     {
         ArgumentNullException.ThrowIfNull(image);
@@ -18,6 +23,10 @@ public static class XisfWindowsExtensions
         return CreateBitmap(width, height, pixels, image.Resolution);
     }
 
+    /// <summary>Creates a Windows Forms bitmap; the caller must dispose the returned bitmap.</summary>
+    /// <param name="image">The source image.</param>
+    /// <param name="stretch">The display stretch, or null for normalized linear rendering.</param>
+    /// <returns>A new bitmap that the caller must dispose.</returns>
     public static Bitmap ToBitmap(this XisfImageData image, XisfStretchOptions? stretch = null)
     {
         ArgumentNullException.ThrowIfNull(image);
@@ -53,6 +62,10 @@ public static class XisfWindowsExtensions
         }
     }
 
+    /// <summary>Creates a frozen WPF bitmap source suitable for use across threads.</summary>
+    /// <param name="image">The source image.</param>
+    /// <param name="stretch">The display stretch, or null for normalized linear rendering.</param>
+    /// <returns>A frozen WPF bitmap source.</returns>
     public static BitmapSource ToBitmapSource(this XisfImage image, XisfStretchOptions? stretch = null)
     {
         ArgumentNullException.ThrowIfNull(image);
@@ -62,6 +75,10 @@ public static class XisfWindowsExtensions
         return CreateBitmapSource(width, height, pixels, image.Resolution);
     }
 
+    /// <summary>Creates a frozen WPF bitmap source suitable for use across threads.</summary>
+    /// <param name="image">The source image.</param>
+    /// <param name="stretch">The display stretch, or null for normalized linear rendering.</param>
+    /// <returns>A frozen WPF bitmap source.</returns>
     public static BitmapSource ToBitmapSource(this XisfImageData image, XisfStretchOptions? stretch = null)
     {
         ArgumentNullException.ThrowIfNull(image);
@@ -79,6 +96,10 @@ public static class XisfWindowsExtensions
         return bitmap;
     }
 
+    /// <summary>Returns a newly allocated BGRA display buffer with optional stretching.</summary>
+    /// <param name="image">The source image.</param>
+    /// <param name="stretch">The display stretch, or null for normalized linear rendering.</param>
+    /// <returns>A newly allocated BGRA display buffer.</returns>
     public static byte[] ToBgra32Pixels(this XisfImage image, XisfStretchOptions? stretch = null)
     {
         ArgumentNullException.ThrowIfNull(image);
@@ -86,6 +107,10 @@ public static class XisfWindowsExtensions
             image.IsBigEndian, image.LowerBound, image.UpperBound, image.ColorSpace, image.Orientation, stretch, image.DisplayFunction).Pixels;
     }
 
+    /// <summary>Returns a newly allocated BGRA display buffer with optional stretching.</summary>
+    /// <param name="image">The source image.</param>
+    /// <param name="stretch">The display stretch, or null for normalized linear rendering.</param>
+    /// <returns>A newly allocated BGRA display buffer.</returns>
     public static byte[] ToBgra32Pixels(this XisfImageData image, XisfStretchOptions? stretch = null)
     {
         ArgumentNullException.ThrowIfNull(image);

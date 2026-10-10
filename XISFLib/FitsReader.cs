@@ -6,29 +6,47 @@ using System.Text.RegularExpressions;
 
 namespace XISFLib;
 
+/// <summary>Controls whether FITS conformance errors are recorded or rejected.</summary>
 public enum FitsValidationMode
 {
+    /// <summary>Records conformance findings while accepting supported input.</summary>
     Tolerant,
+    /// <summary>Rejects error-level conformance findings.</summary>
     Strict
 }
 
+/// <summary>Controls FITS validation and limits for input, headers, and decoded data.</summary>
 public sealed class FitsReaderOptions
 {
+    /// <summary>The maximum number of HDUs per FITS document.</summary>
     public int MaximumHduCount { get; set; } = 1024;
+    /// <summary>The maximum raw payload bytes per FITS HDU.</summary>
     public long MaximumDataSize { get; set; } = int.MaxValue;
+    /// <summary>The maximum parsed header-card count per HDU.</summary>
     public int MaximumHeaderCards { get; set; } = 100_000;
+    /// <summary>The maximum padded FITS header size in bytes per HDU.</summary>
     public long MaximumHeaderBytes { get; set; } = 8L * 1024 * 1024;
+    /// <summary>The maximum image axis count.</summary>
     public int MaximumAxisCount { get; set; } = 32;
+    /// <summary>The maximum cumulative raw FITS HDU payload bytes retained by the reader.</summary>
     public long MaximumTotalDecodedBytes { get; set; } = int.MaxValue;
+    /// <summary>The maximum decoded cells per FITS table.</summary>
     public long MaximumTableCells { get; set; } = 10_000_000;
+    /// <summary>The maximum input bytes buffered when the source must be retained in memory.</summary>
     public long MaximumBufferedInputBytes { get; set; } = 1024L * 1024 * 1024;
+    /// <summary>Whether error-level conformance findings are retained or cause the reader to throw.</summary>
     public FitsValidationMode ValidationMode { get; set; }
 }
 
+/// <summary>Reads FITS HDUs, validates headers and payloads, and decodes supported images and tables.</summary>
 public static partial class FitsReader
 {
     private const int BlockSize = 2880;
 
+    /// <summary>Reads a document from a file or readable stream using the specified resource policy.</summary>
+    /// <param name="path">The source file path.</param>
+    /// <param name="options">The operation settings, or null to use defaults.</param>
+    /// <returns>The parsed document.</returns>
     public static FitsDocument Load(string path, FitsReaderOptions? options = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(path);
@@ -36,14 +54,48 @@ public static partial class FitsReader
         return Load(stream, options);
     }
 
+    /// <summary>Reads a file on a worker thread with cooperative cancellation at input-read boundaries.</summary>
+    /// <param name="path">The source file path.</param>
+    /// <param name="options">The operation settings, or null to use defaults.</param>
+    /// <param name="cancellationToken">A token observed at the documented cooperative cancellation boundaries.</param>
+    /// <returns>A task yielding the parsed document, or cancellation at an observed checkpoint.</returns>
     public static async Task<FitsDocument> LoadAsync(string path, FitsReaderOptions? options = null, CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         ArgumentException.ThrowIfNullOrWhiteSpace(path);
         await using FileStream stream = new(path, FileMode.Open, FileAccess.Read, FileShare.Read, 81920, true);
-        return await Task.Run(() => Load(stream, options), cancellationToken).ConfigureAwait(false);
+        return await Task.Run(() =>
+        {
+            using CancellationReadStream cancellable = new(stream, cancellationToken);
+            FitsDocument result = LoadCore(cancellable, options, cancellationToken);
+            cancellationToken.ThrowIfCancellationRequested();
+            return result;
+        }, cancellationToken).ConfigureAwait(false);
     }
 
-    public static FitsDocument Load(Stream stream, FitsReaderOptions? options = null)
+    /// <summary>Reads a document from a file or readable stream using the specified resource policy.</summary>
+    /// <param name="stream">The caller-owned stream, positioned at the file origin; it remains open.</param>
+    /// <param name="options">The operation settings, or null to use defaults.</param>
+    /// <returns>The parsed document.</returns>
+    /// <remarks>The stream remains open. Non-seekable input is buffered within MaximumBufferedInputBytes.</remarks>
+    public static FitsDocument Load(Stream stream, FitsReaderOptions? options = null) => LoadCore(stream, options, default);
+
+    /// <summary>Loads a FITS stream on a worker thread with cooperative cancellation.</summary>
+    /// <param name="stream">The caller-owned readable stream; it remains open.</param>
+    /// <param name="options">The reader policy, or null to use defaults.</param>
+    /// <param name="cancellationToken">A token observed during reading and table decoding.</param>
+    /// <returns>A task yielding the parsed document.</returns>
+    public static Task<FitsDocument> LoadAsync(Stream stream, FitsReaderOptions? options = null, CancellationToken cancellationToken = default) =>
+        Task.Run(() =>
+        {
+            ArgumentNullException.ThrowIfNull(stream);
+            using CancellationReadStream cancellable = new(stream, cancellationToken);
+            FitsDocument result = LoadCore(cancellable, options, cancellationToken);
+            cancellationToken.ThrowIfCancellationRequested();
+            return result;
+        }, cancellationToken);
+
+    private static FitsDocument LoadCore(Stream stream, FitsReaderOptions? options, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(stream);
         if (!stream.CanRead) throw new ArgumentException("The FITS stream must be readable.", nameof(stream));
@@ -61,7 +113,7 @@ public static partial class FitsReader
                 buffered.Write(copyBuffer, 0, read);
             }
             buffered.Position = 0;
-            return Load(buffered, options);
+            return LoadCore(buffered, options, cancellationToken);
         }
         List<FitsHdu> hdus = [];
         List<FitsValidationDiagnostic> diagnostics = [];
@@ -70,6 +122,7 @@ public static partial class FitsReader
         {
             while (!AtEnd(stream))
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 if (hdus.Count >= options.MaximumHduCount) throw new FitsFormatException("The FITS file exceeds the configured HDU limit.");
                 int hduIndex = hdus.Count;
                 byte[] headerBytes = ReadHeader(stream, options, out FitsHeader header);
@@ -91,7 +144,7 @@ public static partial class FitsReader
                 hdu.ChecksumValid = ValidateChecksum(header, headerBytes, data, pad);
                 ValidatePayload(hdu, pad, hduIndex, diagnostics);
                 ThrowIfStrict(options, diagnostics, hduIndex);
-                hdu.Content = ParseContent(hdu, options);
+                hdu.Content = ParseContent(hdu, options, cancellationToken);
                 hdus.Add(hdu);
             }
         }
@@ -387,7 +440,7 @@ public static partial class FitsReader
         return checked((elements + pcount) * gcount * Math.Abs(bitPix) / 8);
     }
 
-    private static object? ParseContent(FitsHdu hdu, FitsReaderOptions options)
+    private static object? ParseContent(FitsHdu hdu, FitsReaderOptions options, CancellationToken cancellationToken)
     {
         if (hdu.Type is FitsHduType.Primary or FitsHduType.Image)
         {
@@ -397,12 +450,12 @@ public static partial class FitsReader
             return new FitsImage(checked((int)hdu.Header.GetValue<long>("BITPIX")), dimensions, hdu.Data,
                 hdu.Header.GetValue<double>("BSCALE", 1), hdu.Header.GetValue<double>("BZERO", 0), hdu.Header.GetValue<long?>("BLANK"));
         }
-        if (hdu.Type == FitsHduType.BinaryTable) return ParseBinaryTable(hdu.Header, hdu.Data, options);
-        if (hdu.Type == FitsHduType.AsciiTable) return ParseAsciiTable(hdu.Header, hdu.Data, options);
+        if (hdu.Type == FitsHduType.BinaryTable) return ParseBinaryTable(hdu.Header, hdu.Data, options, cancellationToken);
+        if (hdu.Type == FitsHduType.AsciiTable) return ParseAsciiTable(hdu.Header, hdu.Data, options, cancellationToken);
         return null;
     }
 
-    private static FitsTable ParseBinaryTable(FitsHeader header, byte[] data, FitsReaderOptions options)
+    private static FitsTable ParseBinaryTable(FitsHeader header, byte[] data, FitsReaderOptions options, CancellationToken cancellationToken)
     {
         int fieldCount = checked((int)header.GetValue<long>("TFIELDS"));
         int rowLength = checked((int)header.GetValue<long>("NAXIS1"));
@@ -426,6 +479,7 @@ public static partial class FitsReader
         List<IReadOnlyList<object?>> rows = [];
         for (int row = 0; row < rowCount; row++)
         {
+            cancellationToken.ThrowIfCancellationRequested();
             int offset = row * rowLength;
             List<object?> cells = [];
             for (int field = 0; field < formats.Count; field++)
@@ -518,7 +572,7 @@ public static partial class FitsReader
         return values;
     }
 
-    private static FitsTable ParseAsciiTable(FitsHeader header, byte[] data, FitsReaderOptions options)
+    private static FitsTable ParseAsciiTable(FitsHeader header, byte[] data, FitsReaderOptions options, CancellationToken cancellationToken)
     {
         int fields = checked((int)header.GetValue<long>("TFIELDS"));
         int rowLength = checked((int)header.GetValue<long>("NAXIS1"));
@@ -539,6 +593,7 @@ public static partial class FitsReader
         List<IReadOnlyList<object?>> rows = [];
         for (int row = 0; row < rowCount; row++)
         {
+            cancellationToken.ThrowIfCancellationRequested();
             List<object?> cells = [];
             for (int field = 0; field < fields; field++)
             {

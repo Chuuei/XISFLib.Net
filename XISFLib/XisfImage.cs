@@ -5,6 +5,7 @@ using System.Xml.Linq;
 
 namespace XISFLib;
 
+/// <summary>A parsed image whose samples are decoded on demand from its source.</summary>
 public sealed class XisfImage
 {
     private readonly XisfDataBlock _block;
@@ -43,29 +44,53 @@ public sealed class XisfImage
         Resolution = ParseResolution(xml, references);
     }
 
+    /// <summary>The identifier of this item within its containing document.</summary>
     public string? Id { get; }
+    /// <summary>Axis lengths in storage order, beginning with width and height; channels are separate.</summary>
     public IReadOnlyList<int> Dimensions { get; }
+    /// <summary>The number of samples associated with each pixel.</summary>
     public int ChannelCount { get; }
+    /// <summary>The product of image axis lengths, excluding channels.</summary>
     public long PixelCount => Dimensions.Aggregate(1L, (total, dimension) => checked(total * dimension));
+    /// <summary>The numeric storage type of each sample.</summary>
     public XisfSampleFormat SampleFormat { get; }
+    /// <summary>Whether channels occupy separate planes or alternate within each pixel.</summary>
     public XisfPixelLayout PixelStorage { get; }
+    /// <summary>The declared color space, such as Gray, RGB, or CIELab.</summary>
     public string? ColorSpace { get; }
+    /// <summary>The astronomical image classification, such as Light, Dark, or Flat.</summary>
     public string? ImageType { get; }
+    /// <summary>The image pedestal offset recorded in metadata.</summary>
     public double Offset { get; }
+    /// <summary>The declared image orientation.</summary>
     public string Orientation { get; }
+    /// <summary>The optional globally unique image identifier.</summary>
     public Guid? Uuid { get; }
+    /// <summary>Whether multi-byte samples store their most significant byte first.</summary>
     public bool IsBigEndian { get; }
+    /// <summary>The lower sample bound used for normalization.</summary>
     public double LowerBound { get; }
+    /// <summary>The upper sample bound used for normalization.</summary>
     public double UpperBound { get; }
+    /// <summary>Typed properties indexed by case-sensitive identifiers.</summary>
     public IReadOnlyDictionary<string, XisfProperty> Properties { get; }
+    /// <summary>The ordered FITS keywords associated with the image.</summary>
     public IReadOnlyList<XisfFitsKeyword> FitsKeywords { get; }
+    /// <summary>The tables associated with this image or document.</summary>
     public IReadOnlyList<XisfTable> Tables { get; }
+    /// <summary>The embedded ICC profile bytes, or null when absent.</summary>
     public byte[]? IccProfile { get; }
+    /// <summary>The optional thumbnail image.</summary>
     public XisfImage? Thumbnail { get; }
+    /// <summary>The optional repeating color-filter mosaic.</summary>
     public XisfColorFilterArray? ColorFilterArray { get; }
+    /// <summary>The optional RGB working-space definition.</summary>
     public XisfRgbWorkingSpace? RgbWorkingSpace { get; }
+    /// <summary>The optional per-channel display transformation.</summary>
     public XisfDisplayFunction? DisplayFunction { get; }
+    /// <summary>The optional horizontal and vertical resolution metadata.</summary>
     public XisfResolution? Resolution { get; }
+    /// <summary>The mutable XML representation; edits do not automatically refresh parsed values.</summary>
     public XElement Xml { get; }
 
     internal static XisfImage Parse(XElement element, XisfDataSource source, XisfReferenceResolver references)
@@ -89,6 +114,8 @@ public sealed class XisfImage
         return new XisfImage(element, source, references, values[..^1], values[^1], format);
     }
 
+    /// <summary>Returns the complete raw sample buffer in its declared byte order and layout.</summary>
+    /// <returns>A new byte array containing the complete sample storage.</returns>
     public byte[] ReadRawData()
     {
         byte[] data = _block.Read();
@@ -98,6 +125,11 @@ public sealed class XisfImage
         return data;
     }
 
+    /// <summary>Decodes real samples to the requested type and channel layout with checked numeric conversions.</summary>
+    /// <param name="layout">The channel order of the returned samples.</param>
+    /// <typeparam name="T">The numeric sample or header-value type.</typeparam>
+    /// <returns>A new array of checked numeric values in the requested layout.</returns>
+    /// <exception cref="OverflowException">A sample cannot be represented by the requested numeric type.</exception>
     public T[] GetSamples<T>(XisfPixelLayout layout = XisfPixelLayout.Planar) where T : INumberBase<T>
     {
         if (SampleFormat is XisfSampleFormat.Complex32 or XisfSampleFormat.Complex64)
@@ -111,6 +143,9 @@ public sealed class XisfImage
         return Reorder(samples, layout);
     }
 
+    /// <summary>Decodes complex sample pairs into the requested channel layout.</summary>
+    /// <param name="layout">The channel order of the returned samples.</param>
+    /// <returns>A new array of complex values in the requested layout.</returns>
     public Complex[] GetComplexSamples(XisfPixelLayout layout = XisfPixelLayout.Planar)
     {
         if (SampleFormat is not (XisfSampleFormat.Complex32 or XisfSampleFormat.Complex64))
@@ -127,6 +162,9 @@ public sealed class XisfImage
         return Reorder(samples, layout);
     }
 
+    /// <summary>Returns double-precision samples normalized by the declared image bounds.</summary>
+    /// <param name="layout">The channel order of the returned samples.</param>
+    /// <returns>A new array of normalized doubles; values are not clamped to zero through one.</returns>
     public double[] GetNormalizedSamples(XisfPixelLayout layout = XisfPixelLayout.Planar)
     {
         double[] samples = GetSamples<double>(layout);

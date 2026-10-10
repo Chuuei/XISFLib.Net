@@ -1,0 +1,6 @@
+- name: Home
+  href: index.md
+- name: Guides
+  href: docs/toc.yml
+- name: API reference
+  href: docs/api/

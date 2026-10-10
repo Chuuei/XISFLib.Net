@@ -9,30 +9,55 @@ using System.Xml.Linq;
 
 namespace XISFLib;
 
+/// <summary>Controls external-resource access and resource limits for XISF input.</summary>
 public sealed class XisfReaderOptions
 {
+    /// <summary>Whether URL data blocks may be fetched; disabled by default.</summary>
     public bool AllowNetworkResources { get; set; }
+    /// <summary>Whether general filesystem data-block paths may be read; disabled by default.</summary>
     public bool AllowExternalFilePaths { get; set; }
+    /// <summary>Whether header-directory-relative blocks may be read; enabled by default.</summary>
     public bool AllowHeaderRelativeDataBlocks { get; set; } = true;
+    /// <summary>Whether header-relative paths may escape the header directory; disabled by default.</summary>
     public bool AllowHeaderDirectoryTraversal { get; set; }
+    /// <summary>The maximum input bytes buffered when the source must be retained in memory.</summary>
+    public long MaximumBufferedInputBytes { get; set; } = 1024L * 1024 * 1024;
+    /// <summary>The maximum encoded XML header size in bytes.</summary>
     public int MaximumXmlHeaderSize { get; set; } = 64 * 1024 * 1024;
+    /// <summary>The maximum characters accepted by the XML parser.</summary>
     public long MaximumXmlCharacters { get; set; } = 64L * 1024 * 1024;
+    /// <summary>The maximum XML nesting depth accepted after parsing.</summary>
     public int MaximumXmlDepth { get; set; } = 128;
+    /// <summary>The maximum XML element count in the header.</summary>
     public int MaximumXmlElements { get; set; } = 1_000_000;
+    /// <summary>The maximum number of Image elements in the header.</summary>
     public int MaximumImageCount { get; set; } = 10_000;
+    /// <summary>The maximum image axis count, excluding channels.</summary>
     public int MaximumImageDimensions { get; set; } = 16;
+    /// <summary>The maximum pixels per image, excluding channels.</summary>
     public long MaximumPixelsPerImage { get; set; } = 2_000_000_000;
+    /// <summary>The maximum number of Property elements in the header.</summary>
     public int MaximumPropertyCount { get; set; } = 100_000;
+    /// <summary>The maximum number of Cell elements in the header.</summary>
     public int MaximumTableCellCount { get; set; } = 10_000_000;
+    /// <summary>The maximum serialized or decompressed block size in bytes.</summary>
     public int MaximumDataBlockSize { get; set; } = 1024 * 1024 * 1024;
+    /// <summary>The maximum declared uncompressed-to-compressed size ratio.</summary>
     public double MaximumDecompressionRatio { get; set; } = 1000;
+    /// <summary>The timeout for external network requests.</summary>
     public TimeSpan NetworkTimeout { get; set; } = TimeSpan.FromSeconds(30);
 }
 
+/// <summary>Reads monolithic XISF files and distributed XML headers.</summary>
 public static class XisfReader
 {
     private static readonly byte[] Signature = "XISF0100"u8.ToArray();
 
+    /// <summary>Reads a document from a file or readable stream using the specified resource policy.</summary>
+    /// <param name="path">The source file path.</param>
+    /// <param name="options">The operation settings, or null to use defaults.</param>
+    /// <returns>The parsed document.</returns>
+    /// <remarks>Image attachments are read lazily from the original file. Keep it available until required samples are materialized.</remarks>
     public static XisfDocument Load(string path, XisfReaderOptions? options = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(path);
@@ -41,15 +66,55 @@ public static class XisfReader
         return LoadCore(stream, Path.GetDirectoryName(fullPath), fullPath, ValidateOptions(options));
     }
 
+    /// <summary>Reads a document from a file or readable stream using the specified resource policy.</summary>
+    /// <param name="stream">The caller-owned stream, positioned at the file origin; it remains open.</param>
+    /// <param name="baseDirectory">The directory used to resolve header-relative resources, or null if unavailable.</param>
+    /// <param name="options">The operation settings, or null to use defaults.</param>
+    /// <returns>The parsed document.</returns>
+    /// <remarks>The stream remains open. Monolithic input is buffered within MaximumBufferedInputBytes.</remarks>
     public static XisfDocument Load(Stream stream, string? baseDirectory = null, XisfReaderOptions? options = null)
     {
         ArgumentNullException.ThrowIfNull(stream);
         return LoadCore(stream, baseDirectory is null ? null : Path.GetFullPath(baseDirectory), null, ValidateOptions(options));
     }
 
+    /// <summary>Reads a file on a worker thread with cooperative cancellation at input-read boundaries.</summary>
+    /// <param name="path">The source file path.</param>
+    /// <param name="options">The operation settings, or null to use defaults.</param>
+    /// <param name="cancellationToken">A token observed at the documented cooperative cancellation boundaries.</param>
+    /// <returns>A task yielding the parsed document, or cancellation at an observed checkpoint.</returns>
     public static Task<XisfDocument> LoadAsync(string path, XisfReaderOptions? options = null, CancellationToken cancellationToken = default) =>
-        Task.Run(() => Load(path, options), cancellationToken);
+        Task.Run(() =>
+        {
+            ArgumentException.ThrowIfNullOrWhiteSpace(path);
+            string fullPath = Path.GetFullPath(path);
+            using FileStream file = File.OpenRead(fullPath);
+            using CancellationReadStream stream = new(file, cancellationToken);
+            cancellationToken.ThrowIfCancellationRequested();
+            XisfDocument result = LoadCore(stream, Path.GetDirectoryName(fullPath), fullPath, ValidateOptions(options), cancellationToken);
+            cancellationToken.ThrowIfCancellationRequested();
+            return result;
+        }, cancellationToken);
 
+    /// <summary>Loads a stream on a worker thread with cooperative cancellation.</summary>
+    /// <param name="stream">The caller-owned readable stream; it remains open.</param>
+    /// <param name="baseDirectory">The directory for header-relative resources, or null.</param>
+    /// <param name="options">The reader policy, or null to use defaults.</param>
+    /// <param name="cancellationToken">A token observed during reading and XML parsing.</param>
+    /// <returns>A task yielding the parsed document.</returns>
+    public static Task<XisfDocument> LoadAsync(Stream stream, string? baseDirectory = null, XisfReaderOptions? options = null, CancellationToken cancellationToken = default) =>
+        Task.Run(() =>
+        {
+            ArgumentNullException.ThrowIfNull(stream);
+            using CancellationReadStream cancellable = new(stream, cancellationToken);
+            XisfDocument result = LoadCore(cancellable, baseDirectory is null ? null : Path.GetFullPath(baseDirectory), null, ValidateOptions(options), cancellationToken);
+            cancellationToken.ThrowIfCancellationRequested();
+            return result;
+        }, cancellationToken);
+
+    /// <summary>Checks the XML signature using its embedded key; this does not authenticate the signer.</summary>
+    /// <param name="document">The document to read, validate, sign, or serialize.</param>
+    /// <returns>True if signature verification succeeds; false if no signature is present or verification fails.</returns>
     public static bool VerifyXmlSignature(XisfDocument document)
     {
         ArgumentNullException.ThrowIfNull(document);
@@ -64,7 +129,7 @@ public static class XisfReader
         return signedXml.CheckSignature();
     }
 
-    private static XisfDocument LoadCore(Stream input, string? baseDirectory, string? sourceFilePath, XisfReaderOptions options)
+    private static XisfDocument LoadCore(Stream input, string? baseDirectory, string? sourceFilePath, XisfReaderOptions options, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -86,6 +151,8 @@ public static class XisfReader
                 uint headerLength = BinaryPrimitives.ReadUInt32LittleEndian(prefix.AsSpan(8, 4));
                 if (headerLength == 0 || headerLength > options.MaximumXmlHeaderSize || input.CanSeek && headerLength > input.Length - 16)
                     throw new XisfFormatException("The XISF XML header length is invalid.");
+                if (sourceFilePath is null && 16L + headerLength > options.MaximumBufferedInputBytes)
+                    throw new XisfFormatException("The buffered XISF input exceeds the configured size limit.");
                 byte[] header = new byte[checked((int)headerLength)];
                 input.ReadExactly(header);
                 text = new UTF8Encoding(false, true).GetString(header);
@@ -94,7 +161,9 @@ public static class XisfReader
                     using MemoryStream copy = new();
                     copy.Write(prefix);
                     copy.Write(header);
-                    input.CopyTo(copy);
+                    if (copy.Length > options.MaximumBufferedInputBytes)
+                        throw new XisfFormatException("The buffered XISF input exceeds the configured size limit.");
+                    CopyToWithLimit(input, copy, options.MaximumBufferedInputBytes - copy.Length);
                     file = copy.ToArray();
                 }
             }
@@ -114,7 +183,7 @@ public static class XisfReader
                 XmlResolver = null,
                 MaxCharactersInDocument = options.MaximumXmlCharacters
             };
-            using StringReader stringReader = new(text);
+            using StringReader stringReader = new CancellationStringReader(text, cancellationToken);
             using XmlReader xmlReader = XmlReader.Create(stringReader, xmlSettings);
             XDocument xml = XDocument.Load(xmlReader, LoadOptions.PreserveWhitespace | LoadOptions.SetLineInfo);
             XElement root = xml.Root ?? throw new XisfFormatException("The XISF XML header has no root element.");
@@ -124,7 +193,7 @@ public static class XisfReader
             if (version != "1.0")
                 throw new XisfFormatException($"Unsupported XISF version '{version}'.");
 
-            EnforceXmlLimits(root, options);
+            EnforceXmlLimits(root, options, cancellationToken);
 
             XisfDataSource source = new(monolithic ? file : [], baseDirectory, monolithic ? sourceFilePath : null, options);
             XisfReferenceResolver references = new(root);
@@ -358,24 +427,24 @@ public static class XisfReader
 
     internal static string RemoveWhitespace(string value) => string.Concat(value.Where(c => !char.IsWhiteSpace(c)));
 
-    private static void CopyToWithLimit(Stream input, Stream output, int maximumBytes)
+    private static void CopyToWithLimit(Stream input, Stream output, long maximumBytes)
     {
         if (maximumBytes < 0)
-            throw new XisfFormatException("The XISF XML header exceeds the configured size limit.");
+            throw new XisfFormatException("The XISF input exceeds the configured size limit.");
         byte[] buffer = new byte[81920];
-        int total = 0;
+        long total = 0;
         while (true)
         {
-            int read = input.Read(buffer, 0, Math.Min(buffer.Length, maximumBytes - total + 1));
+            int read = input.Read(buffer, 0, (int)Math.Min(buffer.Length, maximumBytes - total + 1));
             if (read == 0) break;
             total = checked(total + read);
             if (total > maximumBytes)
-                throw new XisfFormatException("The XISF XML header exceeds the configured size limit.");
+                throw new XisfFormatException("The XISF input exceeds the configured size limit.");
             output.Write(buffer, 0, read);
         }
     }
 
-    private static void EnforceXmlLimits(XElement root, XisfReaderOptions options)
+    private static void EnforceXmlLimits(XElement root, XisfReaderOptions options, CancellationToken cancellationToken)
     {
         int elements = 0;
         int properties = 0;
@@ -383,6 +452,7 @@ public static class XisfReader
         int cells = 0;
         foreach (XElement element in root.DescendantsAndSelf())
         {
+            cancellationToken.ThrowIfCancellationRequested();
             if (++elements > options.MaximumXmlElements)
                 throw new XisfFormatException("The XISF XML header exceeds the configured element-count limit.");
             int depth = 0;
@@ -404,7 +474,7 @@ public static class XisfReader
     private static XisfReaderOptions ValidateOptions(XisfReaderOptions? options)
     {
         options ??= new XisfReaderOptions();
-        if (options.MaximumXmlHeaderSize <= 0 || options.MaximumXmlCharacters <= 0 || options.MaximumXmlDepth <= 0 ||
+        if (options.MaximumBufferedInputBytes < 0 || options.MaximumXmlHeaderSize <= 0 || options.MaximumXmlCharacters <= 0 || options.MaximumXmlDepth <= 0 ||
             options.MaximumXmlElements <= 0 || options.MaximumImageCount <= 0 || options.MaximumImageDimensions <= 0 ||
             options.MaximumPixelsPerImage <= 0 || options.MaximumPropertyCount <= 0 || options.MaximumTableCellCount <= 0 ||
             options.MaximumDataBlockSize <= 0 || !double.IsFinite(options.MaximumDecompressionRatio) || options.MaximumDecompressionRatio < 1)

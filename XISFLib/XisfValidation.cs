@@ -4,12 +4,20 @@ using System.Xml.Linq;
 
 namespace XISFLib;
 
+/// <summary>The importance of an XISF conformance finding.</summary>
 public enum XisfDiagnosticSeverity
 {
+    /// <summary>A recoverable conformance finding.</summary>
     Warning,
+    /// <summary>A conformance violation.</summary>
     Error
 }
 
+/// <summary>An XISF conformance finding and its associated XML element.</summary>
+/// <param name="Severity">The importance of the diagnostic.</param>
+/// <param name="Code">The stable diagnostic code.</param>
+/// <param name="Message">The human-readable explanation.</param>
+/// <param name="Element">The related XML element, when available.</param>
 public sealed record XisfDiagnostic(XisfDiagnosticSeverity Severity, string Code, string Message, XElement? Element = null);
 
 internal static class XisfValidator

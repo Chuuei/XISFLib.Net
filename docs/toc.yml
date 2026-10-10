@@ -1,0 +1,14 @@
+- name: Overview
+  href: index.md
+- name: Getting started
+  href: getting-started.md
+- name: API guide
+  href: api-guide.md
+- name: I/O and limitations
+  href: io-and-limitations.md
+- name: Architecture
+  href: architecture.md
+- name: Contributing
+  href: ../CONTRIBUTING.md
+- name: API reference
+  href: api/
