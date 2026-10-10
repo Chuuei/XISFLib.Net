@@ -6,6 +6,8 @@ See the [project documentation](docs/index.md) for setup, the API guide, I/O con
 
 The [performance guide](docs/performance.md) records benchmark results and explains how to use the fastest sample-reading and rendering paths without sacrificing specification behavior.
 
+The WPF sample viewer is available as a standalone Windows x64 executable in GitHub releases, with .NET included. See [publishing the viewer](docs/getting-started.md#run-the-applications) for local publishing and the version-tag release workflow.
+
 ## Usage
 
 See [API contracts and migration](docs/api-migration.md) for editable documents, consistent sample layouts, typed metadata, conversion reports, and safe defaults.

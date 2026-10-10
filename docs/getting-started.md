@@ -75,6 +75,16 @@ dotnet run --project XISFLib.Benchmarks -c Release -- "D:\Images\Examples"
 
 The viewer loads, renders, inspects, edits, validates, and saves files. Its byte-identical copy mode preserves the original monolithic file; re-encoding applies editor changes.
 
+To publish the viewer as a standalone executable for Windows x64:
+
+```powershell
+dotnet publish XISFLib.WpfViewer/XISFLib.WpfViewer.csproj -c Release -p:PublishProfile=WinX64
+```
+
+The output is `artifacts/wpf/win-x64/XISFLib.WpfViewer.exe`. It includes the .NET framework and application dependencies; no .NET installation is required on the destination computer. Native libraries are extracted by .NET at startup. Ordinary `dotnet build` remains a development build; use `dotnet publish` to produce the bundled executable.
+
+CI uploads this executable as the `wpf-viewer-win-x64` artifact. Pushing a `v*` tag, such as `v1.0.0`, creates a GitHub release with generated notes and the executable attached after all CI checks pass. Tags containing a hyphen, such as `v1.0.0-rc.1`, create prereleases. Rerunning the tag workflow replaces the executable asset in the existing release.
+
 The batch converter processes `.xisf` files directly inside the specified folder, with optional concurrency (default eight). It creates `.fits` files, refuses existing outputs, and returns exit code zero on success, one for conversion/enumeration failures, and two for invalid arguments.
 
 The benchmark project measures elapsed time and allocation for the supplied `slow.xisf` and `slow.fits` examples. It also has `--performance`, `--fits-performance`, and `--wpf-load` modes for synthetic operations, FITS processing, and end-to-end viewer loading. See the [performance guide](performance.md) for commands and measurement limits, and the [application guide](applications.md) for viewer and converter behavior.
