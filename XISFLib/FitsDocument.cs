@@ -2,6 +2,7 @@ using System.Buffers.Binary;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Numerics;
+using System.Runtime.InteropServices;
 
 namespace XISFLib;
 
@@ -302,21 +303,10 @@ public sealed class FitsImage
         else throw new NotSupportedException($"The .NET type '{type.Name}' is not a FITS image sample type.");
 
         int size = Math.Abs(bitPix) / 8;
-        byte[] raw = new byte[checked(samples.Length * size)];
-        for (int i = 0; i < samples.Length; i++)
-        {
-            Span<byte> target = raw.AsSpan(i * size, size);
-            object value = samples[i];
-            if (type == typeof(byte)) target[0] = (byte)value;
-            else if (type == typeof(short)) BinaryPrimitives.WriteInt16BigEndian(target, (short)value);
-            else if (type == typeof(ushort)) BinaryPrimitives.WriteInt16BigEndian(target, unchecked((short)((ushort)value - 32768)));
-            else if (type == typeof(int)) BinaryPrimitives.WriteInt32BigEndian(target, (int)value);
-            else if (type == typeof(uint)) BinaryPrimitives.WriteInt32BigEndian(target, unchecked((int)((uint)value - 2147483648U)));
-            else if (type == typeof(long)) BinaryPrimitives.WriteInt64BigEndian(target, (long)value);
-            else if (type == typeof(ulong)) BinaryPrimitives.WriteInt64BigEndian(target, unchecked((long)((ulong)value - 9223372036854775808UL)));
-            else if (type == typeof(float)) BinaryPrimitives.WriteInt32BigEndian(target, BitConverter.SingleToInt32Bits((float)value));
-            else BinaryPrimitives.WriteInt64BigEndian(target, BitConverter.DoubleToInt64Bits((double)value));
-        }
+        byte[] raw = MemoryMarshal.AsBytes(samples.AsSpan()).ToArray();
+        if (BitConverter.IsLittleEndian) XisfSampleBuffer.ReverseComponents(raw, size);
+        if (type == typeof(ushort) || type == typeof(uint) || type == typeof(ulong))
+            XisfSampleBuffer.ToggleSignBits(raw, size, true);
         return new FitsImage(bitPix, axes, raw, 1, zero, null);
     }
 }

@@ -48,6 +48,42 @@ dotnet run --project XISFLib.Benchmarks -c Release -- --wpf-load 5 artifacts/wpf
 
 Zlib decompression still accounts for most of the XISF loading time. These improvements use the .NET parallel task library and WPF dispatcher; no extra runtime package is required. Regression tests compare large parallel RGB, gray, and Lab renders with sequential row renders, including alpha, endian orders, storage layouts, non-finite samples, and stored display functions.
 
+## FITS performance
+
+The three additional user examples are uncompressed, planar Float32 RGB images with identity scaling and no declared FITS checksums. They contain approximately 81–85 million samples each. FITS-to-XISF conversion already reuses their raw sample buffers: converting an entire file costs about 0.02–0.03 ms with no additional image-sized allocation. Loading and rendering dominate their display time.
+
+The FITS performance pass removes per-sample boxing from encoding, uses bulk endian reversal and vectorized unsigned offset conversion, and writes scaled physical values directly into their final Float64 buffer while finding finite bounds. It preserves the signed 64-bit precision guard, integer `BLANK` handling, floating-point representations, scaling order, and the existing range conventions. Input buffers that are filled completely by `ReadExactly` use uninitialized allocation, and file reads use a sequential access hint.
+
+FITS checksums use widened integer SIMD accumulation when supported, with a scalar fallback. Carries are folded after accumulation without overflowing intermediate sums. The reader computes the data sum once when both `DATASUM` and `CHECKSUM` are present. FITS writing emits the original payload and its small padding block separately instead of allocating a padded copy of the entire image. ASCII padding remains spaces, and binary/image padding remains zero. MemoryStream output reserves space for the whole HDU while retaining geometric buffer growth.
+
+Measurements on the machine described above, with one warm-up and five iterations per case:
+
+| Operation, 4194304 samples | Before (ms) | After (ms) | Before allocation (MiB) | After allocation (MiB) |
+| --- | ---: | ---: | ---: | ---: |
+| Encode Float32 as FITS | 19.37 | 1.17 | 112.00 | 16.00 |
+| Encode UInt16 with the FITS unsigned offset | 10.49 | 0.64 | 104.00 | 8.00 |
+| Convert scaled Int16 with BLANK to XISF | 36.84 | 7.21 | 96.00 | 32.00 |
+| Write Float32 with FITS checksums to MemoryStream | 3.92 | 1.08 | 32.09 | 16.08 |
+| Read Float32 with both FITS checksum cards | 5.49 | 0.97 | 16.02 | 16.02 |
+
+Warm-cache WPF bitmap-assignment times for the three new examples were:
+
+| Example | Before (ms) | After (ms) |
+| --- | ---: | ---: |
+| M81/M82, 6405 × 4424 RGB | 148.13 | 148.71 |
+| Horsehead, 6365 × 4266 RGB | 135.33 | 130.13 |
+| M31, 6324 × 4288 RGB | 135.41 | 130.60 |
+
+These small differences are sensitive to run-to-run variation; they do not establish a substantial display-speed gain for unscaled, unchecked Float32 files. The largest improvements apply to encoding, scaled inputs, and checksummed data. Cold-cache loading also depends on disk throughput. No additional third-party package is needed.
+
+To measure parsing, conversion, rendering, encoding, scaling, and checksum paths:
+
+```powershell
+dotnet run --project XISFLib.Benchmarks -c Release -- --fits-performance 5 artifacts/fits-performance.json
+```
+
+The `--wpf-load` benchmark now includes every `.fits` example as well as `slow.xisf`. All four FITS examples produced identical raw and converted hashes, linear/adaptive pixel hashes, headers, diagnostics, and checksummed serialized file hashes against an isolated pre-change implementation. They have no FITS conformance diagnostics. Results are recorded in `Examples/fits-validation.json`. Regression coverage includes all nine supported .NET sample types, UInt64 values above double precision, scalar/SIMD checksum agreement, split words, trailing bytes, all supported BITPIX scaling paths, undefined samples, ASCII padding, and fixed-capacity output streams.
+
 ## Run the benchmarks
 
 From the repository root, on Windows:

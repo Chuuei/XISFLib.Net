@@ -83,12 +83,8 @@ public static class FitsConverter
                     if ((Int128)(double)stored != stored)
                         throw new NotSupportedException("This signed FITS sample cannot be represented exactly by the floating-point conversion path.");
                 }
-            double[] physical = image.GetPhysicalSamples();
-            result = XisfImageData.FromSamples(physical, dimensions, channels, XisfPixelLayout.Planar, true);
-            double[] finite = physical.Where(double.IsFinite).ToArray();
-            double lower = finite.Length == 0 ? 0 : finite.Min();
-            double upper = finite.Length == 0 ? 1 : finite.Max();
-            if (!(lower < upper)) upper = lower + 1;
+            byte[] physical = ConvertPhysicalSamples(image, out double lower, out double upper);
+            result = XisfImageData.FromOwnedRaw(physical, dimensions, channels, XisfSampleFormat.Float64, XisfPixelLayout.Planar, true);
             result.LowerBound = lower;
             result.UpperBound = upper;
         }
@@ -233,7 +229,40 @@ public static class FitsConverter
     private static byte[] ConvertUnsigned(byte[] source, int size)
     {
         byte[] result = source.ToArray();
-        for (int offset = 0; offset < result.Length; offset += size) result[offset] ^= 0x80;
+        XisfSampleBuffer.ToggleSignBits(result, size, true);
+        return result;
+    }
+
+    private static byte[] ConvertPhysicalSamples(FitsImage image, out double lower, out double upper)
+    {
+        int size = Math.Abs(image.BitPix) / 8;
+        int count = image.RawData.Length / size;
+        byte[] result = GC.AllocateUninitializedArray<byte>(checked(count * 8));
+        lower = double.PositiveInfinity;
+        upper = double.NegativeInfinity;
+        bool hasFinite = false;
+        for (int i = 0; i < count; i++)
+        {
+            ReadOnlySpan<byte> sample = image.RawData.AsSpan(i * size, size);
+            double stored = image.BitPix switch
+            {
+                8 => sample[0],
+                16 => BinaryPrimitives.ReadInt16BigEndian(sample),
+                32 => BinaryPrimitives.ReadInt32BigEndian(sample),
+                64 => BinaryPrimitives.ReadInt64BigEndian(sample),
+                -32 => BitConverter.Int32BitsToSingle(BinaryPrimitives.ReadInt32BigEndian(sample)),
+                -64 => BitConverter.Int64BitsToDouble(BinaryPrimitives.ReadInt64BigEndian(sample)),
+                _ => throw new InvalidOperationException()
+            };
+            double value = image.Blank.HasValue && image.BitPix > 0 && stored == image.Blank.Value ? double.NaN : stored * image.BScale + image.BZero;
+            BinaryPrimitives.WriteInt64BigEndian(result.AsSpan(i * 8), BitConverter.DoubleToInt64Bits(value));
+            if (!double.IsFinite(value)) continue;
+            hasFinite = true;
+            if (value < lower) lower = value;
+            if (value > upper) upper = value;
+        }
+        if (!hasFinite) { lower = 0; upper = 1; }
+        else if (!(lower < upper)) upper = lower + 1;
         return result;
     }
 

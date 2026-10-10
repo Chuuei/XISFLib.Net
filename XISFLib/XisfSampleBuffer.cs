@@ -1,10 +1,28 @@
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
+using System.Numerics;
 
 namespace XISFLib;
 
 internal static class XisfSampleBuffer
 {
+    public static void ToggleSignBits(Span<byte> bytes, int componentSize, bool bigEndian)
+    {
+        if (componentSize is not (2 or 4 or 8)) throw new ArgumentOutOfRangeException(nameof(componentSize));
+        int signByte = bigEndian ? 0 : componentSize - 1;
+        int offset = 0;
+        if (Vector.IsHardwareAccelerated && bytes.Length >= Vector<byte>.Count)
+        {
+            Span<byte> maskBytes = stackalloc byte[Vector<byte>.Count];
+            maskBytes.Clear();
+            for (int i = signByte; i < maskBytes.Length; i += componentSize) maskBytes[i] = 0x80;
+            var mask = new Vector<byte>(maskBytes);
+            for (; offset <= bytes.Length - Vector<byte>.Count; offset += Vector<byte>.Count)
+                (new Vector<byte>(bytes[offset..]) ^ mask).CopyTo(bytes[offset..]);
+        }
+        for (int i = offset + signByte; i < bytes.Length; i += componentSize) bytes[i] ^= 0x80;
+    }
+
     // Every caller first restricts element types to the unmanaged XISF numeric representations.
     public static byte[] CopyArray(Array values, int byteLength, int componentSize)
     {

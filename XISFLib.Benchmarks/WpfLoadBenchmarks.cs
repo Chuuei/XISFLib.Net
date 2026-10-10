@@ -28,7 +28,8 @@ internal static class WpfLoadBenchmarks
     {
         SynchronizationContext.SetSynchronizationContext(new DispatcherSynchronizationContext(Dispatcher.CurrentDispatcher));
         var results = new List<object>();
-        foreach (string path in new[] { "Examples/slow.xisf", "Examples/slow.fits" }.Where(File.Exists))
+        foreach (string path in new[] { "Examples/slow.xisf" }.Where(File.Exists)
+            .Concat(Directory.EnumerateFiles("Examples", "*.fits", SearchOption.AllDirectories).Order()))
         {
             var first = new List<double>();
             var complete = new List<double>();

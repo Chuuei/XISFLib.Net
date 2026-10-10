@@ -1,4 +1,4 @@
-# XISF example collection
+# Astronomy example collection
 
 This folder contains the user-supplied `slow.xisf` and **62 downloaded XISF files (1,292,323,155 bytes, approximately 1.29 GB)**. The downloaded originals have not been re-encoded or edited.
 
@@ -14,6 +14,19 @@ This folder contains the user-supplied `slow.xisf` and **62 downloaded XISF file
 
 `slow.xisf` provides an additional large, big-endian, zlib-compressed RGB Float32 example. Its source was not provided.
 
+## FITS examples
+
+The user supplied four FITS files. They are uncompressed Float32 RGB images in planar, big-endian storage, with identity physical scaling and no declared DATASUM/CHECKSUM cards.
+
+| File | Image dimensions | File bytes |
+| --- | --- | ---: |
+| `slow.fits` | 4092 × 4676 × 3 | 229613760 |
+| `372x3m_m81_m82_ff80_0.76x_2600air_uvircut.fits` | 6405 × 4424 × 3 | 340038720 |
+| `horsehead_164x2m_hyperstar_unfiltered_poseidon-cpro.fits` | 6365 × 4266 × 3 | 325846080 |
+| `m31_190x3m_2600_ff80.fits` | 6324 × 4288 × 3 | 325416960 |
+
+All four loaded and converted successfully with zero FITS conformance diagnostics. [fits-validation.json](fits-validation.json) records their headers, raw/converted SHA-256 hashes, linear/adaptive rendering hashes, and hashes of checksummed FITS serialization. These outputs match the implementation before the FITS performance changes. The original example files have not been modified.
+
 ## Astrometry
 
 The Sh2-188 masters contain `PCL:AstrometricSolution:*` properties, including legacy spline data. They are useful for metadata decoding, preservation and multi-image handling. They do **not** use the September 2026 standard `AstrometricSolution:*` namespace, and the native Revision 1 evaluator does not interpret them. No downloadable file with that new namespace was found during this search.
@@ -24,7 +37,7 @@ All **63 XISF files loaded and their 66 image pixel blocks decoded successfully*
 
 [validation.json](validation.json) records per-file results, decoded-byte counts, decoded-pixel SHA-256 hashes and semantic diagnostics. Decoding success does not mean strict conformance: the original files include findings for missing explicit UTF-8 declarations, creation timestamps stored as String instead of TimePoint, ICC embedded-profile flags and absent FITS keyword comments. Those findings remain visible; the source files have not been repaired.
 
-[sources.json](sources.json) records retrieval time, immutable repository revisions where applicable, download URLs, archive member names, original filenames, file sizes, SHA-256 hashes and image header features. It includes the user file so the complete local collection can be identified.
+[sources.json](sources.json) records retrieval time, immutable repository revisions where applicable, download URLs, archive member names, original filenames, file sizes, SHA-256 hashes and image header features. It includes the user XISF file so the complete XISF collection can be identified.
 
 ## Attribution and use
 

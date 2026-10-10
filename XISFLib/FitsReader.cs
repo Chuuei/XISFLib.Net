@@ -1,6 +1,8 @@
 using System.Buffers.Binary;
 using System.Globalization;
 using System.Numerics;
+using System.Runtime.InteropServices;
+using System.Runtime.Intrinsics;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -50,7 +52,7 @@ public static partial class FitsReader
     public static FitsDocument Load(string path, FitsReaderOptions? options = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(path);
-        using FileStream stream = new(path, FileMode.Open, FileAccess.Read, FileShare.Read);
+        using FileStream stream = new(path, FileMode.Open, FileAccess.Read, FileShare.Read, 81920, FileOptions.SequentialScan);
         return Load(stream, options);
     }
 
@@ -63,7 +65,7 @@ public static partial class FitsReader
     {
         cancellationToken.ThrowIfCancellationRequested();
         ArgumentException.ThrowIfNullOrWhiteSpace(path);
-        await using FileStream stream = new(path, FileMode.Open, FileAccess.Read, FileShare.Read, 81920, true);
+        await using FileStream stream = new(path, FileMode.Open, FileAccess.Read, FileShare.Read, 81920, FileOptions.SequentialScan | FileOptions.Asynchronous);
         return await Task.Run(() =>
         {
             using CancellationReadStream cancellable = new(stream, cancellationToken);
@@ -140,8 +142,10 @@ public static partial class FitsReader
                 byte[] pad = padding == 0 ? [] : ReadExactly(stream, padding);
 
                 FitsHdu hdu = FitsHdu.FromOwnedData(type, header, data);
-                hdu.DataChecksumValid = ValidateDataChecksum(header, data, pad);
-                hdu.ChecksumValid = ValidateChecksum(header, headerBytes, data, pad);
+                uint? dataSum = header.GetValue<string>("DATASUM") is not null || header.FindFirst("CHECKSUM") is not null
+                    ? FitsChecksum.Sum(data, pad) : null;
+                hdu.DataChecksumValid = ValidateDataChecksum(header, data, pad, dataSum);
+                hdu.ChecksumValid = ValidateChecksum(header, headerBytes, data, pad, dataSum);
                 ValidatePayload(hdu, pad, hduIndex, diagnostics);
                 ThrowIfStrict(options, diagnostics, hduIndex);
                 hdu.Content = ParseContent(hdu, options, cancellationToken);
@@ -611,24 +615,26 @@ public static partial class FitsReader
         return new FitsTable(columns, rows);
     }
 
-    private static bool? ValidateDataChecksum(FitsHeader header, byte[] data, byte[] padding)
+    private static bool? ValidateDataChecksum(FitsHeader header, byte[] data, byte[] padding, uint? dataSum)
     {
         string? expected = header.GetValue<string>("DATASUM");
         if (expected is null) return null;
-        return uint.TryParse(expected, NumberStyles.None, CultureInfo.InvariantCulture, out uint sum) && FitsChecksum.Sum(data, padding) == sum;
+        return uint.TryParse(expected, NumberStyles.None, CultureInfo.InvariantCulture, out uint sum) && (dataSum ?? FitsChecksum.Sum(data, padding)) == sum;
     }
 
-    private static bool? ValidateChecksum(FitsHeader header, byte[] headerBytes, byte[] data, byte[] padding)
+    private static bool? ValidateChecksum(FitsHeader header, byte[] headerBytes, byte[] data, byte[] padding,
+        uint? dataSum)
     {
         if (header.FindFirst("CHECKSUM") is null) return null;
-        return FitsChecksum.Add(FitsChecksum.Sum(headerBytes), FitsChecksum.Sum(data, padding)) == uint.MaxValue;
+        return FitsChecksum.Add(FitsChecksum.Sum(headerBytes), dataSum ?? FitsChecksum.Sum(data, padding)) == uint.MaxValue;
     }
 
     private static int Padding(long length) => checked((int)((BlockSize - length % BlockSize) % BlockSize));
 
     private static byte[] ReadExactly(Stream stream, int length)
     {
-        byte[] result = new byte[length];
+        // ReadExactly fills every byte before the buffer can escape this method.
+        byte[] result = GC.AllocateUninitializedArray<byte>(length);
         stream.ReadExactly(result);
         return result;
     }
@@ -653,6 +659,7 @@ internal static class FitsChecksum
             return Add(sum, Sum(second));
 
         Span<byte> crossingWord = stackalloc byte[4];
+        crossingWord.Clear();
         first[alignedLength..].CopyTo(crossingWord);
         int fromSecond = Math.Min(4 - remainder, second.Length);
         second[..fromSecond].CopyTo(crossingWord[remainder..]);
@@ -664,15 +671,30 @@ internal static class FitsChecksum
     {
         ulong sum = 0;
         int index = 0;
-        while (index + 4 <= bytes.Length)
+        if (Vector256.IsHardwareAccelerated && BitConverter.IsLittleEndian)
+        {
+            // Widen before accumulating: 32-bit lanes would lose end-around carries.
+            // Even the largest supported span's entire word sum fits in 64 bits.
+            Vector256<ulong> accumulator = Vector256<ulong>.Zero;
+            Vector256<byte> swap = Vector256.Create(0x00010203u, 0x04050607u, 0x08090a0bu, 0x0c0d0e0fu,
+                0x10111213u, 0x14151617u, 0x18191a1bu, 0x1c1d1e1fu).AsByte();
+            for (; index <= bytes.Length - Vector256<byte>.Count; index += Vector256<byte>.Count)
+            {
+                var words = Vector256.Shuffle(Vector256.LoadUnsafe(ref MemoryMarshal.GetReference(bytes), (nuint)index), swap).AsUInt32();
+                var (lower, upper) = Vector256.Widen(words);
+                accumulator += lower + upper;
+            }
+            sum = Vector256.Sum(accumulator);
+        }
+        while (index <= bytes.Length - 4)
         {
             sum += BinaryPrimitives.ReadUInt32BigEndian(bytes[index..]);
-            sum = (sum & uint.MaxValue) + (sum >> 32);
             index += 4;
         }
         if (index < bytes.Length)
         {
             Span<byte> tail = stackalloc byte[4];
+            tail.Clear();
             bytes[index..].CopyTo(tail);
             sum += BinaryPrimitives.ReadUInt32BigEndian(tail);
         }

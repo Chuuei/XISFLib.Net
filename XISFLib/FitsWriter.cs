@@ -69,10 +69,11 @@ public static class FitsWriter
         if (first && hdu.Type != FitsHduType.Primary) throw new FitsFormatException("The first HDU must be primary.");
         byte[] data = hdu.Content is FitsImage image ? image.RawData : hdu.Data;
         List<FitsHeaderCard> cards = BuildCards(hdu, first, hasExtensions, data);
-        byte[] paddedData = Pad(data, hdu.Type == FitsHduType.AsciiTable ? (byte)' ' : (byte)0);
+        byte[] padding = new byte[(BlockSize - data.Length % BlockSize) % BlockSize];
+        if (hdu.Type == FitsHduType.AsciiTable) padding.AsSpan().Fill((byte)' ');
         if (options.WriteChecksums)
         {
-            uint dataSum = FitsChecksum.Sum(paddedData);
+            uint dataSum = FitsChecksum.Sum(data, padding);
             cards.Add(new FitsHeaderCard("DATASUM", dataSum.ToString(CultureInfo.InvariantCulture), "data unit checksum"));
             cards.Add(new FitsHeaderCard("CHECKSUM", "0000000000000000", "HDU checksum"));
             byte[] placeholder = SerializeHeader(cards);
@@ -89,8 +90,17 @@ public static class FitsWriter
             cards[^1] = cards[^1] with { Value = encoded };
         }
         byte[] header = SerializeHeader(cards);
+        if (stream is MemoryStream memory)
+        {
+            // Reserve this complete HDU together so the final padding write does
+            // not force a second image-sized expansion. Retain geometric growth.
+            long required = memory.Position + header.Length + (long)data.Length + padding.Length;
+            if (required <= int.MaxValue && required > memory.Capacity)
+                memory.Capacity = (int)Math.Max(required, Math.Min(int.MaxValue, (long)memory.Capacity * 2));
+        }
         stream.Write(header);
-        stream.Write(paddedData);
+        stream.Write(data);
+        stream.Write(padding);
     }
 
     private static List<FitsHeaderCard> BuildCards(FitsHdu hdu, bool first, bool hasExtensions, byte[] data)
@@ -224,16 +234,6 @@ public static class FitsWriter
     }
 
     private static string Fit(string text) => text.Length <= 80 ? text.PadRight(80) : text[..80];
-
-    private static byte[] Pad(byte[] data, byte fill)
-    {
-        int padding = (BlockSize - data.Length % BlockSize) % BlockSize;
-        if (padding == 0) return data;
-        byte[] result = new byte[data.Length + padding];
-        data.CopyTo(result, 0);
-        if (fill != 0) result.AsSpan(data.Length).Fill(fill);
-        return result;
-    }
 
     private static string EncodeChecksum(uint complement, bool transposed, int rotation)
     {

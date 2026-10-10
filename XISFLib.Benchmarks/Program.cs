@@ -2,6 +2,12 @@ using System.Diagnostics;
 using System.IO;
 using XISFLib;
 
+if (args.FirstOrDefault() == "--fits-performance")
+{
+    FitsPerformanceBenchmarks.Run(args.Skip(1).ToArray());
+    return;
+}
+
 if (args.FirstOrDefault() == "--wpf-load")
 {
     WpfLoadBenchmarks.Run(args.Skip(1).ToArray());

@@ -1,0 +1,1846 @@
+[
+  {
+    "Path": "Examples/372x3m_m81_m82_ff80_0.76x_2600air_uvircut.fits",
+    "Bytes": 340038720,
+    "Hdus": [
+      {
+        "Type": 0,
+        "ChecksumValid": null,
+        "DataChecksumValid": null,
+        "RawSha256": "C86F5F9DF74875468E911CBE9BB7243D96532D08EE75BFD9EF074C9E0C327A67",
+        "Header": [
+          {
+            "Keyword": "SIMPLE",
+            "Value": "True",
+            "Comment": "Java FITS: Sun Mar 09 22:04:10 GMT 2025"
+          },
+          {
+            "Keyword": "BITPIX",
+            "Value": "-32",
+            "Comment": "bits per data element"
+          },
+          {
+            "Keyword": "NAXIS",
+            "Value": "3",
+            "Comment": "dimensionality of data"
+          },
+          {
+            "Keyword": "NAXIS1",
+            "Value": "6405",
+            "Comment": "n\u0027th data dimension"
+          },
+          {
+            "Keyword": "NAXIS2",
+            "Value": "4424",
+            "Comment": "n\u0027th data dimension"
+          },
+          {
+            "Keyword": "NAXIS3",
+            "Value": "3",
+            "Comment": "n\u0027th data dimension"
+          },
+          {
+            "Keyword": "EXTEND",
+            "Value": "True",
+            "Comment": "allow extensions"
+          },
+          {
+            "Keyword": "BSCALE",
+            "Value": "1",
+            "Comment": "scale factor"
+          },
+          {
+            "Keyword": "BZERO",
+            "Value": "0",
+            "Comment": "no offset"
+          },
+          {
+            "Keyword": "DATE",
+            "Value": "2025-03-09T23:02:43",
+            "Comment": "creation date of Integration"
+          },
+          {
+            "Keyword": "SOFTWARE",
+            "Value": "Astro Pixel Processor by Aries Productions",
+            "Comment": "software"
+          },
+          {
+            "Keyword": "VERSION",
+            "Value": "2.0.0-beta29",
+            "Comment": "Astro Pixel Processor version"
+          },
+          {
+            "Keyword": "INTEGRAT",
+            "Value": "Integration",
+            "Comment": "integration of light frames"
+          },
+          {
+            "Keyword": "CFAIMAGE",
+            "Value": "no",
+            "Comment": "Color Filter Array pattern"
+          },
+          {
+            "Keyword": "ROWORDER",
+            "Value": "TOP-DOWN",
+            "Comment": "Order of pixel rows stored in the image array"
+          },
+          {
+            "Keyword": "NOTE-1",
+            "Value": "INTEGRATION METADATA",
+            "Comment": null
+          },
+          {
+            "Keyword": "EXPTIME",
+            "Value": "66960",
+            "Comment": "exposure time (s)"
+          },
+          {
+            "Keyword": "NUMFRAME",
+            "Value": "372",
+            "Comment": "number of frames used in this integration"
+          },
+          {
+            "Keyword": "BG-1",
+            "Value": "0.050531491637",
+            "Comment": "background estimate of channel 1"
+          },
+          {
+            "Keyword": "BG-2",
+            "Value": "0.05054236576",
+            "Comment": "background estimate of channel 2"
+          },
+          {
+            "Keyword": "BG-3",
+            "Value": "0.050545208156",
+            "Comment": "background estimate of channel 3"
+          },
+          {
+            "Keyword": "SCALE-1",
+            "Value": "0.00017542080604",
+            "Comment": "dispersion of channel 1"
+          },
+          {
+            "Keyword": "SCALE-2",
+            "Value": "0.00014639203437",
+            "Comment": "dispersion of channel 2"
+          },
+          {
+            "Keyword": "SCALE-3",
+            "Value": "0.00016399216838",
+            "Comment": "dispersion of channel 3"
+          },
+          {
+            "Keyword": "NOISE-1",
+            "Value": "6.8231965997E-05",
+            "Comment": "noise level of channel 1"
+          },
+          {
+            "Keyword": "NOISE-2",
+            "Value": "6.1339276726E-05",
+            "Comment": "noise level of channel 2"
+          },
+          {
+            "Keyword": "NOISE-3",
+            "Value": "6.1109589296E-05",
+            "Comment": "noise level of channel 3"
+          },
+          {
+            "Keyword": "SNR-1",
+            "Value": "5.9959368706",
+            "Comment": "Signal to Noise Ratio of channel 1"
+          },
+          {
+            "Keyword": "SNR-2",
+            "Value": "4.9040346146",
+            "Comment": "Signal to Noise Ratio of channel 2"
+          },
+          {
+            "Keyword": "SNR-3",
+            "Value": "5.1443538666",
+            "Comment": "Signal to Noise Ratio of channel 3"
+          },
+          {
+            "Keyword": "NOTE-2",
+            "Value": "NR = Noise Reduction",
+            "Comment": null
+          },
+          {
+            "Keyword": "NOTE-3",
+            "Value": "medNR = noise in median frame / noise in integration",
+            "Comment": null
+          },
+          {
+            "Keyword": "NOTE-4",
+            "Value": "refNR = noise in reference frame / noise in integration",
+            "Comment": null
+          },
+          {
+            "Keyword": "NOTE-5",
+            "Value": "ideal noise reduction = square root of number of frames",
+            "Comment": null
+          },
+          {
+            "Keyword": "NOTE-6",
+            "Value": "the realized/ideal noise reduction ratio should approach 1 ideally",
+            "Comment": null
+          },
+          {
+            "Keyword": "NOTE-7",
+            "Value": "the effective noise reduction has a correction for",
+            "Comment": null
+          },
+          {
+            "Keyword": "NOTE-8",
+            "Value": "dispersion change between the frame and the integration",
+            "Comment": null
+          },
+          {
+            "Keyword": "NOTE-9",
+            "Value": "because dispersion and noise are correlated",
+            "Comment": null
+          },
+          {
+            "Keyword": "MEDNR-1",
+            "Value": "17.940019173",
+            "Comment": "median noise reduction, channel 1"
+          },
+          {
+            "Keyword": "MEDNR-2",
+            "Value": "17.230638714",
+            "Comment": "median noise reduction, channel 2"
+          },
+          {
+            "Keyword": "MEDNR-3",
+            "Value": "18.214432044",
+            "Comment": "median noise reduction, channel 3"
+          },
+          {
+            "Keyword": "REFNR-1",
+            "Value": "17.945716074",
+            "Comment": "reference noise reduction, channel 1"
+          },
+          {
+            "Keyword": "REFNR-2",
+            "Value": "17.283303319",
+            "Comment": "reference noise reduction, channel 2"
+          },
+          {
+            "Keyword": "REFNR-3",
+            "Value": "18.222038811",
+            "Comment": "reference noise reduction, channel 3"
+          },
+          {
+            "Keyword": "IDNR-1",
+            "Value": "19.287301522",
+            "Comment": "ideal noise reduction, channel 1"
+          },
+          {
+            "Keyword": "IDNR-2",
+            "Value": "19.287301522",
+            "Comment": "ideal noise reduction, channel 2"
+          },
+          {
+            "Keyword": "IDNR-3",
+            "Value": "19.287301522",
+            "Comment": "ideal noise reduction, channel 3"
+          },
+          {
+            "Keyword": "RATNR-1",
+            "Value": "0.93014666425",
+            "Comment": "realized/ideal noise reduction ratio, channel 1"
+          },
+          {
+            "Keyword": "RATNR-2",
+            "Value": "0.8933670008",
+            "Comment": "realized/ideal noise reduction ratio, channel 2"
+          },
+          {
+            "Keyword": "RATNR-3",
+            "Value": "0.94437430883",
+            "Comment": "realized/ideal noise reduction ratio, channel 3"
+          },
+          {
+            "Keyword": "MEDENR-1",
+            "Value": "3.2544198756",
+            "Comment": "effective median noise reduction, channel 1"
+          },
+          {
+            "Keyword": "MEDENR-2",
+            "Value": "1.9421358285",
+            "Comment": "effective median noise reduction, channel 2"
+          },
+          {
+            "Keyword": "MEDENR-3",
+            "Value": "2.7864623007",
+            "Comment": "effective median noise reduction, channel 3"
+          },
+          {
+            "Keyword": "REFENR-1",
+            "Value": "3.2296941522",
+            "Comment": "effective reference noise reduction, channel 1"
+          },
+          {
+            "Keyword": "REFENR-2",
+            "Value": "1.9503314464",
+            "Comment": "effective reference noise reduction, channel 2"
+          },
+          {
+            "Keyword": "REFENR-3",
+            "Value": "2.8081733946",
+            "Comment": "effective reference noise reduction, channel 3"
+          },
+          {
+            "Keyword": "NORMMODE",
+            "Value": "regular",
+            "Comment": "normalization mode"
+          },
+          {
+            "Keyword": "NORMMETH",
+            "Value": "multiply-scale",
+            "Comment": "normalization method"
+          },
+          {
+            "Keyword": "NORMSCAL",
+            "Value": "BWMV",
+            "Comment": "normalization scale/dispersion calculation"
+          },
+          {
+            "Keyword": "NORM-BGN",
+            "Value": "neutralize bg",
+            "Comment": "normalization background neutralization"
+          },
+          {
+            "Keyword": "NOTE-10",
+            "Value": "REFERENC tag: used reference frame",
+            "Comment": null
+          },
+          {
+            "Keyword": "REFERENC",
+            "Value": "Light_M 81_180.0s_Bin1_20250205-220516_0044.fit",
+            "Comment": null
+          },
+          {
+            "Keyword": "COMPMODE",
+            "Value": "full",
+            "Comment": "composition mode"
+          },
+          {
+            "Keyword": "REGMODE",
+            "Value": "normal",
+            "Comment": "registration mode"
+          },
+          {
+            "Keyword": "REGMODEL",
+            "Value": "projective",
+            "Comment": "registration model"
+          },
+          {
+            "Keyword": "OPT-DC",
+            "Value": "disabled",
+            "Comment": "optical distortion correction"
+          },
+          {
+            "Keyword": "WEIGHTS",
+            "Value": "quality",
+            "Comment": "integration weights"
+          },
+          {
+            "Keyword": "INT-METH",
+            "Value": "average",
+            "Comment": "integration method"
+          },
+          {
+            "Keyword": "OUTL-REJ",
+            "Value": "adaptive rejection",
+            "Comment": "outlier rejection filter"
+          },
+          {
+            "Keyword": "OUTL-LN",
+            "Value": "LN rejection",
+            "Comment": "outlier rejection with local normalization"
+          },
+          {
+            "Keyword": "OUTL-DP",
+            "Value": "none",
+            "Comment": "outlier rejection diffraction protection"
+          },
+          {
+            "Keyword": "OUTL-KL",
+            "Value": "6",
+            "Comment": "outlier rejection kappa low"
+          },
+          {
+            "Keyword": "OUTL-KH",
+            "Value": "3",
+            "Comment": "outlier rejection kappa high"
+          },
+          {
+            "Keyword": "INT-MODE",
+            "Value": "interpolation",
+            "Comment": "integration mode"
+          },
+          {
+            "Keyword": "INTERPOL",
+            "Value": "lanczos-3-NUOS",
+            "Comment": "data interpolation \u0026 resampling filter"
+          },
+          {
+            "Keyword": "INTSCALE",
+            "Value": "1",
+            "Comment": "integrate scale"
+          },
+          {
+            "Keyword": "NOTE-11",
+            "Value": "PROJECT tag: projection type",
+            "Comment": null
+          },
+          {
+            "Keyword": "PROJECT",
+            "Value": "rectilinearProjection",
+            "Comment": null
+          },
+          {
+            "Keyword": "MBBLEND",
+            "Value": "no MBB",
+            "Comment": "multi-band blending"
+          },
+          {
+            "Keyword": "LNC-DEG",
+            "Value": "noLNC",
+            "Comment": "Local Normalization Correction not applied"
+          },
+          {
+            "Keyword": "AD-PED",
+            "Value": "0",
+            "Comment": "adaptive pedestal from data calibration"
+          },
+          {
+            "Keyword": "CTYPE1",
+            "Value": "RA---TAN",
+            "Comment": "AstroWizard: solved on the stars against Gaia"
+          },
+          {
+            "Keyword": "CTYPE2",
+            "Value": "DEC--TAN",
+            "Comment": null
+          },
+          {
+            "Keyword": "CRVAL1",
+            "Value": "148.93",
+            "Comment": "deg"
+          },
+          {
+            "Keyword": "CRVAL2",
+            "Value": "69.37",
+            "Comment": "deg"
+          },
+          {
+            "Keyword": "CRPIX1",
+            "Value": "3248.1806939951875",
+            "Comment": "pixel of the tangent point"
+          },
+          {
+            "Keyword": "CRPIX2",
+            "Value": "2196.54003440699",
+            "Comment": "pixel of the tangent point"
+          },
+          {
+            "Keyword": "CD1_1",
+            "Value": "1.02459225155315E-05",
+            "Comment": "deg per pixel"
+          },
+          {
+            "Keyword": "CD1_2",
+            "Value": "0.000475236634711527",
+            "Comment": "deg per pixel"
+          },
+          {
+            "Keyword": "CD2_1",
+            "Value": "-0.00047528887045558",
+            "Comment": "deg per pixel"
+          },
+          {
+            "Keyword": "CD2_2",
+            "Value": "1.02906855376126E-05",
+            "Comment": "deg per pixel"
+          },
+          {
+            "Keyword": "CUNIT1",
+            "Value": "deg",
+            "Comment": null
+          },
+          {
+            "Keyword": "CUNIT2",
+            "Value": "deg",
+            "Comment": null
+          },
+          {
+            "Keyword": "AWSOLVED",
+            "Value": "317",
+            "Comment": "stars matched to Gaia for this solution"
+          },
+          {
+            "Keyword": "AWSOLRMS",
+            "Value": "0.5352288097561594",
+            "Comment": "match rms, pixels"
+          },
+          {
+            "Keyword": "RA",
+            "Value": "148.950234",
+            "Comment": "deg, the picture\u0027s centre (AstroWizard\u0027s plate"
+          },
+          {
+            "Keyword": "DEC",
+            "Value": "69.391637",
+            "Comment": "deg, the picture\u0027s centre (AstroWizard\u0027s plate"
+          },
+          {
+            "Keyword": "OBJCTRA",
+            "Value": "09 55 48.06",
+            "Comment": "the picture\u0027s centre"
+          },
+          {
+            "Keyword": "OBJCTDEC",
+            "Value": "\u002B69 23 29.9",
+            "Comment": "the picture\u0027s centre"
+          },
+          {
+            "Keyword": "OBJECT",
+            "Value": "M 81",
+            "Comment": null
+          },
+          {
+            "Keyword": "COMMENT",
+            "Value": "From The Wizard\u0027s Library - astrowizard.lukomatico.com - free to learn f",
+            "Comment": null
+          },
+          {
+            "Keyword": "COMMENT",
+            "Value": "rom, and what you make is yours",
+            "Comment": null
+          },
+          {
+            "Keyword": "HISTORY",
+            "Value": "Plate solution written by AstroWizard on 2026-10-07: 317 stars matched t",
+            "Comment": null
+          },
+          {
+            "Keyword": "HISTORY",
+            "Value": "o Gaia, rms 0.54 px",
+            "Comment": null
+          }
+        ]
+      }
+    ],
+    "Images": [
+      {
+        "Dimensions": [
+          6405,
+          4424
+        ],
+        "ChannelCount": 3,
+        "SampleFormat": 4,
+        "LowerBound": 0,
+        "UpperBound": 1,
+        "RawSha256": "C86F5F9DF74875468E911CBE9BB7243D96532D08EE75BFD9EF074C9E0C327A67",
+        "LinearSha256": "90BCF176D32907A650C5ED236DC60AA62540F863AC9149C06CCCAC437980211D",
+        "AdaptiveSha256": "1F0FAE44DF645509E6D5A50B040670B3693030BEC5F3A7DB7BF81810B6C6DB8B"
+      }
+    ],
+    "WrittenWithChecksumsSha256": "C2ECFFE67791FD6A31B9807EDECA57E2C1723ACFD8D9B1C744F4145A492B6F81",
+    "Diagnostics": []
+  },
+  {
+    "Path": "Examples/horsehead_164x2m_hyperstar_unfiltered_poseidon-cpro.fits",
+    "Bytes": 325846080,
+    "Hdus": [
+      {
+        "Type": 0,
+        "ChecksumValid": null,
+        "DataChecksumValid": null,
+        "RawSha256": "5A2E861AFC9716F7EEEED1F5AF7159206AC9850781FE001372E6674F5DF8A147",
+        "Header": [
+          {
+            "Keyword": "SIMPLE",
+            "Value": "True",
+            "Comment": "Java FITS: Thu Jan 23 16:58:32 GMT 2025"
+          },
+          {
+            "Keyword": "BITPIX",
+            "Value": "-32",
+            "Comment": "bits per data element"
+          },
+          {
+            "Keyword": "NAXIS",
+            "Value": "3",
+            "Comment": "dimensionality of data"
+          },
+          {
+            "Keyword": "NAXIS1",
+            "Value": "6365",
+            "Comment": "n\u0027th data dimension"
+          },
+          {
+            "Keyword": "NAXIS2",
+            "Value": "4266",
+            "Comment": "n\u0027th data dimension"
+          },
+          {
+            "Keyword": "NAXIS3",
+            "Value": "3",
+            "Comment": "n\u0027th data dimension"
+          },
+          {
+            "Keyword": "EXTEND",
+            "Value": "True",
+            "Comment": "allow extensions"
+          },
+          {
+            "Keyword": "BSCALE",
+            "Value": "1",
+            "Comment": "scale factor"
+          },
+          {
+            "Keyword": "BZERO",
+            "Value": "0",
+            "Comment": "no offset"
+          },
+          {
+            "Keyword": "DATE",
+            "Value": "2025-01-23T17:25:12",
+            "Comment": "creation date of Integration"
+          },
+          {
+            "Keyword": "SOFTWARE",
+            "Value": "Astro Pixel Processor by Aries Productions",
+            "Comment": "software"
+          },
+          {
+            "Keyword": "VERSION",
+            "Value": "2.0.0-beta29",
+            "Comment": "Astro Pixel Processor version"
+          },
+          {
+            "Keyword": "INTEGRAT",
+            "Value": "Integration",
+            "Comment": "integration of light frames"
+          },
+          {
+            "Keyword": "CFAIMAGE",
+            "Value": "no",
+            "Comment": "Color Filter Array pattern"
+          },
+          {
+            "Keyword": "ROWORDER",
+            "Value": "TOP-DOWN",
+            "Comment": "Order of pixel rows stored in the image array"
+          },
+          {
+            "Keyword": "NOTE-1",
+            "Value": "INTEGRATION METADATA",
+            "Comment": null
+          },
+          {
+            "Keyword": "EXPTIME",
+            "Value": "19680",
+            "Comment": "exposure time (s)"
+          },
+          {
+            "Keyword": "NUMFRAME",
+            "Value": "164",
+            "Comment": "number of frames used in this integration"
+          },
+          {
+            "Keyword": "BG-1",
+            "Value": "0.3442542851",
+            "Comment": "background estimate of channel 1"
+          },
+          {
+            "Keyword": "BG-2",
+            "Value": "0.34421280026",
+            "Comment": "background estimate of channel 2"
+          },
+          {
+            "Keyword": "BG-3",
+            "Value": "0.34425106645",
+            "Comment": "background estimate of channel 3"
+          },
+          {
+            "Keyword": "SCALE-1",
+            "Value": "0.0042852130719",
+            "Comment": "dispersion of channel 1"
+          },
+          {
+            "Keyword": "SCALE-2",
+            "Value": "0.0033279224299",
+            "Comment": "dispersion of channel 2"
+          },
+          {
+            "Keyword": "SCALE-3",
+            "Value": "0.003512193216",
+            "Comment": "dispersion of channel 3"
+          },
+          {
+            "Keyword": "NOISE-1",
+            "Value": "0.00020916271023",
+            "Comment": "noise level of channel 1"
+          },
+          {
+            "Keyword": "NOISE-2",
+            "Value": "0.00017078492965",
+            "Comment": "noise level of channel 2"
+          },
+          {
+            "Keyword": "NOISE-3",
+            "Value": "0.0001958492503",
+            "Comment": "noise level of channel 3"
+          },
+          {
+            "Keyword": "SNR-1",
+            "Value": "23.364152908",
+            "Comment": "Signal to Noise Ratio of channel 1"
+          },
+          {
+            "Keyword": "SNR-2",
+            "Value": "21.081016541",
+            "Comment": "Signal to Noise Ratio of channel 2"
+          },
+          {
+            "Keyword": "SNR-3",
+            "Value": "20.454917908",
+            "Comment": "Signal to Noise Ratio of channel 3"
+          },
+          {
+            "Keyword": "NOTE-2",
+            "Value": "NR = Noise Reduction",
+            "Comment": null
+          },
+          {
+            "Keyword": "NOTE-3",
+            "Value": "medNR = noise in median frame / noise in integration",
+            "Comment": null
+          },
+          {
+            "Keyword": "NOTE-4",
+            "Value": "refNR = noise in reference frame / noise in integration",
+            "Comment": null
+          },
+          {
+            "Keyword": "NOTE-5",
+            "Value": "ideal noise reduction = square root of number of frames",
+            "Comment": null
+          },
+          {
+            "Keyword": "NOTE-6",
+            "Value": "the realized/ideal noise reduction ratio should approach 1 ideally",
+            "Comment": null
+          },
+          {
+            "Keyword": "NOTE-7",
+            "Value": "the effective noise reduction has a correction for",
+            "Comment": null
+          },
+          {
+            "Keyword": "NOTE-8",
+            "Value": "dispersion change between the frame and the integration",
+            "Comment": null
+          },
+          {
+            "Keyword": "NOTE-9",
+            "Value": "because dispersion and noise are correlated",
+            "Comment": null
+          },
+          {
+            "Keyword": "MEDNR-1",
+            "Value": "10.120674416",
+            "Comment": "median noise reduction, channel 1"
+          },
+          {
+            "Keyword": "MEDNR-2",
+            "Value": "9.0722872236",
+            "Comment": "median noise reduction, channel 2"
+          },
+          {
+            "Keyword": "MEDNR-3",
+            "Value": "10.045542431",
+            "Comment": "median noise reduction, channel 3"
+          },
+          {
+            "Keyword": "REFNR-1",
+            "Value": "9.1546518216",
+            "Comment": "reference noise reduction, channel 1"
+          },
+          {
+            "Keyword": "REFNR-2",
+            "Value": "8.3407159578",
+            "Comment": "reference noise reduction, channel 2"
+          },
+          {
+            "Keyword": "REFNR-3",
+            "Value": "9.1655735661",
+            "Comment": "reference noise reduction, channel 3"
+          },
+          {
+            "Keyword": "IDNR-1",
+            "Value": "12.806248475",
+            "Comment": "ideal noise reduction, channel 1"
+          },
+          {
+            "Keyword": "IDNR-2",
+            "Value": "12.806248475",
+            "Comment": "ideal noise reduction, channel 2"
+          },
+          {
+            "Keyword": "IDNR-3",
+            "Value": "12.806248475",
+            "Comment": "ideal noise reduction, channel 3"
+          },
+          {
+            "Keyword": "RATNR-1",
+            "Value": "0.79029189823",
+            "Comment": "realized/ideal noise reduction ratio, channel 1"
+          },
+          {
+            "Keyword": "RATNR-2",
+            "Value": "0.70842661232",
+            "Comment": "realized/ideal noise reduction ratio, channel 2"
+          },
+          {
+            "Keyword": "RATNR-3",
+            "Value": "0.78442507581",
+            "Comment": "realized/ideal noise reduction ratio, channel 3"
+          },
+          {
+            "Keyword": "MEDENR-1",
+            "Value": "8.5979637875",
+            "Comment": "effective median noise reduction, channel 1"
+          },
+          {
+            "Keyword": "MEDENR-2",
+            "Value": "4.0583311131",
+            "Comment": "effective median noise reduction, channel 2"
+          },
+          {
+            "Keyword": "MEDENR-3",
+            "Value": "6.386341386",
+            "Comment": "effective median noise reduction, channel 3"
+          },
+          {
+            "Keyword": "REFENR-1",
+            "Value": "6.5840733951",
+            "Comment": "effective reference noise reduction, channel 1"
+          },
+          {
+            "Keyword": "REFENR-2",
+            "Value": "3.2331955022",
+            "Comment": "effective reference noise reduction, channel 2"
+          },
+          {
+            "Keyword": "REFENR-3",
+            "Value": "5.1802723017",
+            "Comment": "effective reference noise reduction, channel 3"
+          },
+          {
+            "Keyword": "NORMMODE",
+            "Value": "regular",
+            "Comment": "normalization mode"
+          },
+          {
+            "Keyword": "NORMMETH",
+            "Value": "multiply-scale",
+            "Comment": "normalization method"
+          },
+          {
+            "Keyword": "NORMSCAL",
+            "Value": "BWMV",
+            "Comment": "normalization scale/dispersion calculation"
+          },
+          {
+            "Keyword": "NORM-BGN",
+            "Value": "neutralize bg",
+            "Comment": "normalization background neutralization"
+          },
+          {
+            "Keyword": "NOTE-10",
+            "Value": "REFERENC tag: used reference frame",
+            "Comment": null
+          },
+          {
+            "Keyword": "REFERENC",
+            "Value": "2025-01-07_21-09-50__-5.00_120.00s_0007.fits",
+            "Comment": null
+          },
+          {
+            "Keyword": "COMPMODE",
+            "Value": "full",
+            "Comment": "composition mode"
+          },
+          {
+            "Keyword": "REGMODE",
+            "Value": "normal",
+            "Comment": "registration mode"
+          },
+          {
+            "Keyword": "REGMODEL",
+            "Value": "projective",
+            "Comment": "registration model"
+          },
+          {
+            "Keyword": "OPT-DC",
+            "Value": "disabled",
+            "Comment": "optical distortion correction"
+          },
+          {
+            "Keyword": "WEIGHTS",
+            "Value": "quality",
+            "Comment": "integration weights"
+          },
+          {
+            "Keyword": "INT-METH",
+            "Value": "average",
+            "Comment": "integration method"
+          },
+          {
+            "Keyword": "OUTL-REJ",
+            "Value": "adaptive rejection",
+            "Comment": "outlier rejection filter"
+          },
+          {
+            "Keyword": "OUTL-LN",
+            "Value": "LN rejection",
+            "Comment": "outlier rejection with local normalization"
+          },
+          {
+            "Keyword": "OUTL-DP",
+            "Value": "none",
+            "Comment": "outlier rejection diffraction protection"
+          },
+          {
+            "Keyword": "OUTL-KL",
+            "Value": "6",
+            "Comment": "outlier rejection kappa low"
+          },
+          {
+            "Keyword": "OUTL-KH",
+            "Value": "3",
+            "Comment": "outlier rejection kappa high"
+          },
+          {
+            "Keyword": "INT-MODE",
+            "Value": "interpolation",
+            "Comment": "integration mode"
+          },
+          {
+            "Keyword": "INTERPOL",
+            "Value": "lanczos-3-NUOS",
+            "Comment": "data interpolation \u0026 resampling filter"
+          },
+          {
+            "Keyword": "INTSCALE",
+            "Value": "1",
+            "Comment": "integrate scale"
+          },
+          {
+            "Keyword": "NOTE-11",
+            "Value": "PROJECT tag: projection type",
+            "Comment": null
+          },
+          {
+            "Keyword": "PROJECT",
+            "Value": "rectilinearProjection",
+            "Comment": null
+          },
+          {
+            "Keyword": "MBBLEND",
+            "Value": "no MBB",
+            "Comment": "multi-band blending"
+          },
+          {
+            "Keyword": "LNC-DEG",
+            "Value": "noLNC",
+            "Comment": "Local Normalization Correction not applied"
+          },
+          {
+            "Keyword": "AD-PED",
+            "Value": "0",
+            "Comment": "adaptive pedestal from data calibration"
+          },
+          {
+            "Keyword": "CTYPE1",
+            "Value": "RA---TAN",
+            "Comment": "AstroWizard: solved on the stars against Gaia"
+          },
+          {
+            "Keyword": "CTYPE2",
+            "Value": "DEC--TAN",
+            "Comment": null
+          },
+          {
+            "Keyword": "CRVAL1",
+            "Value": "85.3",
+            "Comment": "deg"
+          },
+          {
+            "Keyword": "CRVAL2",
+            "Value": "-2.2",
+            "Comment": "deg"
+          },
+          {
+            "Keyword": "CRPIX1",
+            "Value": "3864.4714925757835",
+            "Comment": "pixel of the tangent point"
+          },
+          {
+            "Keyword": "CRPIX2",
+            "Value": "2355.584609507716",
+            "Comment": "pixel of the tangent point"
+          },
+          {
+            "Keyword": "CD1_1",
+            "Value": "-4.8179816069984E-06",
+            "Comment": "deg per pixel"
+          },
+          {
+            "Keyword": "CD1_2",
+            "Value": "0.000398498979795773",
+            "Comment": "deg per pixel"
+          },
+          {
+            "Keyword": "CD2_1",
+            "Value": "0.000398636092067038",
+            "Comment": "deg per pixel"
+          },
+          {
+            "Keyword": "CD2_2",
+            "Value": "4.6803802731776E-06",
+            "Comment": "deg per pixel"
+          },
+          {
+            "Keyword": "CUNIT1",
+            "Value": "deg",
+            "Comment": null
+          },
+          {
+            "Keyword": "CUNIT2",
+            "Value": "deg",
+            "Comment": null
+          },
+          {
+            "Keyword": "AWSOLVED",
+            "Value": "1200",
+            "Comment": "stars matched to Gaia for this solution"
+          },
+          {
+            "Keyword": "AWSOLRMS",
+            "Value": "1.1301610656472416",
+            "Comment": "match rms, pixels"
+          },
+          {
+            "Keyword": "RA",
+            "Value": "85.214704",
+            "Comment": "deg, the picture\u0027s centre (AstroWizard\u0027s plate"
+          },
+          {
+            "Keyword": "DEC",
+            "Value": "-2.472694",
+            "Comment": "deg, the picture\u0027s centre (AstroWizard\u0027s plate"
+          },
+          {
+            "Keyword": "OBJCTRA",
+            "Value": "05 40 51.53",
+            "Comment": "the picture\u0027s centre"
+          },
+          {
+            "Keyword": "OBJCTDEC",
+            "Value": "-02 28 21.7",
+            "Comment": "the picture\u0027s centre"
+          },
+          {
+            "Keyword": "OBJECT",
+            "Value": "IC 434",
+            "Comment": null
+          },
+          {
+            "Keyword": "COMMENT",
+            "Value": "From The Wizard\u0027s Library - astrowizard.lukomatico.com - free to learn f",
+            "Comment": null
+          },
+          {
+            "Keyword": "COMMENT",
+            "Value": "rom, and what you make is yours",
+            "Comment": null
+          },
+          {
+            "Keyword": "HISTORY",
+            "Value": "Plate solution written by AstroWizard on 2026-10-07: 1200 stars matched",
+            "Comment": null
+          },
+          {
+            "Keyword": "HISTORY",
+            "Value": "to Gaia, rms 1.13 px",
+            "Comment": null
+          }
+        ]
+      }
+    ],
+    "Images": [
+      {
+        "Dimensions": [
+          6365,
+          4266
+        ],
+        "ChannelCount": 3,
+        "SampleFormat": 4,
+        "LowerBound": 0,
+        "UpperBound": 1,
+        "RawSha256": "5A2E861AFC9716F7EEEED1F5AF7159206AC9850781FE001372E6674F5DF8A147",
+        "LinearSha256": "6B4F4D7E1913BDD805BD725EC013BA8E28734A1732AAAA52EB14A49D68F2D0FB",
+        "AdaptiveSha256": "A9B44BC45AE8CCEB800AFAC83EE92407A63900843234C10988CD93EDC74C5A95"
+      }
+    ],
+    "WrittenWithChecksumsSha256": "A44B6741C3AF53DD702CFA5FA0C0A785F6763AF2C8F8B258A2A7497000A2972E",
+    "Diagnostics": []
+  },
+  {
+    "Path": "Examples/m31_190x3m_2600_ff80.fits",
+    "Bytes": 325416960,
+    "Hdus": [
+      {
+        "Type": 0,
+        "ChecksumValid": null,
+        "DataChecksumValid": null,
+        "RawSha256": "510AAC71773342CB0695F38C636EF26E789531981CD154C40BFE22DF3A864688",
+        "Header": [
+          {
+            "Keyword": "SIMPLE",
+            "Value": "True",
+            "Comment": "Java FITS: Tue Oct 01 00:09:49 BST 2024"
+          },
+          {
+            "Keyword": "BITPIX",
+            "Value": "-32",
+            "Comment": "bits per data value"
+          },
+          {
+            "Keyword": "NAXIS",
+            "Value": "3",
+            "Comment": "number of axes"
+          },
+          {
+            "Keyword": "NAXIS1",
+            "Value": "6324",
+            "Comment": "size of the n\u0027th axis"
+          },
+          {
+            "Keyword": "NAXIS2",
+            "Value": "4288",
+            "Comment": "size of the n\u0027th axis"
+          },
+          {
+            "Keyword": "NAXIS3",
+            "Value": "3",
+            "Comment": "size of the n\u0027th axis"
+          },
+          {
+            "Keyword": "EXTEND",
+            "Value": "True",
+            "Comment": "Extensions are permitted"
+          },
+          {
+            "Keyword": "BSCALE",
+            "Value": "1",
+            "Comment": "scale factor"
+          },
+          {
+            "Keyword": "BZERO",
+            "Value": "0",
+            "Comment": "no offset"
+          },
+          {
+            "Keyword": "DATE",
+            "Value": "2024-09-30T23:40:13",
+            "Comment": "creation date of Integration"
+          },
+          {
+            "Keyword": "SOFTWARE",
+            "Value": "Astro Pixel Processor by Aries Productions",
+            "Comment": "software"
+          },
+          {
+            "Keyword": "VERSION",
+            "Value": "2.0.0-beta14",
+            "Comment": "Astro Pixel Processor version"
+          },
+          {
+            "Keyword": "INTEGRAT",
+            "Value": "Integration",
+            "Comment": "integration of light frames"
+          },
+          {
+            "Keyword": "CFAIMAGE",
+            "Value": "no",
+            "Comment": "Color Filter Array pattern"
+          },
+          {
+            "Keyword": "NOTE-1",
+            "Value": "INTEGRATION METADATA",
+            "Comment": null
+          },
+          {
+            "Keyword": "EXPTIME",
+            "Value": "34200",
+            "Comment": "exposure time (s)"
+          },
+          {
+            "Keyword": "NUMFRAME",
+            "Value": "190",
+            "Comment": "number of frames used in this integration"
+          },
+          {
+            "Keyword": "BG-1",
+            "Value": " 1.9185E-02",
+            "Comment": "background estimate of channel 1"
+          },
+          {
+            "Keyword": "BG-2",
+            "Value": " 1.9199E-02",
+            "Comment": "background estimate of channel 2"
+          },
+          {
+            "Keyword": "BG-3",
+            "Value": " 1.9202E-02",
+            "Comment": "background estimate of channel 3"
+          },
+          {
+            "Keyword": "SCALE-1",
+            "Value": " 2.4129E-04",
+            "Comment": "dispersion of channel 1"
+          },
+          {
+            "Keyword": "SCALE-2",
+            "Value": " 1.7747E-04",
+            "Comment": "dispersion of channel 2"
+          },
+          {
+            "Keyword": "SCALE-3",
+            "Value": " 1.6668E-04",
+            "Comment": "dispersion of channel 3"
+          },
+          {
+            "Keyword": "NOISE-1",
+            "Value": " 6.0629E-05",
+            "Comment": "noise level of channel 1"
+          },
+          {
+            "Keyword": "NOISE-2",
+            "Value": " 5.5022E-05",
+            "Comment": "noise level of channel 2"
+          },
+          {
+            "Keyword": "NOISE-3",
+            "Value": " 5.6112E-05",
+            "Comment": "noise level of channel 3"
+          },
+          {
+            "Keyword": "SNR-1",
+            "Value": " 1.4804E\u002B01",
+            "Comment": "Signal to Noise Ratio of channel 1"
+          },
+          {
+            "Keyword": "SNR-2",
+            "Value": " 1.0974E\u002B01",
+            "Comment": "Signal to Noise Ratio of channel 2"
+          },
+          {
+            "Keyword": "SNR-3",
+            "Value": " 9.5069E\u002B00",
+            "Comment": "Signal to Noise Ratio of channel 3"
+          },
+          {
+            "Keyword": "NOTE-2",
+            "Value": "NR = Noise Reduction",
+            "Comment": null
+          },
+          {
+            "Keyword": "NOTE-3",
+            "Value": "medNR = noise in median frame / noise in integration",
+            "Comment": null
+          },
+          {
+            "Keyword": "NOTE-4",
+            "Value": "refNR = noise in reference frame / noise in integration",
+            "Comment": null
+          },
+          {
+            "Keyword": "NOTE-5",
+            "Value": "ideal noise reduction = square root of number of frames",
+            "Comment": null
+          },
+          {
+            "Keyword": "NOTE-6",
+            "Value": "the realized/ideal noise reduction ratio should approach 1 ideally",
+            "Comment": null
+          },
+          {
+            "Keyword": "NOTE-7",
+            "Value": "the effective noise reduction has a correction for",
+            "Comment": null
+          },
+          {
+            "Keyword": "NOTE-8",
+            "Value": "dispersion change between the frame and the integration",
+            "Comment": null
+          },
+          {
+            "Keyword": "NOTE-9",
+            "Value": "because dispersion and noise are correlated",
+            "Comment": null
+          },
+          {
+            "Keyword": "MEDNR-1",
+            "Value": " 1.2477E\u002B01",
+            "Comment": "median noise reduction, channel 1"
+          },
+          {
+            "Keyword": "MEDNR-2",
+            "Value": " 1.2112E\u002B01",
+            "Comment": "median noise reduction, channel 2"
+          },
+          {
+            "Keyword": "MEDNR-3",
+            "Value": " 1.2741E\u002B01",
+            "Comment": "median noise reduction, channel 3"
+          },
+          {
+            "Keyword": "REFNR-1",
+            "Value": " 1.2633E\u002B01",
+            "Comment": "reference noise reduction, channel 1"
+          },
+          {
+            "Keyword": "REFNR-2",
+            "Value": " 1.2221E\u002B01",
+            "Comment": "reference noise reduction, channel 2"
+          },
+          {
+            "Keyword": "REFNR-3",
+            "Value": " 1.2740E\u002B01",
+            "Comment": "reference noise reduction, channel 3"
+          },
+          {
+            "Keyword": "IDNR-1",
+            "Value": " 1.3784E\u002B01",
+            "Comment": "ideal noise reduction, channel 1"
+          },
+          {
+            "Keyword": "IDNR-2",
+            "Value": " 1.3784E\u002B01",
+            "Comment": "ideal noise reduction, channel 2"
+          },
+          {
+            "Keyword": "IDNR-3",
+            "Value": " 1.3784E\u002B01",
+            "Comment": "ideal noise reduction, channel 3"
+          },
+          {
+            "Keyword": "RATNR-1",
+            "Value": " 9.0516E-01",
+            "Comment": "realized/ideal noise reduction ratio, channel 1"
+          },
+          {
+            "Keyword": "RATNR-2",
+            "Value": " 8.7868E-01",
+            "Comment": "realized/ideal noise reduction ratio, channel 2"
+          },
+          {
+            "Keyword": "RATNR-3",
+            "Value": " 9.2436E-01",
+            "Comment": "realized/ideal noise reduction ratio, channel 3"
+          },
+          {
+            "Keyword": "MEDENR-1",
+            "Value": " 4.2756E\u002B00",
+            "Comment": "effective median noise reduction, channel 1"
+          },
+          {
+            "Keyword": "MEDENR-2",
+            "Value": " 2.3412E\u002B00",
+            "Comment": "effective median noise reduction, channel 2"
+          },
+          {
+            "Keyword": "MEDENR-3",
+            "Value": " 2.8107E\u002B00",
+            "Comment": "effective median noise reduction, channel 3"
+          },
+          {
+            "Keyword": "REFENR-1",
+            "Value": " 3.7442E\u002B00",
+            "Comment": "effective reference noise reduction, channel 1"
+          },
+          {
+            "Keyword": "REFENR-2",
+            "Value": " 2.0670E\u002B00",
+            "Comment": "effective reference noise reduction, channel 2"
+          },
+          {
+            "Keyword": "REFENR-3",
+            "Value": " 2.5074E\u002B00",
+            "Comment": "effective reference noise reduction, channel 3"
+          },
+          {
+            "Keyword": "NORMMODE",
+            "Value": "regular",
+            "Comment": "normalization mode"
+          },
+          {
+            "Keyword": "NORMMETH",
+            "Value": "multiply-scale",
+            "Comment": "normalization method"
+          },
+          {
+            "Keyword": "NORMSCAL",
+            "Value": "BWMV",
+            "Comment": "normalization scale/dispersion calculation"
+          },
+          {
+            "Keyword": "NORM-BGN",
+            "Value": "neutralize bg",
+            "Comment": "normalization background neutralization"
+          },
+          {
+            "Keyword": "NOTE-10",
+            "Value": "REF-1 tag: used reference frame",
+            "Comment": null
+          },
+          {
+            "Keyword": "NOTE-11",
+            "Value": "REF-2 tag: used reference frame",
+            "Comment": null
+          },
+          {
+            "Keyword": "REF-1",
+            "Value": "Light_M 31_180.0s_Bin1_2600MC_gain100_20240913-022757_0075.f",
+            "Comment": null
+          },
+          {
+            "Keyword": "REF-2",
+            "Value": "it",
+            "Comment": null
+          },
+          {
+            "Keyword": "COMPMODE",
+            "Value": "full",
+            "Comment": "composition mode"
+          },
+          {
+            "Keyword": "REGMODE",
+            "Value": "normal",
+            "Comment": "registration mode"
+          },
+          {
+            "Keyword": "REGMODEL",
+            "Value": "projective",
+            "Comment": "registration model"
+          },
+          {
+            "Keyword": "OPT-DC",
+            "Value": "disabled",
+            "Comment": "optical distortion correction"
+          },
+          {
+            "Keyword": "WEIGHTS",
+            "Value": "quality",
+            "Comment": "integration weights"
+          },
+          {
+            "Keyword": "INT-METH",
+            "Value": "average",
+            "Comment": "integration method"
+          },
+          {
+            "Keyword": "OUTL-REJ",
+            "Value": "adaptive rejection",
+            "Comment": "outlier rejection filter"
+          },
+          {
+            "Keyword": "OUTL-LN",
+            "Value": "LN rejection",
+            "Comment": "outlier rejection with local normalization"
+          },
+          {
+            "Keyword": "OUTL-DP",
+            "Value": "none",
+            "Comment": "outlier rejection diffraction protection"
+          },
+          {
+            "Keyword": "OUTL-KL",
+            "Value": "6",
+            "Comment": "outlier rejection kappa low"
+          },
+          {
+            "Keyword": "OUTL-KH",
+            "Value": "3",
+            "Comment": "outlier rejection kappa high"
+          },
+          {
+            "Keyword": "INT-MODE",
+            "Value": "interpolation",
+            "Comment": "integration mode"
+          },
+          {
+            "Keyword": "INTERPOL",
+            "Value": "lanczos-3-NUOS",
+            "Comment": "data interpolation \u0026 resampling filter"
+          },
+          {
+            "Keyword": "INTSCALE",
+            "Value": "1",
+            "Comment": "integrate scale"
+          },
+          {
+            "Keyword": "NOTE-12",
+            "Value": "PROJECT tag: projection type",
+            "Comment": null
+          },
+          {
+            "Keyword": "PROJECT",
+            "Value": "rectilinearProjection",
+            "Comment": null
+          },
+          {
+            "Keyword": "MBBLEND",
+            "Value": "no MBB",
+            "Comment": "multi-band blending"
+          },
+          {
+            "Keyword": "LNC-DEG",
+            "Value": "noLNC",
+            "Comment": "Local Normalization Correction not applied"
+          },
+          {
+            "Keyword": "AD-PED",
+            "Value": "0",
+            "Comment": "adaptive pedestal from data calibration"
+          },
+          {
+            "Keyword": "CTYPE1",
+            "Value": "RA---TAN",
+            "Comment": "AstroWizard: solved on the stars against Gaia"
+          },
+          {
+            "Keyword": "CTYPE2",
+            "Value": "DEC--TAN",
+            "Comment": null
+          },
+          {
+            "Keyword": "CRVAL1",
+            "Value": "10.685",
+            "Comment": "deg"
+          },
+          {
+            "Keyword": "CRVAL2",
+            "Value": "41.269",
+            "Comment": "deg"
+          },
+          {
+            "Keyword": "CRPIX1",
+            "Value": "3174.175662227417",
+            "Comment": "pixel of the tangent point"
+          },
+          {
+            "Keyword": "CRPIX2",
+            "Value": "2160.411668454409",
+            "Comment": "pixel of the tangent point"
+          },
+          {
+            "Keyword": "CD1_1",
+            "Value": "2.70181006099182E-06",
+            "Comment": "deg per pixel"
+          },
+          {
+            "Keyword": "CD1_2",
+            "Value": "-0.00036090769535617",
+            "Comment": "deg per pixel"
+          },
+          {
+            "Keyword": "CD2_1",
+            "Value": "0.000360891924615052",
+            "Comment": "deg per pixel"
+          },
+          {
+            "Keyword": "CD2_2",
+            "Value": "2.70525469949585E-06",
+            "Comment": "deg per pixel"
+          },
+          {
+            "Keyword": "CUNIT1",
+            "Value": "deg",
+            "Comment": null
+          },
+          {
+            "Keyword": "CUNIT2",
+            "Value": "deg",
+            "Comment": null
+          },
+          {
+            "Keyword": "AWSOLVED",
+            "Value": "382",
+            "Comment": "stars matched to Gaia for this solution"
+          },
+          {
+            "Keyword": "AWSOLRMS",
+            "Value": "0.274602432963658",
+            "Comment": "match rms, pixels"
+          },
+          {
+            "Keyword": "RA",
+            "Value": "10.692598",
+            "Comment": "deg, the picture\u0027s centre (AstroWizard\u0027s plate"
+          },
+          {
+            "Keyword": "DEC",
+            "Value": "41.264743",
+            "Comment": "deg, the picture\u0027s centre (AstroWizard\u0027s plate"
+          },
+          {
+            "Keyword": "OBJCTRA",
+            "Value": "00 42 46.22",
+            "Comment": "the picture\u0027s centre"
+          },
+          {
+            "Keyword": "OBJCTDEC",
+            "Value": "\u002B41 15 53.1",
+            "Comment": "the picture\u0027s centre"
+          },
+          {
+            "Keyword": "OBJECT",
+            "Value": "M 31",
+            "Comment": null
+          },
+          {
+            "Keyword": "COMMENT",
+            "Value": "From The Wizard\u0027s Library - astrowizard.lukomatico.com - free to learn f",
+            "Comment": null
+          },
+          {
+            "Keyword": "COMMENT",
+            "Value": "rom, and what you make is yours",
+            "Comment": null
+          },
+          {
+            "Keyword": "HISTORY",
+            "Value": "Plate solution written by AstroWizard on 2026-10-07: 382 stars matched t",
+            "Comment": null
+          },
+          {
+            "Keyword": "HISTORY",
+            "Value": "o Gaia, rms 0.27 px",
+            "Comment": null
+          }
+        ]
+      }
+    ],
+    "Images": [
+      {
+        "Dimensions": [
+          6324,
+          4288
+        ],
+        "ChannelCount": 3,
+        "SampleFormat": 4,
+        "LowerBound": 0,
+        "UpperBound": 1,
+        "RawSha256": "510AAC71773342CB0695F38C636EF26E789531981CD154C40BFE22DF3A864688",
+        "LinearSha256": "915B7EB5BD7B3C1451B9CBF8FD0FCAFE40B3D4D69716445DD4394668637D5AB4",
+        "AdaptiveSha256": "E76AF58E5588C2C4B5310194A0D7612C5BD8068E506190FB38AA60234286564C"
+      }
+    ],
+    "WrittenWithChecksumsSha256": "808F2392206D8840F80D9305BFAC9DAF59704EB8866E0131D76A08B4EF082C01",
+    "Diagnostics": []
+  },
+  {
+    "Path": "Examples/slow.fits",
+    "Bytes": 229613760,
+    "Hdus": [
+      {
+        "Type": 0,
+        "ChecksumValid": null,
+        "DataChecksumValid": null,
+        "RawSha256": "7AF494157DB0D275D449011C9F52505F64935CA293A10B5285950AE457882C19",
+        "Header": [
+          {
+            "Keyword": "SIMPLE",
+            "Value": "True",
+            "Comment": "conforms to FITS standard"
+          },
+          {
+            "Keyword": "BITPIX",
+            "Value": "-32",
+            "Comment": "array data type"
+          },
+          {
+            "Keyword": "NAXIS",
+            "Value": "3",
+            "Comment": "number of array dimensions"
+          },
+          {
+            "Keyword": "NAXIS1",
+            "Value": "4092",
+            "Comment": null
+          },
+          {
+            "Keyword": "NAXIS2",
+            "Value": "4676",
+            "Comment": null
+          },
+          {
+            "Keyword": "NAXIS3",
+            "Value": "3",
+            "Comment": null
+          },
+          {
+            "Keyword": "ROWORDER",
+            "Value": "TOP-DOWN",
+            "Comment": null
+          },
+          {
+            "Keyword": "DATE-OBS",
+            "Value": "2025-10-18T21:06:06.978533",
+            "Comment": "Image created time"
+          },
+          {
+            "Keyword": "OBJECT",
+            "Value": "NGC 6992",
+            "Comment": "name or catalog number of object being imaged"
+          },
+          {
+            "Keyword": "TELESCOP",
+            "Value": "S50_8bef408a",
+            "Comment": "Telescope name"
+          },
+          {
+            "Keyword": "INSTRUME",
+            "Value": "Seestar S50",
+            "Comment": "Camera model"
+          },
+          {
+            "Keyword": "FILTER",
+            "Value": "LP",
+            "Comment": "Filter used when taking image"
+          },
+          {
+            "Keyword": "RA",
+            "Value": "314.083335",
+            "Comment": "Object Right Ascension in degrees"
+          },
+          {
+            "Keyword": "DEC",
+            "Value": "31.438889",
+            "Comment": "Object Declination in degrees"
+          },
+          {
+            "Keyword": "FOCALLEN",
+            "Value": "250",
+            "Comment": "Focal length of telescope in mm"
+          },
+          {
+            "Keyword": "APERTURE",
+            "Value": "5",
+            "Comment": "Name of field of view aperture"
+          },
+          {
+            "Keyword": "XPIXSZ",
+            "Value": "2.90000009536743",
+            "Comment": "pixel size in microns (with binning)"
+          },
+          {
+            "Keyword": "YPIXSZ",
+            "Value": "2.90000009536743",
+            "Comment": "pixel size in microns (with binning)"
+          },
+          {
+            "Keyword": "XBINNING",
+            "Value": "1",
+            "Comment": "Camera X Bin"
+          },
+          {
+            "Keyword": "YBINNING",
+            "Value": "1",
+            "Comment": "Camera Y Bin"
+          },
+          {
+            "Keyword": "GAIN",
+            "Value": "80",
+            "Comment": "Gain Value"
+          },
+          {
+            "Keyword": "CCD-TEMP",
+            "Value": "10.4375",
+            "Comment": "sensor temperature in C"
+          },
+          {
+            "Keyword": "SITELAT",
+            "Value": "52.6844",
+            "Comment": "latitude of the imaging site in degrees"
+          },
+          {
+            "Keyword": "SITELONG",
+            "Value": "13.6042",
+            "Comment": "longitude of the imaging site in degrees"
+          },
+          {
+            "Keyword": "EXPTIME",
+            "Value": "20",
+            "Comment": "single frame, seconds"
+          },
+          {
+            "Keyword": "EXPOSURE",
+            "Value": "20",
+            "Comment": "Exposure time in seconds"
+          },
+          {
+            "Keyword": "NCOMBINE",
+            "Value": "2082",
+            "Comment": "frames stacked"
+          },
+          {
+            "Keyword": "LIVETIME",
+            "Value": "41640",
+            "Comment": "total integration, seconds"
+          },
+          {
+            "Keyword": "WZFPRNT",
+            "Value": "7b0c5656be44cb03",
+            "Comment": "StackingWizard: fingerprint of the source frame"
+          },
+          {
+            "Keyword": "WZNSUBS",
+            "Value": "2082",
+            "Comment": "StackingWizard: frames stacked"
+          },
+          {
+            "Keyword": "WZNOTE",
+            "Value": "a walk of 38 pointings",
+            "Comment": null
+          }
+        ]
+      }
+    ],
+    "Images": [
+      {
+        "Dimensions": [
+          4092,
+          4676
+        ],
+        "ChannelCount": 3,
+        "SampleFormat": 4,
+        "LowerBound": 0,
+        "UpperBound": 1,
+        "RawSha256": "7AF494157DB0D275D449011C9F52505F64935CA293A10B5285950AE457882C19",
+        "LinearSha256": "D1350C75683AD41251EB538FBA069F65B82B2AA40E65EA5463A283754FFB283F",
+        "AdaptiveSha256": "CD706123DE02859920FF5F08F81DDEDAC49EB2C44A8AE18C125D7451C3674714"
+      }
+    ],
+    "WrittenWithChecksumsSha256": "E32F080819785146EFA8AC0159213BE1D3ADBA8FD3DB9AA21ADE494C337501CC",
+    "Diagnostics": []
+  }
+]
