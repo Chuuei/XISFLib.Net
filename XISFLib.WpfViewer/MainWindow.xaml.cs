@@ -4,6 +4,7 @@ using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Threading;
 using System.Xml.Linq;
 using Microsoft.Win32;
 
@@ -66,24 +67,32 @@ public partial class MainWindow : Window
             _sourceXisfPath = monolithic ? Path.GetFullPath(path) : null;
             PreserveOriginalCheckBox.IsEnabled = monolithic;
             PreserveOriginalCheckBox.IsChecked = monolithic;
+            ImageSelector.ItemsSource = Enumerable.Range(0, _editableImages.Length).Select(GetImageLabel).ToArray();
+            ImageSelector.SelectedIndex = 0;
+            _editableImage = _editableImages[0]!;
+            _editorImageIndex = 0;
+            ResetImageViewport();
+            await RenderSelectedImageAsync();
+            // Let WPF process its render queue before preparing the remaining tabs.
+            await Dispatcher.Yield(DispatcherPriority.Background);
+            StatusText.Text = "Image ready. Preparing metadata and validation…";
+            var details = await Task.Run(() =>
+            {
+                IReadOnlyList<MetadataNode> metadata = loaded.Xisf is not null ? BuildMetadata(loaded.Xisf, path) : BuildFitsMetadata(loaded.Fits!, path);
+                IReadOnlyList<XisfDiagnostic>? diagnostics = loaded.Xisf?.Validate();
+                return (Metadata: metadata, Diagnostics: diagnostics);
+            });
             if (_document is not null)
                 PopulateLoadedDocumentEditors(_document);
             else
                 ClearDocumentEditors();
-            MetadataTree.ItemsSource = _document is not null ? BuildMetadata(_document, path) : BuildFitsMetadata(_fitsDocument!, path);
+            MetadataTree.ItemsSource = details.Metadata;
             MetadataTree.Visibility = Visibility.Visible;
             EmptyMetadataText.Visibility = Visibility.Collapsed;
-            ImageSelector.ItemsSource = Enumerable.Range(0, _editableImages.Length).Select(GetImageLabel).ToArray();
-            ImageSelector.IsEnabled = _editableImages.Length > 1;
-            ImageSelector.SelectedIndex = 0;
             await LoadImageEditorAsync(0);
             RefreshUtilityOverview();
-            if (_document is not null)
-                ShowDiagnostics(_document.Validate());
-            else
-                ShowDiagnostics(_fitsDocument!.Diagnostics);
-            ResetImageViewport();
-            await RenderSelectedImageAsync();
+            if (details.Diagnostics is not null) ShowDiagnostics(details.Diagnostics);
+            else ShowDiagnostics(loaded.Fits!.Diagnostics);
             StatusText.Text = $"Loaded {Path.GetFileName(path)} ({_editableImages.Length} image(s){(fits ? ", converted from FITS" : "")}).";
         });
     }
@@ -111,15 +120,19 @@ public partial class MainWindow : Window
 
     private async void ImageSelector_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        if (_editableImages.Length > 0 && !_isBusy)
+        if (_editableImages.Length > 0 && !_isBusy && ImageSelector.SelectedIndex >= 0)
         {
-            if (ImageSelector.SelectedIndex >= 0 && ImageSelector.SelectedIndex != _editorImageIndex)
+            int index = ImageSelector.SelectedIndex;
+            await RunBusyAsync("Rendering image…", async () =>
             {
-                await LoadImageEditorAsync(ImageSelector.SelectedIndex);
-                RefreshUtilityOverview();
-                ResetImageViewport();
-            }
-            await RunBusyAsync("Rendering image…", RenderSelectedImageAsync);
+                if (index != _editorImageIndex)
+                {
+                    await LoadImageEditorAsync(index);
+                    RefreshUtilityOverview();
+                    ResetImageViewport();
+                }
+                await RenderSelectedImageAsync();
+            });
         }
     }
 
@@ -232,7 +245,8 @@ public partial class MainWindow : Window
             return;
 
         XisfStretchOptions? stretch = CreateStretchOptions();
-        ImageView.Source = await Task.Run(() => _editableImage.ToBitmapSource(stretch));
+        XisfImageData image = _editableImage;
+        ImageView.Source = await Task.Run(() => image.ToBitmapSource(stretch));
         EmptyViewText.Visibility = Visibility.Collapsed;
         ImageDetailsText.Text = string.Format(CultureInfo.CurrentCulture,
             "{0} × {1}, {2} channel(s), {3}, {4}",
@@ -468,6 +482,10 @@ public partial class MainWindow : Window
         ImportButton.IsEnabled = false;
         SaveButton.IsEnabled = false;
         ApplyButton.IsEnabled = false;
+        ImageSelector.IsEnabled = false;
+        ImageEditorTab.IsEnabled = false;
+        WriterTab.IsEnabled = false;
+        UtilitiesTab.IsEnabled = false;
         StatusText.Text = status;
         Mouse.OverrideCursor = Cursors.Wait;
         try
@@ -486,6 +504,10 @@ public partial class MainWindow : Window
             ImportButton.IsEnabled = true;
             SaveButton.IsEnabled = true;
             ApplyButton.IsEnabled = true;
+            ImageSelector.IsEnabled = _editableImages.Length > 1;
+            ImageEditorTab.IsEnabled = true;
+            WriterTab.IsEnabled = true;
+            UtilitiesTab.IsEnabled = true;
             _isBusy = false;
         }
     }

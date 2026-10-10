@@ -8,6 +8,63 @@ namespace XISFLib.Windows.Tests;
 
 public class XisfWindowsExtensionsTests
 {
+    [Theory]
+    [InlineData("Gray", XisfPixelLayout.Planar, false)]
+    [InlineData("Gray", XisfPixelLayout.Planar, true)]
+    [InlineData("Gray", XisfPixelLayout.Interleaved, false)]
+    [InlineData("Gray", XisfPixelLayout.Interleaved, true)]
+    [InlineData("RGB", XisfPixelLayout.Planar, false)]
+    [InlineData("RGB", XisfPixelLayout.Planar, true)]
+    [InlineData("RGB", XisfPixelLayout.Interleaved, false)]
+    [InlineData("RGB", XisfPixelLayout.Interleaved, true)]
+    [InlineData("CIELab", XisfPixelLayout.Planar, false)]
+    [InlineData("CIELab", XisfPixelLayout.Planar, true)]
+    [InlineData("CIELab", XisfPixelLayout.Interleaved, false)]
+    [InlineData("CIELab", XisfPixelLayout.Interleaved, true)]
+    public void ParallelRenderingMatchesSequentialRowsIncludingAlphaAndDisplayFunctions(string colorSpace, XisfPixelLayout layout, bool bigEndian)
+    {
+        const int width = 512, height = 513, pixels = width * height;
+        int channels = colorSpace == "Gray" ? 2 : 4;
+        float[] values = Enumerable.Range(0, pixels * channels).Select(i => (i % 67) switch
+        {
+            0 => float.NaN, 1 => float.PositiveInfinity, 2 => float.NegativeInfinity,
+            _ => (i % 257) / 256f
+        }).ToArray();
+        var display = new XisfDisplayFunction([0.3, 0.4, 0.6, 0.2], [0, 0.1, 0.2, 0], [1, 0.9, 0.8, 1], [-0.1, 0, 0, 0], [1.1, 1, 1, 1]);
+        var options = new XisfStretchOptions { UseDisplayFunction = true };
+        var image = XisfImageData.FromSamples(values, [width, height], channels, layout, bigEndian);
+        image.ColorSpace = colorSpace;
+        image.DisplayFunction = display;
+        byte[] expected = new byte[pixels * 4];
+        float[] row = new float[width * channels];
+        for (int y = 0; y < height; y++)
+        {
+            for (int x = 0; x < width; x++)
+            for (int channel = 0; channel < channels; channel++)
+                row[x * channels + channel] = layout == XisfPixelLayout.Planar
+                    ? values[channel * pixels + y * width + x] : values[(y * width + x) * channels + channel];
+            var reference = XisfImageData.FromSamples(row, [width, 1], channels, XisfPixelLayout.Interleaved, bigEndian);
+            reference.ColorSpace = colorSpace;
+            reference.DisplayFunction = display;
+            reference.ToBgra32Pixels(options).CopyTo(expected, y * width * 4);
+        }
+        Assert.Equal(expected, image.ToBgra32Pixels(options));
+        BitmapSource bitmap = image.ToBitmapSource(options);
+        byte[] actual = new byte[expected.Length];
+        bitmap.CopyPixels(actual, width * 4, 0);
+        Assert.True(bitmap.IsFrozen);
+        Assert.Equal(expected, actual);
+    }
+
+    [Fact]
+    public void ParallelRenderingPreservesArgumentExceptionForInvalidLabWorkingSpace()
+    {
+        var image = XisfImageData.FromSamples(new float[512 * 512 * 3], [512, 512], 3);
+        image.ColorSpace = "CIELab";
+        image.RgbWorkingSpace = XisfRgbWorkingSpace.Srgb with { Gamma = -1 };
+        Assert.Throws<ArgumentException>(() => image.ToBgra32Pixels());
+    }
+
     [Fact]
     public void CreatesWindowsFormsBitmapFromNormalizedRgbSamples()
     {

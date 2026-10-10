@@ -8,6 +8,7 @@
     <WarningsAsErrors>$(WarningsAsErrors);CS1591;CS1570;CS1572;CS1573;CS1587;CS1658</WarningsAsErrors>
     <UseWindowsForms>true</UseWindowsForms>
     <UseWPF>true</UseWPF>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <PackageId>XISFLib.Windows</PackageId>
     <Description>Windows Forms and WPF image adapters for XISFLib.</Description>
     <PackageReadmeFile>README.md</PackageReadmeFile>

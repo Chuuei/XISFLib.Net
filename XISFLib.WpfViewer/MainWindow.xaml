@@ -102,6 +102,8 @@
                                VerticalAlignment="Center" />
                     <TreeView x:Name="MetadataTree" Margin="12" Background="Transparent"
                               BorderThickness="0" Visibility="Collapsed"
+                              VirtualizingStackPanel.IsVirtualizing="True"
+                              VirtualizingStackPanel.VirtualizationMode="Recycling"
                               ScrollViewer.HorizontalScrollBarVisibility="Auto">
                         <TreeView.ItemContainerStyle>
                             <Style TargetType="TreeViewItem">
@@ -111,7 +113,7 @@
                     </TreeView>
                 </Grid>
             </TabItem>
-            <TabItem Header="Utilities">
+            <TabItem x:Name="UtilitiesTab" Header="Utilities">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel Margin="18" MaxWidth="1050" HorizontalAlignment="Left">
                         <TextBlock Text="Astronomy utilities" FontSize="18" FontWeight="SemiBold" />
@@ -189,7 +191,7 @@
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>
-            <TabItem Header="Image metadata">
+            <TabItem x:Name="ImageEditorTab" Header="Image metadata">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel Margin="18" MaxWidth="900" HorizontalAlignment="Left">
                         <TextBlock Text="Image attributes" FontSize="18" FontWeight="SemiBold" />
@@ -252,7 +254,7 @@
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>
-            <TabItem Header="Writer">
+            <TabItem x:Name="WriterTab" Header="Writer">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel Margin="18" MaxWidth="900" HorizontalAlignment="Left">
                         <TextBlock Text="XISF writer configuration" FontSize="18" FontWeight="SemiBold" />

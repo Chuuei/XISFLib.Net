@@ -23,6 +23,31 @@ The following measurements compare the implementation before and after the Octob
 
 The real-image rendering measurement excludes file loading and decompression. The separate decode measurement includes reading its attached compressed block. Matching typed reads still allocate the decoded byte buffer and the returned typed array; public APIs return independently owned buffers.
 
+## WPF load-to-display improvements
+
+An additional WPF performance pass parallelizes pixel conversion for images with at least 262144 pixels. Workers process disjoint 65536-pixel ranges, with at most eight workers. Smaller images retain sequential conversion. The input span is pinned only for the synchronous conversion operation, avoiding an extra copy of the raw image. Stretch parameters are computed once before workers start; alpha, color conversion, byte order, rounding, display functions, and orientation retain the same behavior.
+
+The viewer assigns its full-resolution frozen bitmap before building metadata trees, populating editors, or presenting validation diagnostics. It yields to WPF's dispatcher so the render queue can run, then prepares metadata and validation on a worker thread. All validation still completes, and editing stays disabled until loading finishes. Duplicate property-editor population was removed, the metadata tree uses recycling virtualization, and image-selection operations share the busy guard to avoid overlapping loads.
+
+Measured on the same machine and runtime, with one warm-up and five iterations before and after this additional pass:
+
+| Operation | Before (ms) | After (ms) |
+| --- | ---: | ---: |
+| Adaptive RGB pixel conversion, `slow.xisf` | 345.58 | 93.93 |
+| Rotated 1024 × 1024 RGB pixel conversion | 25.20 | 6.18 |
+| XISF load to bitmap assignment in the viewer | 801.48 | 516.29 |
+| XISF load until all tabs are ready | 801.50 | 522.94 |
+| FITS load to bitmap assignment in the viewer | 390.75 | 81.86 |
+| FITS load until all tabs are ready | 390.76 | 101.32 |
+
+The load benchmark exercises the viewer's actual load-button handler, controls, bitmap creation, and dispatcher in an STA thread with a hidden window. It excludes process startup and does **not** measure physical screen presentation or GPU frame time. File caches are warm, and the bitmap-assignment observation uses a background dispatcher timer. Reproduce it with:
+
+```powershell
+dotnet run --project XISFLib.Benchmarks -c Release -- --wpf-load 5 artifacts/wpf-load.json
+```
+
+Zlib decompression still accounts for most of the XISF loading time. These improvements use the .NET parallel task library and WPF dispatcher; no extra runtime package is required. Regression tests compare large parallel RGB, gray, and Lab renders with sequential row renders, including alpha, endian orders, storage layouts, non-finite samples, and stored display functions.
+
 ## Run the benchmarks
 
 From the repository root, on Windows:

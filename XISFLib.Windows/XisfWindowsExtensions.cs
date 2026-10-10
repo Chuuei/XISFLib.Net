@@ -128,7 +128,7 @@ public static class XisfWindowsExtensions
         _ => double.NaN
     });
 
-    private static (int Width, int Height, byte[] Pixels) CreateBgra32Pixels(ReadOnlySpan<byte> data,
+    private static unsafe (int Width, int Height, byte[] Pixels) CreateBgra32Pixels(ReadOnlySpan<byte> data,
         IReadOnlyList<int> dimensions,
         int channelCount, XisfSampleFormat sampleFormat, XisfPixelLayout pixelStorage, bool isBigEndian,
         double lowerBound,
@@ -155,39 +155,70 @@ public static class XisfWindowsExtensions
         if (isLab && stretch?.UseDisplayFunction == true && displayFunction is not null)
             transforms[0] = new StretchTransform(displayFunction.Shadows[3], displayFunction.Midtones[3], displayFunction.Highlights[3], displayFunction.LowRange[3], displayFunction.HighRange[3]);
         byte[] pixels = new byte[checked(pixelCount * 4)];
-        for (int pixel = 0; pixel < pixelCount; pixel++)
+        // Parallel.For completes before the pin is released. Each worker retains
+        // span bounds checks and writes a disjoint range of the output buffer.
+        // Pinning avoids an image-sized copy solely to capture the input in a lambda.
+        fixed (byte* input = data)
         {
-            byte red;
-            byte green;
-            byte blue;
-            byte alpha;
-            if (isGray)
+            nint address = (nint)input;
+            int length = data.Length;
+            Action<int> render = chunk =>
             {
-                red = green = blue = ToByte(transforms[0].Apply(samples.Read(pixel, 0)));
-                alpha = channelCount > 1 ? ToByte(samples.Read(pixel, 1)) : byte.MaxValue;
+                var samples = new NormalizedSampleReader(new ReadOnlySpan<byte>((void*)address, length), pixelCount, channelCount,
+                    sampleFormat, pixelStorage, isBigEndian, isLab ? 0 : lowerBound, isLab ? labMaximum : upperBound);
+                int start = chunk * 65536;
+                int end = (int)Math.Min((long)start + 65536, pixelCount);
+                for (int pixel = start; pixel < end; pixel++)
+                {
+                    byte red;
+                    byte green;
+                    byte blue;
+                    byte alpha;
+                    if (isGray)
+                    {
+                        red = green = blue = ToByte(transforms[0].Apply(samples.Read(pixel, 0)));
+                        alpha = channelCount > 1 ? ToByte(samples.Read(pixel, 1)) : byte.MaxValue;
+                    }
+                    else
+                    {
+                        if (isLab)
+                        {
+                            var rgb = XisfColorSpace.LabToRgb(transforms[0].Apply(samples.Read(pixel, 0)), samples.Read(pixel, 1), samples.Read(pixel, 2), workingSpace);
+                            double rgbMaximum = upperBound / labMaximum, rgbMinimum = lowerBound / labMaximum;
+                            (red, green, blue) = (ToByte((rgb.Red - rgbMinimum) / (rgbMaximum - rgbMinimum)), ToByte((rgb.Green - rgbMinimum) / (rgbMaximum - rgbMinimum)), ToByte((rgb.Blue - rgbMinimum) / (rgbMaximum - rgbMinimum)));
+                        }
+                        else
+                        {
+                            red = ToByte(transforms[0].Apply(samples.Read(pixel, 0)));
+                            green = ToByte(transforms[1].Apply(samples.Read(pixel, 1)));
+                            blue = ToByte(transforms[2].Apply(samples.Read(pixel, 2)));
+                        }
+                        alpha = channelCount > 3 ? ToByte(samples.Read(pixel, 3)) : byte.MaxValue;
+                    }
+
+                    int target = pixel * 4;
+                    pixels[target] = blue;
+                    pixels[target + 1] = green;
+                    pixels[target + 2] = red;
+                    pixels[target + 3] = alpha;
+                }
+            };
+            int chunks = (pixelCount - 1) / 65536 + 1;
+            if (pixelCount >= 262144 && Environment.ProcessorCount > 1)
+            {
+                try
+                {
+                    Parallel.For(0, chunks, new ParallelOptions { MaxDegreeOfParallelism = Math.Min(Environment.ProcessorCount, 8) }, render);
+                }
+                catch (AggregateException exception)
+                {
+                    // Keep the format/argument exception contract of sequential rendering.
+                    System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(exception.Flatten().InnerExceptions[0]).Throw();
+                    throw;
+                }
             }
             else
-            {
-                if (isLab)
-                {
-                    var rgb = XisfColorSpace.LabToRgb(transforms[0].Apply(samples.Read(pixel, 0)), samples.Read(pixel, 1), samples.Read(pixel, 2), workingSpace);
-                    double rgbMaximum = upperBound / labMaximum, rgbMinimum = lowerBound / labMaximum;
-                    (red, green, blue) = (ToByte((rgb.Red - rgbMinimum) / (rgbMaximum - rgbMinimum)), ToByte((rgb.Green - rgbMinimum) / (rgbMaximum - rgbMinimum)), ToByte((rgb.Blue - rgbMinimum) / (rgbMaximum - rgbMinimum)));
-                }
-                else
-                {
-                    red = ToByte(transforms[0].Apply(samples.Read(pixel, 0)));
-                    green = ToByte(transforms[1].Apply(samples.Read(pixel, 1)));
-                    blue = ToByte(transforms[2].Apply(samples.Read(pixel, 2)));
-                }
-                alpha = channelCount > 3 ? ToByte(samples.Read(pixel, 3)) : byte.MaxValue;
-            }
-
-            int target = pixel * 4;
-            pixels[target] = blue;
-            pixels[target + 1] = green;
-            pixels[target + 2] = red;
-            pixels[target + 3] = alpha;
+                for (int chunk = 0; chunk < chunks; chunk++) render(chunk);
         }
         return ApplyOrientation(width, height, pixels, orientation);
     }

@@ -190,9 +190,6 @@ public partial class MainWindow
         XisfImageData editable = _editableImages[index]!;
         _editableImage = editable;
         PopulateImageEditor(editable);
-        Replace(_imageProperties, editable.Properties.Select(pair => pair.Value is XisfPropertyData property
-            ? ToEditorRow(pair.Key, property)
-            : new PropertyEditorRow { Id = pair.Key, Type = PropertyTypeName(pair.Value), Value = FormatEditorValue(pair.Value) }));
     }
 
     private static XisfTableData CopyTable(XisfTable table)
