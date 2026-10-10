@@ -1,0 +1,1909 @@
+{
+  "CheckedUtc": "2026-10-10T16:55:07.3495523+00:00",
+  "Files": 63,
+  "DecodeFailures": 0,
+  "Results": [
+    {
+      "Path": "Examples/community/AmyWarble_Green_master_autocrop.xisf",
+      "Status": "decoded",
+      "Images": [
+        {
+          "Id": "integration_autocrop2",
+          "SampleFormat": 4,
+          "ColorSpace": "Gray",
+          "ChannelCount": 1,
+          "Dimensions": [
+            6204,
+            4041
+          ],
+          "DecodedBytes": 100281456,
+          "DecodedSha256": "ff57e87b6b1d8d49a26b977aa0bfd9e7b78d0783e0eb0d44bd89e32e92b57f08",
+          "NativeAstrometryLayer": null,
+          "LegacyAstrometryProperties": 0,
+          "UnavailableProperties": []
+        }
+      ],
+      "Diagnostics": [
+        {
+          "Severity": "Error",
+          "Code": "XISF004",
+          "Message": "Metadata requires one XISF:CreationTime property of type TimePoint."
+        }
+      ],
+      "UnavailableObjects": 0
+    },
+    {
+      "Path": "Examples/meridian/NGC3718/2026-04-07_20-44-41_Red_0.00_300.00s_0012_a.xisf",
+      "Status": "decoded",
+      "Images": [
+        {
+          "Id": null,
+          "SampleFormat": 1,
+          "ColorSpace": "Gray",
+          "ChannelCount": 1,
+          "Dimensions": [
+            6248,
+            4176
+          ],
+          "DecodedBytes": 52183296,
+          "DecodedSha256": "795fadbbc28a0c6266444b4ac8c42c309430547434f81e28d6ffca61c8923dd7",
+          "NativeAstrometryLayer": null,
+          "LegacyAstrometryProperties": 0,
+          "UnavailableProperties": []
+        }
+      ],
+      "Diagnostics": [
+        {
+          "Severity": "Error",
+          "Code": "XISF004",
+          "Message": "Metadata requires one XISF:CreationTime property of type TimePoint."
+        }
+      ],
+      "UnavailableObjects": 0
+    },
+    {
+      "Path": "Examples/meridian/NGC3718/2026-04-07_20-49-42_Red_0.00_300.00s_0013_a.xisf",
+      "Status": "decoded",
+      "Images": [
+        {
+          "Id": null,
+          "SampleFormat": 1,
+          "ColorSpace": "Gray",
+          "ChannelCount": 1,
+          "Dimensions": [
+            6248,
+            4176
+          ],
+          "DecodedBytes": 52183296,
+          "DecodedSha256": "772cb55a131771332aeba9ee571223b44d1eb5143d6c2b07726f7de55e8c18a3",
+          "NativeAstrometryLayer": null,
+          "LegacyAstrometryProperties": 0,
+          "UnavailableProperties": []
+        }
+      ],
+      "Diagnostics": [
+        {
+          "Severity": "Error",
+          "Code": "XISF004",
+          "Message": "Metadata requires one XISF:CreationTime property of type TimePoint."
+        }
+      ],
+      "UnavailableObjects": 0
+    },
+    {
+      "Path": "Examples/meridian/NGC3718/2026-04-07_20-54-50_Luminance_0.00_300.00s_0029_a.xisf",
+      "Status": "decoded",
+      "Images": [
+        {
+          "Id": null,
+          "SampleFormat": 1,
+          "ColorSpace": "Gray",
+          "ChannelCount": 1,
+          "Dimensions": [
+            6248,
+            4176
+          ],
+          "DecodedBytes": 52183296,
+          "DecodedSha256": "0c9d3c0b48ff9e9ed7f30d627c10487f5015526b31f4731ea0de1f0bc05a1330",
+          "NativeAstrometryLayer": null,
+          "LegacyAstrometryProperties": 0,
+          "UnavailableProperties": []
+        }
+      ],
+      "Diagnostics": [
+        {
+          "Severity": "Error",
+          "Code": "XISF004",
+          "Message": "Metadata requires one XISF:CreationTime property of type TimePoint."
+        }
+      ],
+      "UnavailableObjects": 0
+    },
+    {
+      "Path": "Examples/meridian/NGC3718/2026-04-07_20-59-51_Luminance_0.00_300.00s_0030_a.xisf",
+      "Status": "decoded",
+      "Images": [
+        {
+          "Id": null,
+          "SampleFormat": 1,
+          "ColorSpace": "Gray",
+          "ChannelCount": 1,
+          "Dimensions": [
+            6248,
+            4176
+          ],
+          "DecodedBytes": 52183296,
+          "DecodedSha256": "10c2694ef4a062e3c5d21d6789382464aea7b0f53877037be60aa3d6336d5e57",
+          "NativeAstrometryLayer": null,
+          "LegacyAstrometryProperties": 0,
+          "UnavailableProperties": []
+        }
+      ],
+      "Diagnostics": [
+        {
+          "Severity": "Error",
+          "Code": "XISF004",
+          "Message": "Metadata requires one XISF:CreationTime property of type TimePoint."
+        }
+      ],
+      "UnavailableObjects": 0
+    },
+    {
+      "Path": "Examples/meridian/NGC3718/2026-04-07_21-04-51_Luminance_0.00_300.00s_0031_a.xisf",
+      "Status": "decoded",
+      "Images": [
+        {
+          "Id": null,
+          "SampleFormat": 1,
+          "ColorSpace": "Gray",
+          "ChannelCount": 1,
+          "Dimensions": [
+            6248,
+            4176
+          ],
+          "DecodedBytes": 52183296,
+          "DecodedSha256": "91c452986c4cdc3de65ae6e7cb3e21197cd482e1d177fd9666d66761746e5b9f",
+          "NativeAstrometryLayer": null,
+          "LegacyAstrometryProperties": 0,
+          "UnavailableProperties": []
+        }
+      ],
+      "Diagnostics": [
+        {
+          "Severity": "Error",
+          "Code": "XISF004",
+          "Message": "Metadata requires one XISF:CreationTime property of type TimePoint."
+        }
+      ],
+      "UnavailableObjects": 0
+    },
+    {
+      "Path": "Examples/nina/TestImage_Jelly.xisf",
+      "Status": "decoded",
+      "Images": [
+        {
+          "Id": null,
+          "SampleFormat": 1,
+          "ColorSpace": "Gray",
+          "ChannelCount": 1,
+          "Dimensions": [
+            750,
+            500
+          ],
+          "DecodedBytes": 750000,
+          "DecodedSha256": "b6899fe9e8997047ab6dc097fc03cc3602126b15ea45e9c239c0f825f1c825f1",
+          "NativeAstrometryLayer": null,
+          "LegacyAstrometryProperties": 0,
+          "UnavailableProperties": []
+        }
+      ],
+      "Diagnostics": [
+        {
+          "Severity": "Error",
+          "Code": "XISF004",
+          "Message": "Metadata requires one XISF:CreationTime property of type TimePoint."
+        }
+      ],
+      "UnavailableObjects": 0
+    },
+    {
+      "Path": "Examples/slow.xisf",
+      "Status": "decoded",
+      "Images": [
+        {
+          "Id": null,
+          "SampleFormat": 4,
+          "ColorSpace": "RGB",
+          "ChannelCount": 3,
+          "Dimensions": [
+            4092,
+            4676
+          ],
+          "DecodedBytes": 229610304,
+          "DecodedSha256": "7af494157db0d275d449011c9f52505f64935ca293a10b5285950ae457882c19",
+          "NativeAstrometryLayer": null,
+          "LegacyAstrometryProperties": 0,
+          "UnavailableProperties": []
+        }
+      ],
+      "Diagnostics": [
+        {
+          "Severity": "Error",
+          "Code": "XISF046",
+          "Message": "FITSKeyword requires its comment attribute."
+        },
+        {
+          "Severity": "Error",
+          "Code": "XISF046",
+          "Message": "FITSKeyword requires its comment attribute."
+        }
+      ],
+      "UnavailableObjects": 0
+    },
+    {
+      "Path": "Examples/tim-ray/Sh2-188_Ha_drizzle_2x.xisf",
+      "Status": "decoded",
+      "Images": [
+        {
+          "Id": "drizzle_integration",
+          "SampleFormat": 4,
+          "ColorSpace": "Gray",
+          "ChannelCount": 1,
+          "Dimensions": [
+            6016,
+            6016
+          ],
+          "DecodedBytes": 144769024,
+          "DecodedSha256": "f97c1109b4d350e3a67f1b47dad39a82f088319ae9774b6ac85655dad35b89af",
+          "NativeAstrometryLayer": null,
+          "LegacyAstrometryProperties": 66,
+          "UnavailableProperties": []
+        },
+        {
+          "Id": "drizzle_weights",
+          "SampleFormat": 4,
+          "ColorSpace": "Gray",
+          "ChannelCount": 1,
+          "Dimensions": [
+            6016,
+            6016
+          ],
+          "DecodedBytes": 144769024,
+          "DecodedSha256": "973bed6a2237c59e3cc77ce0e665d41e73024899561cccd474b7339d15cc9b7d",
+          "NativeAstrometryLayer": null,
+          "LegacyAstrometryProperties": 0,
+          "UnavailableProperties": []
+        }
+      ],
+      "Diagnostics": [
+        {
+          "Severity": "Error",
+          "Code": "XISF004",
+          "Message": "Metadata requires one XISF:CreationTime property of type TimePoint."
+        }
+      ],
+      "UnavailableObjects": 0
+    },
+    {
+      "Path": "Examples/tim-ray/Sh2-188_Oiii_drizzle_2x.xisf",
+      "Status": "decoded",
+      "Images": [
+        {
+          "Id": "drizzle_integration",
+          "SampleFormat": 4,
+          "ColorSpace": "Gray",
+          "ChannelCount": 1,
+          "Dimensions": [
+            6016,
+            6016
+          ],
+          "DecodedBytes": 144769024,
+          "DecodedSha256": "4f831ddb6f23ebebe20fa6c34795490bd80b2ffda3daf53aaa04894c6985e626",
+          "NativeAstrometryLayer": null,
+          "LegacyAstrometryProperties": 66,
+          "UnavailableProperties": []
+        },
+        {
+          "Id": "drizzle_weights",
+          "SampleFormat": 4,
+          "ColorSpace": "Gray",
+          "ChannelCount": 1,
+          "Dimensions": [
+            6016,
+            6016
+          ],
+          "DecodedBytes": 144769024,
+          "DecodedSha256": "92ad0575c8b8edc8c998e9866d68459f91d932487324fa65459b2b97e3737f9b",
+          "NativeAstrometryLayer": null,
+          "LegacyAstrometryProperties": 0,
+          "UnavailableProperties": []
+        }
+      ],
+      "Diagnostics": [
+        {
+          "Severity": "Error",
+          "Code": "XISF004",
+          "Message": "Metadata requires one XISF:CreationTime property of type TimePoint."
+        }
+      ],
+      "UnavailableObjects": 0
+    },
+    {
+      "Path": "Examples/tim-ray/Sh2-188_Sii_drizzle_2x.xisf",
+      "Status": "decoded",
+      "Images": [
+        {
+          "Id": "drizzle_integration",
+          "SampleFormat": 4,
+          "ColorSpace": "Gray",
+          "ChannelCount": 1,
+          "Dimensions": [
+            6016,
+            6016
+          ],
+          "DecodedBytes": 144769024,
+          "DecodedSha256": "99e1fe9ecb097a585114729d54a4dad4ade4f7221b17b01607013f141b1ad27f",
+          "NativeAstrometryLayer": null,
+          "LegacyAstrometryProperties": 66,
+          "UnavailableProperties": []
+        },
+        {
+          "Id": "drizzle_weights",
+          "SampleFormat": 4,
+          "ColorSpace": "Gray",
+          "ChannelCount": 1,
+          "Dimensions": [
+            6016,
+            6016
+          ],
+          "DecodedBytes": 144769024,
+          "DecodedSha256": "f5a5f36771028d2aab36ef21a1333c5e684c7aa9c924e241720bc701e4bc5b53",
+          "NativeAstrometryLayer": null,
+          "LegacyAstrometryProperties": 0,
+          "UnavailableProperties": []
+        }
+      ],
+      "Diagnostics": [
+        {
+          "Severity": "Error",
+          "Code": "XISF004",
+          "Message": "Metadata requires one XISF:CreationTime property of type TimePoint."
+        }
+      ],
+      "UnavailableObjects": 0
+    },
+    {
+      "Path": "Examples/xisf-rust/generated/Float32_Gray_lz4.xisf",
+      "Status": "decoded",
+      "Images": [
+        {
+          "Id": null,
+          "SampleFormat": 4,
+          "ColorSpace": "Gray",
+          "ChannelCount": 1,
+          "Dimensions": [
+            17,
+            11
+          ],
+          "DecodedBytes": 748,
+          "DecodedSha256": "52983ae731951d7b35950b0f5f2d62b5d4a2a3728eb57e4e081049475b0bbf83",
+          "NativeAstrometryLayer": null,
+          "LegacyAstrometryProperties": 0,
+          "UnavailableProperties": []
+        }
+      ],
+      "Diagnostics": [
+        {
+          "Severity": "Error",
+          "Code": "XISF002",
+          "Message": "The header must have an XML 1.0 UTF-8 declaration."
+        }
+      ],
+      "UnavailableObjects": 0
+    },
+    {
+      "Path": "Examples/xisf-rust/generated/Float32_Gray_lz4\u002Bsh.xisf",
+      "Status": "decoded",
+      "Images": [
+        {
+          "Id": null,
+          "SampleFormat": 4,
+          "ColorSpace": "Gray",
+          "ChannelCount": 1,
+          "Dimensions": [
+            17,
+            11
+          ],
+          "DecodedBytes": 748,
+          "DecodedSha256": "52983ae731951d7b35950b0f5f2d62b5d4a2a3728eb57e4e081049475b0bbf83",
+          "NativeAstrometryLayer": null,
+          "LegacyAstrometryProperties": 0,
+          "UnavailableProperties": []
+        }
+      ],
+      "Diagnostics": [
+        {
+          "Severity": "Error",
+          "Code": "XISF002",
+          "Message": "The header must have an XML 1.0 UTF-8 declaration."
+        }
+      ],
+      "UnavailableObjects": 0
+    },
+    {
+      "Path": "Examples/xisf-rust/generated/Float32_Gray_lz4hc.xisf",
+      "Status": "decoded",
+      "Images": [
+        {
+          "Id": null,
+          "SampleFormat": 4,
+          "ColorSpace": "Gray",
+          "ChannelCount": 1,
+          "Dimensions": [
+            17,
+            11
+          ],
+          "DecodedBytes": 748,
+          "DecodedSha256": "52983ae731951d7b35950b0f5f2d62b5d4a2a3728eb57e4e081049475b0bbf83",
+          "NativeAstrometryLayer": null,
+          "LegacyAstrometryProperties": 0,
+          "UnavailableProperties": []
+        }
+      ],
+      "Diagnostics": [
+        {
+          "Severity": "Error",
+          "Code": "XISF002",
+          "Message": "The header must have an XML 1.0 UTF-8 declaration."
+        }
+      ],
+      "UnavailableObjects": 0
+    },
+    {
+      "Path": "Examples/xisf-rust/generated/Float32_Gray_none.xisf",
+      "Status": "decoded",
+      "Images": [
+        {
+          "Id": null,
+          "SampleFormat": 4,
+          "ColorSpace": "Gray",
+          "ChannelCount": 1,
+          "Dimensions": [
+            17,
+            11
+          ],
+          "DecodedBytes": 748,
+          "DecodedSha256": "52983ae731951d7b35950b0f5f2d62b5d4a2a3728eb57e4e081049475b0bbf83",
+          "NativeAstrometryLayer": null,
+          "LegacyAstrometryProperties": 0,
+          "UnavailableProperties": []
+        }
+      ],
+      "Diagnostics": [
+        {
+          "Severity": "Error",
+          "Code": "XISF002",
+          "Message": "The header must have an XML 1.0 UTF-8 declaration."
+        }
+      ],
+      "UnavailableObjects": 0
+    },
+    {
+      "Path": "Examples/xisf-rust/generated/Float32_Gray_zlib.xisf",
+      "Status": "decoded",
+      "Images": [
+        {
+          "Id": null,
+          "SampleFormat": 4,
+          "ColorSpace": "Gray",
+          "ChannelCount": 1,
+          "Dimensions": [
+            17,
+            11
+          ],
+          "DecodedBytes": 748,
+          "DecodedSha256": "52983ae731951d7b35950b0f5f2d62b5d4a2a3728eb57e4e081049475b0bbf83",
+          "NativeAstrometryLayer": null,
+          "LegacyAstrometryProperties": 0,
+          "UnavailableProperties": []
+        }
+      ],
+      "Diagnostics": [
+        {
+          "Severity": "Error",
+          "Code": "XISF002",
+          "Message": "The header must have an XML 1.0 UTF-8 declaration."
+        }
+      ],
+      "UnavailableObjects": 0
+    },
+    {
+      "Path": "Examples/xisf-rust/generated/Float32_Gray_zlib\u002Bsh.xisf",
+      "Status": "decoded",
+      "Images": [
+        {
+          "Id": null,
+          "SampleFormat": 4,
+          "ColorSpace": "Gray",
+          "ChannelCount": 1,
+          "Dimensions": [
+            17,
+            11
+          ],
+          "DecodedBytes": 748,
+          "DecodedSha256": "52983ae731951d7b35950b0f5f2d62b5d4a2a3728eb57e4e081049475b0bbf83",
+          "NativeAstrometryLayer": null,
+          "LegacyAstrometryProperties": 0,
+          "UnavailableProperties": []
+        }
+      ],
+      "Diagnostics": [
+        {
+          "Severity": "Error",
+          "Code": "XISF002",
+          "Message": "The header must have an XML 1.0 UTF-8 declaration."
+        }
+      ],
+      "UnavailableObjects": 0
+    },
+    {
+      "Path": "Examples/xisf-rust/generated/Float32_Gray_zstd.xisf",
+      "Status": "decoded",
+      "Images": [
+        {
+          "Id": null,
+          "SampleFormat": 4,
+          "ColorSpace": "Gray",
+          "ChannelCount": 1,
+          "Dimensions": [
+            17,
+            11
+          ],
+          "DecodedBytes": 748,
+          "DecodedSha256": "52983ae731951d7b35950b0f5f2d62b5d4a2a3728eb57e4e081049475b0bbf83",
+          "NativeAstrometryLayer": null,
+          "LegacyAstrometryProperties": 0,
+          "UnavailableProperties": []
+        }
+      ],
+      "Diagnostics": [
+        {
+          "Severity": "Error",
+          "Code": "XISF002",
+          "Message": "The header must have an XML 1.0 UTF-8 declaration."
+        }
+      ],
+      "UnavailableObjects": 0
+    },
+    {
+      "Path": "Examples/xisf-rust/generated/Float32_RGB_none.xisf",
+      "Status": "decoded",
+      "Images": [
+        {
+          "Id": null,
+          "SampleFormat": 4,
+          "ColorSpace": "RGB",
+          "ChannelCount": 3,
+          "Dimensions": [
+            5,
+            7
+          ],
+          "DecodedBytes": 420,
+          "DecodedSha256": "4a42f9cfea2e7718696b18a9e12efeb9a225c1f590e713d4b41a820ed9f3f4a2",
+          "NativeAstrometryLayer": null,
+          "LegacyAstrometryProperties": 0,
+          "UnavailableProperties": []
+        }
+      ],
+      "Diagnostics": [
+        {
+          "Severity": "Error",
+          "Code": "XISF002",
+          "Message": "The header must have an XML 1.0 UTF-8 declaration."
+        }
+      ],
+      "UnavailableObjects": 0
+    },
+    {
+      "Path": "Examples/xisf-rust/generated/Float64_Gray_lz4.xisf",
+      "Status": "decoded",
+      "Images": [
+        {
+          "Id": null,
+          "SampleFormat": 5,
+          "ColorSpace": "Gray",
+          "ChannelCount": 1,
+          "Dimensions": [
+            17,
+            11
+          ],
+          "DecodedBytes": 1496,
+          "DecodedSha256": "cac90788798c89e8b176f03ab8b0b8f787e66fcc6551c0b354bb8d21953f1d98",
+          "NativeAstrometryLayer": null,
+          "LegacyAstrometryProperties": 0,
+          "UnavailableProperties": []
+        }
+      ],
+      "Diagnostics": [
+        {
+          "Severity": "Error",
+          "Code": "XISF002",
+          "Message": "The header must have an XML 1.0 UTF-8 declaration."
+        }
+      ],
+      "UnavailableObjects": 0
+    },
+    {
+      "Path": "Examples/xisf-rust/generated/Float64_Gray_lz4\u002Bsh.xisf",
+      "Status": "decoded",
+      "Images": [
+        {
+          "Id": null,
+          "SampleFormat": 5,
+          "ColorSpace": "Gray",
+          "ChannelCount": 1,
+          "Dimensions": [
+            17,
+            11
+          ],
+          "DecodedBytes": 1496,
+          "DecodedSha256": "cac90788798c89e8b176f03ab8b0b8f787e66fcc6551c0b354bb8d21953f1d98",
+          "NativeAstrometryLayer": null,
+          "LegacyAstrometryProperties": 0,
+          "UnavailableProperties": []
+        }
+      ],
+      "Diagnostics": [
+        {
+          "Severity": "Error",
+          "Code": "XISF002",
+          "Message": "The header must have an XML 1.0 UTF-8 declaration."
+        }
+      ],
+      "UnavailableObjects": 0
+    },
+    {
+      "Path": "Examples/xisf-rust/generated/Float64_Gray_lz4hc.xisf",
+      "Status": "decoded",
+      "Images": [
+        {
+          "Id": null,
+          "SampleFormat": 5,
+          "ColorSpace": "Gray",
+          "ChannelCount": 1,
+          "Dimensions": [
+            17,
+            11
+          ],
+          "DecodedBytes": 1496,
+          "DecodedSha256": "cac90788798c89e8b176f03ab8b0b8f787e66fcc6551c0b354bb8d21953f1d98",
+          "NativeAstrometryLayer": null,
+          "LegacyAstrometryProperties": 0,
+          "UnavailableProperties": []
+        }
+      ],
+      "Diagnostics": [
+        {
+          "Severity": "Error",
+          "Code": "XISF002",
+          "Message": "The header must have an XML 1.0 UTF-8 declaration."
+        }
+      ],
+      "UnavailableObjects": 0
+    },
+    {
+      "Path": "Examples/xisf-rust/generated/Float64_Gray_none.xisf",
+      "Status": "decoded",
+      "Images": [
+        {
+          "Id": null,
+          "SampleFormat": 5,
+          "ColorSpace": "Gray",
+          "ChannelCount": 1,
+          "Dimensions": [
+            17,
+            11
+          ],
+          "DecodedBytes": 1496,
+          "DecodedSha256": "cac90788798c89e8b176f03ab8b0b8f787e66fcc6551c0b354bb8d21953f1d98",
+          "NativeAstrometryLayer": null,
+          "LegacyAstrometryProperties": 0,
+          "UnavailableProperties": []
+        }
+      ],
+      "Diagnostics": [
+        {
+          "Severity": "Error",
+          "Code": "XISF002",
+          "Message": "The header must have an XML 1.0 UTF-8 declaration."
+        }
+      ],
+      "UnavailableObjects": 0
+    },
+    {
+      "Path": "Examples/xisf-rust/generated/Float64_Gray_zlib.xisf",
+      "Status": "decoded",
+      "Images": [
+        {
+          "Id": null,
+          "SampleFormat": 5,
+          "ColorSpace": "Gray",
+          "ChannelCount": 1,
+          "Dimensions": [
+            17,
+            11
+          ],
+          "DecodedBytes": 1496,
+          "DecodedSha256": "cac90788798c89e8b176f03ab8b0b8f787e66fcc6551c0b354bb8d21953f1d98",
+          "NativeAstrometryLayer": null,
+          "LegacyAstrometryProperties": 0,
+          "UnavailableProperties": []
+        }
+      ],
+      "Diagnostics": [
+        {
+          "Severity": "Error",
+          "Code": "XISF002",
+          "Message": "The header must have an XML 1.0 UTF-8 declaration."
+        }
+      ],
+      "UnavailableObjects": 0
+    },
+    {
+      "Path": "Examples/xisf-rust/generated/Float64_Gray_zlib\u002Bsh.xisf",
+      "Status": "decoded",
+      "Images": [
+        {
+          "Id": null,
+          "SampleFormat": 5,
+          "ColorSpace": "Gray",
+          "ChannelCount": 1,
+          "Dimensions": [
+            17,
+            11
+          ],
+          "DecodedBytes": 1496,
+          "DecodedSha256": "cac90788798c89e8b176f03ab8b0b8f787e66fcc6551c0b354bb8d21953f1d98",
+          "NativeAstrometryLayer": null,
+          "LegacyAstrometryProperties": 0,
+          "UnavailableProperties": []
+        }
+      ],
+      "Diagnostics": [
+        {
+          "Severity": "Error",
+          "Code": "XISF002",
+          "Message": "The header must have an XML 1.0 UTF-8 declaration."
+        }
+      ],
+      "UnavailableObjects": 0
+    },
+    {
+      "Path": "Examples/xisf-rust/generated/Float64_Gray_zstd.xisf",
+      "Status": "decoded",
+      "Images": [
+        {
+          "Id": null,
+          "SampleFormat": 5,
+          "ColorSpace": "Gray",
+          "ChannelCount": 1,
+          "Dimensions": [
+            17,
+            11
+          ],
+          "DecodedBytes": 1496,
+          "DecodedSha256": "cac90788798c89e8b176f03ab8b0b8f787e66fcc6551c0b354bb8d21953f1d98",
+          "NativeAstrometryLayer": null,
+          "LegacyAstrometryProperties": 0,
+          "UnavailableProperties": []
+        }
+      ],
+      "Diagnostics": [
+        {
+          "Severity": "Error",
+          "Code": "XISF002",
+          "Message": "The header must have an XML 1.0 UTF-8 declaration."
+        }
+      ],
+      "UnavailableObjects": 0
+    },
+    {
+      "Path": "Examples/xisf-rust/generated/Float64_RGB_none.xisf",
+      "Status": "decoded",
+      "Images": [
+        {
+          "Id": null,
+          "SampleFormat": 5,
+          "ColorSpace": "RGB",
+          "ChannelCount": 3,
+          "Dimensions": [
+            5,
+            7
+          ],
+          "DecodedBytes": 840,
+          "DecodedSha256": "54a8bce5d912517fdbe29583ddb2c6a420d2c95e3993cdec0388902d6e9ed5f8",
+          "NativeAstrometryLayer": null,
+          "LegacyAstrometryProperties": 0,
+          "UnavailableProperties": []
+        }
+      ],
+      "Diagnostics": [
+        {
+          "Severity": "Error",
+          "Code": "XISF002",
+          "Message": "The header must have an XML 1.0 UTF-8 declaration."
+        }
+      ],
+      "UnavailableObjects": 0
+    },
+    {
+      "Path": "Examples/xisf-rust/generated/UInt16_Gray_lz4.xisf",
+      "Status": "decoded",
+      "Images": [
+        {
+          "Id": null,
+          "SampleFormat": 1,
+          "ColorSpace": "Gray",
+          "ChannelCount": 1,
+          "Dimensions": [
+            17,
+            11
+          ],
+          "DecodedBytes": 374,
+          "DecodedSha256": "bbe1fbe3c6f83ae82f32640c3311cdf7e9b141764bf4a26a79b69056c6dd00f0",
+          "NativeAstrometryLayer": null,
+          "LegacyAstrometryProperties": 0,
+          "UnavailableProperties": []
+        }
+      ],
+      "Diagnostics": [
+        {
+          "Severity": "Error",
+          "Code": "XISF002",
+          "Message": "The header must have an XML 1.0 UTF-8 declaration."
+        }
+      ],
+      "UnavailableObjects": 0
+    },
+    {
+      "Path": "Examples/xisf-rust/generated/UInt16_Gray_lz4\u002Bsh.xisf",
+      "Status": "decoded",
+      "Images": [
+        {
+          "Id": null,
+          "SampleFormat": 1,
+          "ColorSpace": "Gray",
+          "ChannelCount": 1,
+          "Dimensions": [
+            17,
+            11
+          ],
+          "DecodedBytes": 374,
+          "DecodedSha256": "bbe1fbe3c6f83ae82f32640c3311cdf7e9b141764bf4a26a79b69056c6dd00f0",
+          "NativeAstrometryLayer": null,
+          "LegacyAstrometryProperties": 0,
+          "UnavailableProperties": []
+        }
+      ],
+      "Diagnostics": [
+        {
+          "Severity": "Error",
+          "Code": "XISF002",
+          "Message": "The header must have an XML 1.0 UTF-8 declaration."
+        }
+      ],
+      "UnavailableObjects": 0
+    },
+    {
+      "Path": "Examples/xisf-rust/generated/UInt16_Gray_lz4hc.xisf",
+      "Status": "decoded",
+      "Images": [
+        {
+          "Id": null,
+          "SampleFormat": 1,
+          "ColorSpace": "Gray",
+          "ChannelCount": 1,
+          "Dimensions": [
+            17,
+            11
+          ],
+          "DecodedBytes": 374,
+          "DecodedSha256": "bbe1fbe3c6f83ae82f32640c3311cdf7e9b141764bf4a26a79b69056c6dd00f0",
+          "NativeAstrometryLayer": null,
+          "LegacyAstrometryProperties": 0,
+          "UnavailableProperties": []
+        }
+      ],
+      "Diagnostics": [
+        {
+          "Severity": "Error",
+          "Code": "XISF002",
+          "Message": "The header must have an XML 1.0 UTF-8 declaration."
+        }
+      ],
+      "UnavailableObjects": 0
+    },
+    {
+      "Path": "Examples/xisf-rust/generated/UInt16_Gray_none.xisf",
+      "Status": "decoded",
+      "Images": [
+        {
+          "Id": null,
+          "SampleFormat": 1,
+          "ColorSpace": "Gray",
+          "ChannelCount": 1,
+          "Dimensions": [
+            17,
+            11
+          ],
+          "DecodedBytes": 374,
+          "DecodedSha256": "bbe1fbe3c6f83ae82f32640c3311cdf7e9b141764bf4a26a79b69056c6dd00f0",
+          "NativeAstrometryLayer": null,
+          "LegacyAstrometryProperties": 0,
+          "UnavailableProperties": []
+        }
+      ],
+      "Diagnostics": [
+        {
+          "Severity": "Error",
+          "Code": "XISF002",
+          "Message": "The header must have an XML 1.0 UTF-8 declaration."
+        }
+      ],
+      "UnavailableObjects": 0
+    },
+    {
+      "Path": "Examples/xisf-rust/generated/UInt16_Gray_zlib.xisf",
+      "Status": "decoded",
+      "Images": [
+        {
+          "Id": null,
+          "SampleFormat": 1,
+          "ColorSpace": "Gray",
+          "ChannelCount": 1,
+          "Dimensions": [
+            17,
+            11
+          ],
+          "DecodedBytes": 374,
+          "DecodedSha256": "bbe1fbe3c6f83ae82f32640c3311cdf7e9b141764bf4a26a79b69056c6dd00f0",
+          "NativeAstrometryLayer": null,
+          "LegacyAstrometryProperties": 0,
+          "UnavailableProperties": []
+        }
+      ],
+      "Diagnostics": [
+        {
+          "Severity": "Error",
+          "Code": "XISF002",
+          "Message": "The header must have an XML 1.0 UTF-8 declaration."
+        }
+      ],
+      "UnavailableObjects": 0
+    },
+    {
+      "Path": "Examples/xisf-rust/generated/UInt16_Gray_zlib\u002Bsh.xisf",
+      "Status": "decoded",
+      "Images": [
+        {
+          "Id": null,
+          "SampleFormat": 1,
+          "ColorSpace": "Gray",
+          "ChannelCount": 1,
+          "Dimensions": [
+            17,
+            11
+          ],
+          "DecodedBytes": 374,
+          "DecodedSha256": "bbe1fbe3c6f83ae82f32640c3311cdf7e9b141764bf4a26a79b69056c6dd00f0",
+          "NativeAstrometryLayer": null,
+          "LegacyAstrometryProperties": 0,
+          "UnavailableProperties": []
+        }
+      ],
+      "Diagnostics": [
+        {
+          "Severity": "Error",
+          "Code": "XISF002",
+          "Message": "The header must have an XML 1.0 UTF-8 declaration."
+        }
+      ],
+      "UnavailableObjects": 0
+    },
+    {
+      "Path": "Examples/xisf-rust/generated/UInt16_Gray_zstd.xisf",
+      "Status": "decoded",
+      "Images": [
+        {
+          "Id": null,
+          "SampleFormat": 1,
+          "ColorSpace": "Gray",
+          "ChannelCount": 1,
+          "Dimensions": [
+            17,
+            11
+          ],
+          "DecodedBytes": 374,
+          "DecodedSha256": "bbe1fbe3c6f83ae82f32640c3311cdf7e9b141764bf4a26a79b69056c6dd00f0",
+          "NativeAstrometryLayer": null,
+          "LegacyAstrometryProperties": 0,
+          "UnavailableProperties": []
+        }
+      ],
+      "Diagnostics": [
+        {
+          "Severity": "Error",
+          "Code": "XISF002",
+          "Message": "The header must have an XML 1.0 UTF-8 declaration."
+        }
+      ],
+      "UnavailableObjects": 0
+    },
+    {
+      "Path": "Examples/xisf-rust/generated/UInt16_RGB_none.xisf",
+      "Status": "decoded",
+      "Images": [
+        {
+          "Id": null,
+          "SampleFormat": 1,
+          "ColorSpace": "RGB",
+          "ChannelCount": 3,
+          "Dimensions": [
+            5,
+            7
+          ],
+          "DecodedBytes": 210,
+          "DecodedSha256": "a398b6d21a73cf16eb933ec6cf1ce91b584998d557298cb50b57a7514e3cfefc",
+          "NativeAstrometryLayer": null,
+          "LegacyAstrometryProperties": 0,
+          "UnavailableProperties": []
+        }
+      ],
+      "Diagnostics": [
+        {
+          "Severity": "Error",
+          "Code": "XISF002",
+          "Message": "The header must have an XML 1.0 UTF-8 declaration."
+        }
+      ],
+      "UnavailableObjects": 0
+    },
+    {
+      "Path": "Examples/xisf-rust/generated/UInt32_Gray_lz4.xisf",
+      "Status": "decoded",
+      "Images": [
+        {
+          "Id": null,
+          "SampleFormat": 2,
+          "ColorSpace": "Gray",
+          "ChannelCount": 1,
+          "Dimensions": [
+            17,
+            11
+          ],
+          "DecodedBytes": 748,
+          "DecodedSha256": "52983ae731951d7b35950b0f5f2d62b5d4a2a3728eb57e4e081049475b0bbf83",
+          "NativeAstrometryLayer": null,
+          "LegacyAstrometryProperties": 0,
+          "UnavailableProperties": []
+        }
+      ],
+      "Diagnostics": [
+        {
+          "Severity": "Error",
+          "Code": "XISF002",
+          "Message": "The header must have an XML 1.0 UTF-8 declaration."
+        }
+      ],
+      "UnavailableObjects": 0
+    },
+    {
+      "Path": "Examples/xisf-rust/generated/UInt32_Gray_lz4\u002Bsh.xisf",
+      "Status": "decoded",
+      "Images": [
+        {
+          "Id": null,
+          "SampleFormat": 2,
+          "ColorSpace": "Gray",
+          "ChannelCount": 1,
+          "Dimensions": [
+            17,
+            11
+          ],
+          "DecodedBytes": 748,
+          "DecodedSha256": "52983ae731951d7b35950b0f5f2d62b5d4a2a3728eb57e4e081049475b0bbf83",
+          "NativeAstrometryLayer": null,
+          "LegacyAstrometryProperties": 0,
+          "UnavailableProperties": []
+        }
+      ],
+      "Diagnostics": [
+        {
+          "Severity": "Error",
+          "Code": "XISF002",
+          "Message": "The header must have an XML 1.0 UTF-8 declaration."
+        }
+      ],
+      "UnavailableObjects": 0
+    },
+    {
+      "Path": "Examples/xisf-rust/generated/UInt32_Gray_lz4hc.xisf",
+      "Status": "decoded",
+      "Images": [
+        {
+          "Id": null,
+          "SampleFormat": 2,
+          "ColorSpace": "Gray",
+          "ChannelCount": 1,
+          "Dimensions": [
+            17,
+            11
+          ],
+          "DecodedBytes": 748,
+          "DecodedSha256": "52983ae731951d7b35950b0f5f2d62b5d4a2a3728eb57e4e081049475b0bbf83",
+          "NativeAstrometryLayer": null,
+          "LegacyAstrometryProperties": 0,
+          "UnavailableProperties": []
+        }
+      ],
+      "Diagnostics": [
+        {
+          "Severity": "Error",
+          "Code": "XISF002",
+          "Message": "The header must have an XML 1.0 UTF-8 declaration."
+        }
+      ],
+      "UnavailableObjects": 0
+    },
+    {
+      "Path": "Examples/xisf-rust/generated/UInt32_Gray_none.xisf",
+      "Status": "decoded",
+      "Images": [
+        {
+          "Id": null,
+          "SampleFormat": 2,
+          "ColorSpace": "Gray",
+          "ChannelCount": 1,
+          "Dimensions": [
+            17,
+            11
+          ],
+          "DecodedBytes": 748,
+          "DecodedSha256": "52983ae731951d7b35950b0f5f2d62b5d4a2a3728eb57e4e081049475b0bbf83",
+          "NativeAstrometryLayer": null,
+          "LegacyAstrometryProperties": 0,
+          "UnavailableProperties": []
+        }
+      ],
+      "Diagnostics": [
+        {
+          "Severity": "Error",
+          "Code": "XISF002",
+          "Message": "The header must have an XML 1.0 UTF-8 declaration."
+        }
+      ],
+      "UnavailableObjects": 0
+    },
+    {
+      "Path": "Examples/xisf-rust/generated/UInt32_Gray_zlib.xisf",
+      "Status": "decoded",
+      "Images": [
+        {
+          "Id": null,
+          "SampleFormat": 2,
+          "ColorSpace": "Gray",
+          "ChannelCount": 1,
+          "Dimensions": [
+            17,
+            11
+          ],
+          "DecodedBytes": 748,
+          "DecodedSha256": "52983ae731951d7b35950b0f5f2d62b5d4a2a3728eb57e4e081049475b0bbf83",
+          "NativeAstrometryLayer": null,
+          "LegacyAstrometryProperties": 0,
+          "UnavailableProperties": []
+        }
+      ],
+      "Diagnostics": [
+        {
+          "Severity": "Error",
+          "Code": "XISF002",
+          "Message": "The header must have an XML 1.0 UTF-8 declaration."
+        }
+      ],
+      "UnavailableObjects": 0
+    },
+    {
+      "Path": "Examples/xisf-rust/generated/UInt32_Gray_zlib\u002Bsh.xisf",
+      "Status": "decoded",
+      "Images": [
+        {
+          "Id": null,
+          "SampleFormat": 2,
+          "ColorSpace": "Gray",
+          "ChannelCount": 1,
+          "Dimensions": [
+            17,
+            11
+          ],
+          "DecodedBytes": 748,
+          "DecodedSha256": "52983ae731951d7b35950b0f5f2d62b5d4a2a3728eb57e4e081049475b0bbf83",
+          "NativeAstrometryLayer": null,
+          "LegacyAstrometryProperties": 0,
+          "UnavailableProperties": []
+        }
+      ],
+      "Diagnostics": [
+        {
+          "Severity": "Error",
+          "Code": "XISF002",
+          "Message": "The header must have an XML 1.0 UTF-8 declaration."
+        }
+      ],
+      "UnavailableObjects": 0
+    },
+    {
+      "Path": "Examples/xisf-rust/generated/UInt32_Gray_zstd.xisf",
+      "Status": "decoded",
+      "Images": [
+        {
+          "Id": null,
+          "SampleFormat": 2,
+          "ColorSpace": "Gray",
+          "ChannelCount": 1,
+          "Dimensions": [
+            17,
+            11
+          ],
+          "DecodedBytes": 748,
+          "DecodedSha256": "52983ae731951d7b35950b0f5f2d62b5d4a2a3728eb57e4e081049475b0bbf83",
+          "NativeAstrometryLayer": null,
+          "LegacyAstrometryProperties": 0,
+          "UnavailableProperties": []
+        }
+      ],
+      "Diagnostics": [
+        {
+          "Severity": "Error",
+          "Code": "XISF002",
+          "Message": "The header must have an XML 1.0 UTF-8 declaration."
+        }
+      ],
+      "UnavailableObjects": 0
+    },
+    {
+      "Path": "Examples/xisf-rust/generated/UInt32_RGB_none.xisf",
+      "Status": "decoded",
+      "Images": [
+        {
+          "Id": null,
+          "SampleFormat": 2,
+          "ColorSpace": "RGB",
+          "ChannelCount": 3,
+          "Dimensions": [
+            5,
+            7
+          ],
+          "DecodedBytes": 420,
+          "DecodedSha256": "4a42f9cfea2e7718696b18a9e12efeb9a225c1f590e713d4b41a820ed9f3f4a2",
+          "NativeAstrometryLayer": null,
+          "LegacyAstrometryProperties": 0,
+          "UnavailableProperties": []
+        }
+      ],
+      "Diagnostics": [
+        {
+          "Severity": "Error",
+          "Code": "XISF002",
+          "Message": "The header must have an XML 1.0 UTF-8 declaration."
+        }
+      ],
+      "UnavailableObjects": 0
+    },
+    {
+      "Path": "Examples/xisf-rust/generated/UInt8_Gray_lz4.xisf",
+      "Status": "decoded",
+      "Images": [
+        {
+          "Id": null,
+          "SampleFormat": 0,
+          "ColorSpace": "Gray",
+          "ChannelCount": 1,
+          "Dimensions": [
+            17,
+            11
+          ],
+          "DecodedBytes": 187,
+          "DecodedSha256": "ba3c91b64c9b24dc91661f019edd140403020079ef5eec9f5177010bb5598fd2",
+          "NativeAstrometryLayer": null,
+          "LegacyAstrometryProperties": 0,
+          "UnavailableProperties": []
+        }
+      ],
+      "Diagnostics": [
+        {
+          "Severity": "Error",
+          "Code": "XISF002",
+          "Message": "The header must have an XML 1.0 UTF-8 declaration."
+        }
+      ],
+      "UnavailableObjects": 0
+    },
+    {
+      "Path": "Examples/xisf-rust/generated/UInt8_Gray_lz4\u002Bsh.xisf",
+      "Status": "decoded",
+      "Images": [
+        {
+          "Id": null,
+          "SampleFormat": 0,
+          "ColorSpace": "Gray",
+          "ChannelCount": 1,
+          "Dimensions": [
+            17,
+            11
+          ],
+          "DecodedBytes": 187,
+          "DecodedSha256": "ba3c91b64c9b24dc91661f019edd140403020079ef5eec9f5177010bb5598fd2",
+          "NativeAstrometryLayer": null,
+          "LegacyAstrometryProperties": 0,
+          "UnavailableProperties": []
+        }
+      ],
+      "Diagnostics": [
+        {
+          "Severity": "Error",
+          "Code": "XISF002",
+          "Message": "The header must have an XML 1.0 UTF-8 declaration."
+        }
+      ],
+      "UnavailableObjects": 0
+    },
+    {
+      "Path": "Examples/xisf-rust/generated/UInt8_Gray_lz4hc.xisf",
+      "Status": "decoded",
+      "Images": [
+        {
+          "Id": null,
+          "SampleFormat": 0,
+          "ColorSpace": "Gray",
+          "ChannelCount": 1,
+          "Dimensions": [
+            17,
+            11
+          ],
+          "DecodedBytes": 187,
+          "DecodedSha256": "ba3c91b64c9b24dc91661f019edd140403020079ef5eec9f5177010bb5598fd2",
+          "NativeAstrometryLayer": null,
+          "LegacyAstrometryProperties": 0,
+          "UnavailableProperties": []
+        }
+      ],
+      "Diagnostics": [
+        {
+          "Severity": "Error",
+          "Code": "XISF002",
+          "Message": "The header must have an XML 1.0 UTF-8 declaration."
+        }
+      ],
+      "UnavailableObjects": 0
+    },
+    {
+      "Path": "Examples/xisf-rust/generated/UInt8_Gray_none.xisf",
+      "Status": "decoded",
+      "Images": [
+        {
+          "Id": null,
+          "SampleFormat": 0,
+          "ColorSpace": "Gray",
+          "ChannelCount": 1,
+          "Dimensions": [
+            17,
+            11
+          ],
+          "DecodedBytes": 187,
+          "DecodedSha256": "ba3c91b64c9b24dc91661f019edd140403020079ef5eec9f5177010bb5598fd2",
+          "NativeAstrometryLayer": null,
+          "LegacyAstrometryProperties": 0,
+          "UnavailableProperties": []
+        }
+      ],
+      "Diagnostics": [
+        {
+          "Severity": "Error",
+          "Code": "XISF002",
+          "Message": "The header must have an XML 1.0 UTF-8 declaration."
+        }
+      ],
+      "UnavailableObjects": 0
+    },
+    {
+      "Path": "Examples/xisf-rust/generated/UInt8_Gray_zlib.xisf",
+      "Status": "decoded",
+      "Images": [
+        {
+          "Id": null,
+          "SampleFormat": 0,
+          "ColorSpace": "Gray",
+          "ChannelCount": 1,
+          "Dimensions": [
+            17,
+            11
+          ],
+          "DecodedBytes": 187,
+          "DecodedSha256": "ba3c91b64c9b24dc91661f019edd140403020079ef5eec9f5177010bb5598fd2",
+          "NativeAstrometryLayer": null,
+          "LegacyAstrometryProperties": 0,
+          "UnavailableProperties": []
+        }
+      ],
+      "Diagnostics": [
+        {
+          "Severity": "Error",
+          "Code": "XISF002",
+          "Message": "The header must have an XML 1.0 UTF-8 declaration."
+        }
+      ],
+      "UnavailableObjects": 0
+    },
+    {
+      "Path": "Examples/xisf-rust/generated/UInt8_Gray_zlib\u002Bsh.xisf",
+      "Status": "decoded",
+      "Images": [
+        {
+          "Id": null,
+          "SampleFormat": 0,
+          "ColorSpace": "Gray",
+          "ChannelCount": 1,
+          "Dimensions": [
+            17,
+            11
+          ],
+          "DecodedBytes": 187,
+          "DecodedSha256": "ba3c91b64c9b24dc91661f019edd140403020079ef5eec9f5177010bb5598fd2",
+          "NativeAstrometryLayer": null,
+          "LegacyAstrometryProperties": 0,
+          "UnavailableProperties": []
+        }
+      ],
+      "Diagnostics": [
+        {
+          "Severity": "Error",
+          "Code": "XISF002",
+          "Message": "The header must have an XML 1.0 UTF-8 declaration."
+        }
+      ],
+      "UnavailableObjects": 0
+    },
+    {
+      "Path": "Examples/xisf-rust/generated/UInt8_Gray_zstd.xisf",
+      "Status": "decoded",
+      "Images": [
+        {
+          "Id": null,
+          "SampleFormat": 0,
+          "ColorSpace": "Gray",
+          "ChannelCount": 1,
+          "Dimensions": [
+            17,
+            11
+          ],
+          "DecodedBytes": 187,
+          "DecodedSha256": "ba3c91b64c9b24dc91661f019edd140403020079ef5eec9f5177010bb5598fd2",
+          "NativeAstrometryLayer": null,
+          "LegacyAstrometryProperties": 0,
+          "UnavailableProperties": []
+        }
+      ],
+      "Diagnostics": [
+        {
+          "Severity": "Error",
+          "Code": "XISF002",
+          "Message": "The header must have an XML 1.0 UTF-8 declaration."
+        }
+      ],
+      "UnavailableObjects": 0
+    },
+    {
+      "Path": "Examples/xisf-rust/generated/UInt8_RGB_none.xisf",
+      "Status": "decoded",
+      "Images": [
+        {
+          "Id": null,
+          "SampleFormat": 0,
+          "ColorSpace": "RGB",
+          "ChannelCount": 3,
+          "Dimensions": [
+            5,
+            7
+          ],
+          "DecodedBytes": 105,
+          "DecodedSha256": "a6056e38557194d73f15ac5fe531bb9ac573c3e5359c6f910133a59322e7f0cd",
+          "NativeAstrometryLayer": null,
+          "LegacyAstrometryProperties": 0,
+          "UnavailableProperties": []
+        }
+      ],
+      "Diagnostics": [
+        {
+          "Severity": "Error",
+          "Code": "XISF002",
+          "Message": "The header must have an XML 1.0 UTF-8 declaration."
+        }
+      ],
+      "UnavailableObjects": 0
+    },
+    {
+      "Path": "Examples/xisf-rust/pixinsight/Sample_F32_NoCompression_NoSecurity.xisf",
+      "Status": "decoded",
+      "Images": [
+        {
+          "Id": null,
+          "SampleFormat": 4,
+          "ColorSpace": "RGB",
+          "ChannelCount": 3,
+          "Dimensions": [
+            50,
+            50
+          ],
+          "DecodedBytes": 30000,
+          "DecodedSha256": "9152de9a130a370b9cfa475c04d4af683c30ca88cc0b23bb97ae0d78411ad363",
+          "NativeAstrometryLayer": null,
+          "LegacyAstrometryProperties": 0,
+          "UnavailableProperties": []
+        }
+      ],
+      "Diagnostics": [
+        {
+          "Severity": "Error",
+          "Code": "XISF004",
+          "Message": "Metadata requires one XISF:CreationTime property of type TimePoint."
+        },
+        {
+          "Severity": "Error",
+          "Code": "XISF044",
+          "Message": "The ICC profile is malformed or does not set the embedded-profile flag."
+        }
+      ],
+      "UnavailableObjects": 0
+    },
+    {
+      "Path": "Examples/xisf-rust/pixinsight/Sample_F32_ZlibCompression_Sha256Security.xisf",
+      "Status": "decoded",
+      "Images": [
+        {
+          "Id": null,
+          "SampleFormat": 4,
+          "ColorSpace": "RGB",
+          "ChannelCount": 3,
+          "Dimensions": [
+            50,
+            50
+          ],
+          "DecodedBytes": 30000,
+          "DecodedSha256": "83829566a428ff855963d71cc6c72ac39b277f1b618e2c3bdeed6aa6bd71dae6",
+          "NativeAstrometryLayer": null,
+          "LegacyAstrometryProperties": 0,
+          "UnavailableProperties": []
+        }
+      ],
+      "Diagnostics": [
+        {
+          "Severity": "Error",
+          "Code": "XISF004",
+          "Message": "Metadata requires one XISF:CreationTime property of type TimePoint."
+        },
+        {
+          "Severity": "Error",
+          "Code": "XISF044",
+          "Message": "The ICC profile is malformed or does not set the embedded-profile flag."
+        }
+      ],
+      "UnavailableObjects": 0
+    },
+    {
+      "Path": "Examples/xisf-rust/pixinsight/simple_10by10.xisf",
+      "Status": "decoded",
+      "Images": [
+        {
+          "Id": null,
+          "SampleFormat": 0,
+          "ColorSpace": "RGB",
+          "ChannelCount": 3,
+          "Dimensions": [
+            10,
+            10
+          ],
+          "DecodedBytes": 300,
+          "DecodedSha256": "08252849eea74fcb61c13b32da5c7ed6ee9aaa328160d509a7c12fd5c7ac60fe",
+          "NativeAstrometryLayer": null,
+          "LegacyAstrometryProperties": 0,
+          "UnavailableProperties": []
+        }
+      ],
+      "Diagnostics": [
+        {
+          "Severity": "Error",
+          "Code": "XISF004",
+          "Message": "Metadata requires one XISF:CreationTime property of type TimePoint."
+        }
+      ],
+      "UnavailableObjects": 0
+    },
+    {
+      "Path": "Examples/xisfits/xisf-image-gray-256x256-16bits-zlib_sh.xisf",
+      "Status": "decoded",
+      "Images": [
+        {
+          "Id": null,
+          "SampleFormat": 1,
+          "ColorSpace": "Gray",
+          "ChannelCount": 1,
+          "Dimensions": [
+            256,
+            256
+          ],
+          "DecodedBytes": 131072,
+          "DecodedSha256": "d946a00e58e58bfafe3d6822e9a338f7abdcd1ad369957bb4fc1a17d01fbff71",
+          "NativeAstrometryLayer": null,
+          "LegacyAstrometryProperties": 0,
+          "UnavailableProperties": []
+        }
+      ],
+      "Diagnostics": [
+        {
+          "Severity": "Error",
+          "Code": "XISF004",
+          "Message": "Metadata requires one XISF:CreationTime property of type TimePoint."
+        }
+      ],
+      "UnavailableObjects": 0
+    },
+    {
+      "Path": "Examples/xisfits/xisf-image-gray-256x256-16bits-zlib.xisf",
+      "Status": "decoded",
+      "Images": [
+        {
+          "Id": null,
+          "SampleFormat": 1,
+          "ColorSpace": "Gray",
+          "ChannelCount": 1,
+          "Dimensions": [
+            256,
+            256
+          ],
+          "DecodedBytes": 131072,
+          "DecodedSha256": "52e89927ab3f7cb1b0f7508ec1ae44959cbc2207c266deb885886cc1586e60ba",
+          "NativeAstrometryLayer": null,
+          "LegacyAstrometryProperties": 0,
+          "UnavailableProperties": []
+        }
+      ],
+      "Diagnostics": [
+        {
+          "Severity": "Error",
+          "Code": "XISF004",
+          "Message": "Metadata requires one XISF:CreationTime property of type TimePoint."
+        }
+      ],
+      "UnavailableObjects": 0
+    },
+    {
+      "Path": "Examples/xisfits/xisf-image-gray-256x256-8bits.xisf",
+      "Status": "decoded",
+      "Images": [
+        {
+          "Id": null,
+          "SampleFormat": 0,
+          "ColorSpace": "Gray",
+          "ChannelCount": 1,
+          "Dimensions": [
+            256,
+            256
+          ],
+          "DecodedBytes": 65536,
+          "DecodedSha256": "71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063",
+          "NativeAstrometryLayer": null,
+          "LegacyAstrometryProperties": 0,
+          "UnavailableProperties": []
+        }
+      ],
+      "Diagnostics": [
+        {
+          "Severity": "Error",
+          "Code": "XISF004",
+          "Message": "Metadata requires one XISF:CreationTime property of type TimePoint."
+        }
+      ],
+      "UnavailableObjects": 0
+    },
+    {
+      "Path": "Examples/xisfits/xisf-image-gray-256x256-float-32bits.xisf",
+      "Status": "decoded",
+      "Images": [
+        {
+          "Id": null,
+          "SampleFormat": 4,
+          "ColorSpace": "Gray",
+          "ChannelCount": 1,
+          "Dimensions": [
+            255,
+            255
+          ],
+          "DecodedBytes": 260100,
+          "DecodedSha256": "448db4bf91797bc5084e336eaad30d6dc78edd32284c489d4d658edde523cdc6",
+          "NativeAstrometryLayer": null,
+          "LegacyAstrometryProperties": 0,
+          "UnavailableProperties": []
+        }
+      ],
+      "Diagnostics": [
+        {
+          "Severity": "Error",
+          "Code": "XISF004",
+          "Message": "Metadata requires one XISF:CreationTime property of type TimePoint."
+        }
+      ],
+      "UnavailableObjects": 0
+    },
+    {
+      "Path": "Examples/xisfits/xisf-image-gray-256x256-float-64bits.xisf",
+      "Status": "decoded",
+      "Images": [
+        {
+          "Id": null,
+          "SampleFormat": 5,
+          "ColorSpace": "Gray",
+          "ChannelCount": 1,
+          "Dimensions": [
+            255,
+            255
+          ],
+          "DecodedBytes": 520200,
+          "DecodedSha256": "e7841c3b5fdeff35715b7fd88ecd081c118d3aa383a9891225b1d8081ec72e5e",
+          "NativeAstrometryLayer": null,
+          "LegacyAstrometryProperties": 0,
+          "UnavailableProperties": []
+        }
+      ],
+      "Diagnostics": [
+        {
+          "Severity": "Error",
+          "Code": "XISF004",
+          "Message": "Metadata requires one XISF:CreationTime property of type TimePoint."
+        }
+      ],
+      "UnavailableObjects": 0
+    },
+    {
+      "Path": "Examples/xisfits/xisf-image-rgb-256x256-16bits.xisf",
+      "Status": "decoded",
+      "Images": [
+        {
+          "Id": null,
+          "SampleFormat": 1,
+          "ColorSpace": "RGB",
+          "ChannelCount": 3,
+          "Dimensions": [
+            256,
+            256
+          ],
+          "DecodedBytes": 393216,
+          "DecodedSha256": "8d57bbc7a2984e006db9330813fb6c0dedc7c81604e2852447909419d897c3f8",
+          "NativeAstrometryLayer": null,
+          "LegacyAstrometryProperties": 0,
+          "UnavailableProperties": []
+        }
+      ],
+      "Diagnostics": [
+        {
+          "Severity": "Error",
+          "Code": "XISF004",
+          "Message": "Metadata requires one XISF:CreationTime property of type TimePoint."
+        },
+        {
+          "Severity": "Error",
+          "Code": "XISF044",
+          "Message": "The ICC profile is malformed or does not set the embedded-profile flag."
+        }
+      ],
+      "UnavailableObjects": 0
+    },
+    {
+      "Path": "Examples/xisfits/xisf-image-rgb-256x256-32bits.xisf",
+      "Status": "decoded",
+      "Images": [
+        {
+          "Id": null,
+          "SampleFormat": 2,
+          "ColorSpace": "RGB",
+          "ChannelCount": 3,
+          "Dimensions": [
+            256,
+            256
+          ],
+          "DecodedBytes": 786432,
+          "DecodedSha256": "5bc6090ad1ca7f0d14dbeee126b08571c786f74dd8bc2aecb369b26760e0cfee",
+          "NativeAstrometryLayer": null,
+          "LegacyAstrometryProperties": 0,
+          "UnavailableProperties": []
+        }
+      ],
+      "Diagnostics": [
+        {
+          "Severity": "Error",
+          "Code": "XISF004",
+          "Message": "Metadata requires one XISF:CreationTime property of type TimePoint."
+        },
+        {
+          "Severity": "Error",
+          "Code": "XISF044",
+          "Message": "The ICC profile is malformed or does not set the embedded-profile flag."
+        }
+      ],
+      "UnavailableObjects": 0
+    },
+    {
+      "Path": "Examples/xisfits/xisf-image-rgb-256x256-8bits-compressed.xisf",
+      "Status": "decoded",
+      "Images": [
+        {
+          "Id": null,
+          "SampleFormat": 0,
+          "ColorSpace": "Gray",
+          "ChannelCount": 1,
+          "Dimensions": [
+            256,
+            256
+          ],
+          "DecodedBytes": 65536,
+          "DecodedSha256": "71189f7fb6aed638640078fba3a35fda6c39c8962e74dcc75935aac948da9063",
+          "NativeAstrometryLayer": null,
+          "LegacyAstrometryProperties": 0,
+          "UnavailableProperties": []
+        }
+      ],
+      "Diagnostics": [
+        {
+          "Severity": "Error",
+          "Code": "XISF004",
+          "Message": "Metadata requires one XISF:CreationTime property of type TimePoint."
+        }
+      ],
+      "UnavailableObjects": 0
+    },
+    {
+      "Path": "Examples/xisfits/xisf-image-rgb-256x256-8bits.xisf",
+      "Status": "decoded",
+      "Images": [
+        {
+          "Id": null,
+          "SampleFormat": 0,
+          "ColorSpace": "RGB",
+          "ChannelCount": 3,
+          "Dimensions": [
+            256,
+            256
+          ],
+          "DecodedBytes": 196608,
+          "DecodedSha256": "e988a04bdbd1fe1d770188b8439c2766b62ef127f7a4dcac9aafa1485c407bf2",
+          "NativeAstrometryLayer": null,
+          "LegacyAstrometryProperties": 0,
+          "UnavailableProperties": []
+        }
+      ],
+      "Diagnostics": [
+        {
+          "Severity": "Error",
+          "Code": "XISF004",
+          "Message": "Metadata requires one XISF:CreationTime property of type TimePoint."
+        },
+        {
+          "Severity": "Error",
+          "Code": "XISF044",
+          "Message": "The ICC profile is malformed or does not set the embedded-profile flag."
+        }
+      ],
+      "UnavailableObjects": 0
+    }
+  ]
+}

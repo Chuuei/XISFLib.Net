@@ -1,6 +1,6 @@
 # XISF specification coverage
 
-This audit targets [XISF 1.0 Revision 1, document version 1.01](https://pixinsight.com/doc/docs/XISF-1.0-spec/XISF-1.0-spec.html). Astrometric solutions have their own revision, currently `1.0`.
+This audit targets [XISF 1.0 Revision 1, document version 1.01, published in September 2026](https://pixinsight.com/doc/docs/XISF-1.0-spec/XISF-1.0-spec.html). The format version remains `1.0`; the document revision does not introduce a new file format version. Astrometric solutions have their own revision, currently `1.0`.
 
 The table describes implemented format support. It is not a certification of interoperability with every producer. Automated tests exercise the implementation and representative generated headers have also been checked against the published XSD. Independent PixInsight files containing real fitted distortion models would provide additional interoperability evidence.
 

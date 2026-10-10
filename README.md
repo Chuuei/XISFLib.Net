@@ -165,4 +165,4 @@ The document exposes typed global/image properties, tables, FITS keywords, ICC p
 - W3C XML digital-signature verification and RSA signature creation
 - FITS 4.0 80-byte cards and 2880-byte records, primary/image/table/unknown HDUs, physical scaling and nulls, long and hierarchical keywords, WCS-preserving metadata conversion, standard unsigned integer conventions, and FITS checksums
 
-The [specification coverage report](docs/specification-compliance.md) records the Revision 1 audit, implemented features, verification evidence and operational bounds. See [native astrometric solutions](docs/astrometry.md) for all seven projections, projective transforms, spline distortion models and layer fallback.
+The [specification coverage report](docs/specification-compliance.md) records the September 2026 Revision 1 audit, implemented features, verification evidence and operational bounds. See [native astrometric solutions](docs/astrometry.md) for all seven projections, projective transforms, spline distortion models and layer fallback.

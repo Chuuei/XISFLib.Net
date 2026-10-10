@@ -1,0 +1,1645 @@
+{
+  "RetrievedUtc": "2026-10-10T16:55:07.3495523+00:00",
+  "DownloadedFiles": 62,
+  "DownloadedBytes": 1292323155,
+  "Providers": {
+    "xisfits": {
+      "SourcePage": "https://github.com/vrruiz/xisfits/tree/f38642761d10895a3dd97e877d135f8c9ab5d1da/tests/images",
+      "Revision": "f38642761d10895a3dd97e877d135f8c9ab5d1da",
+      "Rights": "Repository MIT license; see xisfits/LICENSE"
+    },
+    "xisf-rust": {
+      "SourcePage": "https://github.com/cruzzil/xisf/tree/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus",
+      "Revision": "7043131801abc829ed05c002c7c2a85f818ef4b9",
+      "Rights": "Repository MIT license; see xisf-rust/LICENSE and CORPUS-README.md for fixture provenance"
+    },
+    "meridian": {
+      "SourcePage": "https://macobservatory.com/meridian-review-sample-data/",
+      "DownloadUrl": "https://www.dropbox.com/scl/fi/ytjjb5mf1i3mrgmyrt0cd/meridian-sample-archive.zip?rlkey=ciyi3ei7z7uytqj7ciof1wpou&dl=1",
+      "Rights": "Public sample archive by Mac Observatory / Andrew Burwell; no separate redistribution license identified"
+    },
+    "nina": {
+      "SourcePage": "https://github.com/isbeorn/nina/blob/5f137612aba9a4360f365232763525bfd8d4a866/NINA.Test/Autofocus/TestImage_Jelly.xisf",
+      "Revision": "5f137612aba9a4360f365232763525bfd8d4a866",
+      "Rights": "Repository MPL-2.0 license; see nina/LICENSE.txt"
+    },
+    "community": {
+      "SourcePage": "https://app.astrobin.com/forum/topic/168667/pleiades-astrophoto-pixinsight/why-cant-i-plate-solve-this-image-in-pixinsight",
+      "DownloadUrl": "https://www.dropbox.com/scl/fi/du426kcy9z2ahuzj1yrsi/masterLight_BIN-1_6248x4176_EXPOSURE-120.00s_FILTER-Green_mono_autocrop.xisf?rlkey=b8o75zn0rvdfheu0r8qolmxxm&dl=1",
+      "Rights": "Public troubleshooting sample by AmyWarble; no separate redistribution license identified"
+    },
+    "tim-ray": {
+      "SourcePage": "https://app.astrobin.com/forum/topic/198004/data-for-practice",
+      "FolderUrl": "https://drive.google.com/drive/folders/1Ax1SEt4aoBWF2TXKEht7dphlsybskpzK",
+      "Rights": "Tim Ray / NRIO public processing-practice data; author requests processed results be posted only on AstroBin; no general redistribution license identified"
+    }
+  },
+  "Files": [
+    {
+      "Path": "community/AmyWarble_Green_master_autocrop.xisf",
+      "Provider": "community",
+      "Bytes": 100456000,
+      "Sha256": "81086bea9c46a2721094bd3b4600a0ba3b6748ed1834cdd450a7baf5e3594aa8",
+      "SourcePage": "https://app.astrobin.com/forum/topic/168667/pleiades-astrophoto-pixinsight/why-cant-i-plate-solve-this-image-in-pixinsight",
+      "DownloadUrl": "https://www.dropbox.com/scl/fi/du426kcy9z2ahuzj1yrsi/masterLight_BIN-1_6248x4176_EXPOSURE-120.00s_FILTER-Green_mono_autocrop.xisf?rlkey=b8o75zn0rvdfheu0r8qolmxxm&dl=1",
+      "Rights": "Public troubleshooting sample by AmyWarble; no separate redistribution license identified",
+      "Images": [
+        {
+          "id": "integration_autocrop2",
+          "geometry": "6204:4041:1",
+          "sampleFormat": "Float32",
+          "bounds": "0:1",
+          "imageType": "MasterLight",
+          "colorSpace": "Gray",
+          "location": "attachment:69632:100281456",
+          "AstrometricPropertyIds": []
+        }
+      ]
+    },
+    {
+      "Path": "meridian/NGC3718/2026-04-07_20-44-41_Red_0.00_300.00s_0012_a.xisf",
+      "Provider": "meridian",
+      "Bytes": 52232448,
+      "Sha256": "1c1ed9853d21da7f28cef7dcd7ee33b140434271e054a76a97351f6ee6e32bc0",
+      "SourcePage": "https://macobservatory.com/meridian-review-sample-data/",
+      "DownloadUrl": "https://www.dropbox.com/scl/fi/ytjjb5mf1i3mrgmyrt0cd/meridian-sample-archive.zip?rlkey=ciyi3ei7z7uytqj7ciof1wpou&dl=1",
+      "Rights": "Public sample archive by Mac Observatory / Andrew Burwell; no separate redistribution license identified",
+      "ArchiveEntry": "meridian-sample-archive/NGC3718/2026-04-07_20-44-41_Red_0.00_300.00s_0012_a.xisf",
+      "Images": [
+        {
+          "geometry": "6248:4176:1",
+          "sampleFormat": "UInt16",
+          "colorSpace": "Gray",
+          "location": "attachment:49152:52183296",
+          "AstrometricPropertyIds": []
+        }
+      ]
+    },
+    {
+      "Path": "meridian/NGC3718/2026-04-07_20-49-42_Red_0.00_300.00s_0013_a.xisf",
+      "Provider": "meridian",
+      "Bytes": 52232448,
+      "Sha256": "34a0aaba9ab3b1c6bd48928d6649acb8f421d7c539470e96f13a1f7edeb8eefe",
+      "SourcePage": "https://macobservatory.com/meridian-review-sample-data/",
+      "DownloadUrl": "https://www.dropbox.com/scl/fi/ytjjb5mf1i3mrgmyrt0cd/meridian-sample-archive.zip?rlkey=ciyi3ei7z7uytqj7ciof1wpou&dl=1",
+      "Rights": "Public sample archive by Mac Observatory / Andrew Burwell; no separate redistribution license identified",
+      "ArchiveEntry": "meridian-sample-archive/NGC3718/2026-04-07_20-49-42_Red_0.00_300.00s_0013_a.xisf",
+      "Images": [
+        {
+          "geometry": "6248:4176:1",
+          "sampleFormat": "UInt16",
+          "colorSpace": "Gray",
+          "location": "attachment:49152:52183296",
+          "AstrometricPropertyIds": []
+        }
+      ]
+    },
+    {
+      "Path": "meridian/NGC3718/2026-04-07_20-54-50_Luminance_0.00_300.00s_0029_a.xisf",
+      "Provider": "meridian",
+      "Bytes": 52306176,
+      "Sha256": "9986661d5078a6954a39a997061b27f18cec0fce1c82eca153986432be0b31a1",
+      "SourcePage": "https://macobservatory.com/meridian-review-sample-data/",
+      "DownloadUrl": "https://www.dropbox.com/scl/fi/ytjjb5mf1i3mrgmyrt0cd/meridian-sample-archive.zip?rlkey=ciyi3ei7z7uytqj7ciof1wpou&dl=1",
+      "Rights": "Public sample archive by Mac Observatory / Andrew Burwell; no separate redistribution license identified",
+      "ArchiveEntry": "meridian-sample-archive/NGC3718/2026-04-07_20-54-50_Luminance_0.00_300.00s_0029_a.xisf",
+      "Images": [
+        {
+          "geometry": "6248:4176:1",
+          "sampleFormat": "UInt16",
+          "colorSpace": "Gray",
+          "location": "attachment:122880:52183296",
+          "AstrometricPropertyIds": []
+        }
+      ]
+    },
+    {
+      "Path": "meridian/NGC3718/2026-04-07_20-59-51_Luminance_0.00_300.00s_0030_a.xisf",
+      "Provider": "meridian",
+      "Bytes": 52306176,
+      "Sha256": "a0769b5cf0d709426356b557d13f34eb37805c8cd05193811bb02e017715d2fc",
+      "SourcePage": "https://macobservatory.com/meridian-review-sample-data/",
+      "DownloadUrl": "https://www.dropbox.com/scl/fi/ytjjb5mf1i3mrgmyrt0cd/meridian-sample-archive.zip?rlkey=ciyi3ei7z7uytqj7ciof1wpou&dl=1",
+      "Rights": "Public sample archive by Mac Observatory / Andrew Burwell; no separate redistribution license identified",
+      "ArchiveEntry": "meridian-sample-archive/NGC3718/2026-04-07_20-59-51_Luminance_0.00_300.00s_0030_a.xisf",
+      "Images": [
+        {
+          "geometry": "6248:4176:1",
+          "sampleFormat": "UInt16",
+          "colorSpace": "Gray",
+          "location": "attachment:122880:52183296",
+          "AstrometricPropertyIds": []
+        }
+      ]
+    },
+    {
+      "Path": "meridian/NGC3718/2026-04-07_21-04-51_Luminance_0.00_300.00s_0031_a.xisf",
+      "Provider": "meridian",
+      "Bytes": 52306176,
+      "Sha256": "057f64be5addd4ce0bba9584e5c407f6b0a7609501074a1ee0809c2ffb30df18",
+      "SourcePage": "https://macobservatory.com/meridian-review-sample-data/",
+      "DownloadUrl": "https://www.dropbox.com/scl/fi/ytjjb5mf1i3mrgmyrt0cd/meridian-sample-archive.zip?rlkey=ciyi3ei7z7uytqj7ciof1wpou&dl=1",
+      "Rights": "Public sample archive by Mac Observatory / Andrew Burwell; no separate redistribution license identified",
+      "ArchiveEntry": "meridian-sample-archive/NGC3718/2026-04-07_21-04-51_Luminance_0.00_300.00s_0031_a.xisf",
+      "Images": [
+        {
+          "geometry": "6248:4176:1",
+          "sampleFormat": "UInt16",
+          "colorSpace": "Gray",
+          "location": "attachment:122880:52183296",
+          "AstrometricPropertyIds": []
+        }
+      ]
+    },
+    {
+      "Path": "nina/TestImage_Jelly.xisf",
+      "Provider": "nina",
+      "Bytes": 516211,
+      "Sha256": "4338325ad13a220db96c79b5235407993c5cc346cfa466c0fe74a79244db4bb2",
+      "SourcePage": "https://github.com/isbeorn/nina/blob/5f137612aba9a4360f365232763525bfd8d4a866/NINA.Test/Autofocus/TestImage_Jelly.xisf",
+      "Revision": "5f137612aba9a4360f365232763525bfd8d4a866",
+      "Rights": "Repository MPL-2.0 license; see nina/LICENSE.txt",
+      "DownloadUrl": "https://media.githubusercontent.com/media/isbeorn/nina/5f137612aba9a4360f365232763525bfd8d4a866/NINA.Test/Autofocus/TestImage_Jelly.xisf",
+      "Images": [
+        {
+          "geometry": "750:500:1",
+          "sampleFormat": "UInt16",
+          "colorSpace": "Gray",
+          "compression": "zlib+sh:750000:2",
+          "location": "attachment:3054:441397",
+          "AstrometricPropertyIds": []
+        }
+      ]
+    },
+    {
+      "Path": "slow.xisf",
+      "Provider": "user",
+      "Bytes": 127256016,
+      "Sha256": "372176d87ed0c2c8295cf4ec1b65d355b07c64cf7c52b13e520e3afff18c571c",
+      "SourcePage": null,
+      "Rights": "User supplied; source not provided",
+      "Images": [
+        {
+          "geometry": "4092:4676:3",
+          "sampleFormat": "Float32",
+          "pixelStorage": "Planar",
+          "colorSpace": "RGB",
+          "orientation": "0",
+          "byteOrder": "big",
+          "bounds": "0:1",
+          "compression": "zlib:229610304",
+          "checksum": "sha256:63f5b7371be947c42f150b9d364c69093da40b77678888cd718bbd5f77e142a4",
+          "location": "attachment:2842:127253174",
+          "AstrometricPropertyIds": []
+        }
+      ]
+    },
+    {
+      "Path": "tim-ray/Sh2-188_Ha_drizzle_2x.xisf",
+      "Provider": "tim-ray",
+      "Bytes": 308809728,
+      "Sha256": "333241387992f038d0cd1afbe37304dd4770dab0b62213009f1f81dfda880015",
+      "SourcePage": "https://app.astrobin.com/forum/topic/198004/data-for-practice",
+      "FolderUrl": "https://drive.google.com/drive/folders/1Ax1SEt4aoBWF2TXKEht7dphlsybskpzK",
+      "Rights": "Tim Ray / NRIO public processing-practice data; author requests processed results be posted only on AstroBin; no general redistribution license identified",
+      "DownloadUrl": "https://drive.usercontent.google.com/download?id=1BV8j1PdsHYOceAinY-FFSlad7WFm275j&export=download&confirm=t",
+      "OriginalFilename": "Sh2-188_masterLight_BIN-1_3008x3008_EXPOSURE-300.00s_FILTER-Ha_mono_drizzle_2x.xisf",
+      "Images": [
+        {
+          "id": "drizzle_integration",
+          "geometry": "6016:6016:1",
+          "sampleFormat": "Float32",
+          "bounds": "0:1",
+          "imageType": "MasterLight",
+          "colorSpace": "Gray",
+          "location": "attachment:782336:144769024",
+          "AstrometricPropertyIds": [
+            "PCL:AstrometricSolution:Catalog",
+            "PCL:AstrometricSolution:CelestialPoleNativeCoordinates",
+            "PCL:AstrometricSolution:CreationTime",
+            "PCL:AstrometricSolution:CreatorApplication",
+            "PCL:AstrometricSolution:CreatorModule",
+            "PCL:AstrometricSolution:CreatorOS",
+            "PCL:AstrometricSolution:LinearTransformationMatrix",
+            "PCL:AstrometricSolution:ProjectionSystem",
+            "PCL:AstrometricSolution:ReferenceCelestialCoordinates",
+            "PCL:AstrometricSolution:ReferenceImageCoordinates",
+            "PCL:AstrometricSolution:ReferenceNativeCoordinates",
+            "PCL:AstrometricSolution:SplineWorldTransformation:ControlPoints:Image",
+            "PCL:AstrometricSolution:SplineWorldTransformation:ControlPoints:World",
+            "PCL:AstrometricSolution:SplineWorldTransformation:LinearApproximation",
+            "PCL:AstrometricSolution:SplineWorldTransformation:MaxSplinePoints",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointGridInterpolation:ImageToNative:Delta",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointGridInterpolation:ImageToNative:GridX",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointGridInterpolation:ImageToNative:GridY",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointGridInterpolation:ImageToNative:Rect",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointGridInterpolation:NativeToImage:Delta",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointGridInterpolation:NativeToImage:GridX",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointGridInterpolation:NativeToImage:GridY",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointGridInterpolation:NativeToImage:Rect",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:ImageToNative:LinearFunction",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:ImageToNative:SimplificationErrorX",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:ImageToNative:SimplificationErrorY",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:ImageToNative:SurfaceSplineX:NodeXCoordinates",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:ImageToNative:SurfaceSplineX:NodeYCoordinates",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:ImageToNative:SurfaceSplineX:ScalingFactor",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:ImageToNative:SurfaceSplineX:Serialization",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:ImageToNative:SurfaceSplineX:ZeroOffsetX",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:ImageToNative:SurfaceSplineX:ZeroOffsetY",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:ImageToNative:SurfaceSplineY:NodeXCoordinates",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:ImageToNative:SurfaceSplineY:NodeYCoordinates",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:ImageToNative:SurfaceSplineY:ScalingFactor",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:ImageToNative:SurfaceSplineY:Serialization",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:ImageToNative:SurfaceSplineY:ZeroOffsetX",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:ImageToNative:SurfaceSplineY:ZeroOffsetY",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:ImageToNative:TruncatedX",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:ImageToNative:TruncatedY",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:NativeToImage:LinearFunction",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:NativeToImage:SimplificationErrorX",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:NativeToImage:SimplificationErrorY",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:NativeToImage:SurfaceSplineX:NodeXCoordinates",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:NativeToImage:SurfaceSplineX:NodeYCoordinates",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:NativeToImage:SurfaceSplineX:ScalingFactor",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:NativeToImage:SurfaceSplineX:Serialization",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:NativeToImage:SurfaceSplineX:ZeroOffsetX",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:NativeToImage:SurfaceSplineX:ZeroOffsetY",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:NativeToImage:SurfaceSplineY:NodeXCoordinates",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:NativeToImage:SurfaceSplineY:NodeYCoordinates",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:NativeToImage:SurfaceSplineY:ScalingFactor",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:NativeToImage:SurfaceSplineY:Serialization",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:NativeToImage:SurfaceSplineY:ZeroOffsetX",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:NativeToImage:SurfaceSplineY:ZeroOffsetY",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:NativeToImage:TruncatedX",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:NativeToImage:TruncatedY",
+            "PCL:AstrometricSolution:SplineWorldTransformation:Projective:ImageToNative",
+            "PCL:AstrometricSolution:SplineWorldTransformation:Projective:NativeToImage",
+            "PCL:AstrometricSolution:SplineWorldTransformation:RBFType",
+            "PCL:AstrometricSolution:SplineWorldTransformation:SimplifierRejectFraction",
+            "PCL:AstrometricSolution:SplineWorldTransformation:SplineOrder",
+            "PCL:AstrometricSolution:SplineWorldTransformation:SplineSmoothness",
+            "PCL:AstrometricSolution:SplineWorldTransformation:Truncated",
+            "PCL:AstrometricSolution:SplineWorldTransformation:UseSimplifiers",
+            "PCL:AstrometricSolution:SplineWorldTransformation:Version"
+          ]
+        },
+        {
+          "id": "drizzle_weights",
+          "geometry": "6016:6016:1",
+          "sampleFormat": "Float32",
+          "bounds": "0:1",
+          "imageType": "WeightMap",
+          "colorSpace": "Gray",
+          "location": "attachment:164040704:144769024",
+          "AstrometricPropertyIds": []
+        }
+      ]
+    },
+    {
+      "Path": "tim-ray/Sh2-188_Oiii_drizzle_2x.xisf",
+      "Provider": "tim-ray",
+      "Bytes": 309006336,
+      "Sha256": "c89ed4c692096870c02b8432112948830847392969bd543c7bb700c2b4bb76bd",
+      "SourcePage": "https://app.astrobin.com/forum/topic/198004/data-for-practice",
+      "FolderUrl": "https://drive.google.com/drive/folders/1Ax1SEt4aoBWF2TXKEht7dphlsybskpzK",
+      "Rights": "Tim Ray / NRIO public processing-practice data; author requests processed results be posted only on AstroBin; no general redistribution license identified",
+      "DownloadUrl": "https://drive.usercontent.google.com/download?id=1jCX3XH0tVxGFqOFDsrUNeWCBSewV54Ws&export=download&confirm=t",
+      "OriginalFilename": "Sh2-188_masterLight_BIN-1_3008x3008_EXPOSURE-300.00s_FILTER-Oiii_mono_drizzle_2x.xisf",
+      "Images": [
+        {
+          "id": "drizzle_integration",
+          "geometry": "6016:6016:1",
+          "sampleFormat": "Float32",
+          "bounds": "0:1",
+          "imageType": "MasterLight",
+          "colorSpace": "Gray",
+          "location": "attachment:921600:144769024",
+          "AstrometricPropertyIds": [
+            "PCL:AstrometricSolution:Catalog",
+            "PCL:AstrometricSolution:CelestialPoleNativeCoordinates",
+            "PCL:AstrometricSolution:CreationTime",
+            "PCL:AstrometricSolution:CreatorApplication",
+            "PCL:AstrometricSolution:CreatorModule",
+            "PCL:AstrometricSolution:CreatorOS",
+            "PCL:AstrometricSolution:LinearTransformationMatrix",
+            "PCL:AstrometricSolution:ProjectionSystem",
+            "PCL:AstrometricSolution:ReferenceCelestialCoordinates",
+            "PCL:AstrometricSolution:ReferenceImageCoordinates",
+            "PCL:AstrometricSolution:ReferenceNativeCoordinates",
+            "PCL:AstrometricSolution:SplineWorldTransformation:ControlPoints:Image",
+            "PCL:AstrometricSolution:SplineWorldTransformation:ControlPoints:World",
+            "PCL:AstrometricSolution:SplineWorldTransformation:LinearApproximation",
+            "PCL:AstrometricSolution:SplineWorldTransformation:MaxSplinePoints",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointGridInterpolation:ImageToNative:Delta",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointGridInterpolation:ImageToNative:GridX",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointGridInterpolation:ImageToNative:GridY",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointGridInterpolation:ImageToNative:Rect",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointGridInterpolation:NativeToImage:Delta",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointGridInterpolation:NativeToImage:GridX",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointGridInterpolation:NativeToImage:GridY",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointGridInterpolation:NativeToImage:Rect",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:ImageToNative:LinearFunction",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:ImageToNative:SimplificationErrorX",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:ImageToNative:SimplificationErrorY",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:ImageToNative:SurfaceSplineX:NodeXCoordinates",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:ImageToNative:SurfaceSplineX:NodeYCoordinates",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:ImageToNative:SurfaceSplineX:ScalingFactor",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:ImageToNative:SurfaceSplineX:Serialization",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:ImageToNative:SurfaceSplineX:ZeroOffsetX",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:ImageToNative:SurfaceSplineX:ZeroOffsetY",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:ImageToNative:SurfaceSplineY:NodeXCoordinates",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:ImageToNative:SurfaceSplineY:NodeYCoordinates",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:ImageToNative:SurfaceSplineY:ScalingFactor",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:ImageToNative:SurfaceSplineY:Serialization",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:ImageToNative:SurfaceSplineY:ZeroOffsetX",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:ImageToNative:SurfaceSplineY:ZeroOffsetY",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:ImageToNative:TruncatedX",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:ImageToNative:TruncatedY",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:NativeToImage:LinearFunction",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:NativeToImage:SimplificationErrorX",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:NativeToImage:SimplificationErrorY",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:NativeToImage:SurfaceSplineX:NodeXCoordinates",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:NativeToImage:SurfaceSplineX:NodeYCoordinates",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:NativeToImage:SurfaceSplineX:ScalingFactor",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:NativeToImage:SurfaceSplineX:Serialization",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:NativeToImage:SurfaceSplineX:ZeroOffsetX",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:NativeToImage:SurfaceSplineX:ZeroOffsetY",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:NativeToImage:SurfaceSplineY:NodeXCoordinates",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:NativeToImage:SurfaceSplineY:NodeYCoordinates",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:NativeToImage:SurfaceSplineY:ScalingFactor",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:NativeToImage:SurfaceSplineY:Serialization",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:NativeToImage:SurfaceSplineY:ZeroOffsetX",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:NativeToImage:SurfaceSplineY:ZeroOffsetY",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:NativeToImage:TruncatedX",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:NativeToImage:TruncatedY",
+            "PCL:AstrometricSolution:SplineWorldTransformation:Projective:ImageToNative",
+            "PCL:AstrometricSolution:SplineWorldTransformation:Projective:NativeToImage",
+            "PCL:AstrometricSolution:SplineWorldTransformation:RBFType",
+            "PCL:AstrometricSolution:SplineWorldTransformation:SimplifierRejectFraction",
+            "PCL:AstrometricSolution:SplineWorldTransformation:SplineOrder",
+            "PCL:AstrometricSolution:SplineWorldTransformation:SplineSmoothness",
+            "PCL:AstrometricSolution:SplineWorldTransformation:Truncated",
+            "PCL:AstrometricSolution:SplineWorldTransformation:UseSimplifiers",
+            "PCL:AstrometricSolution:SplineWorldTransformation:Version"
+          ]
+        },
+        {
+          "id": "drizzle_weights",
+          "geometry": "6016:6016:1",
+          "sampleFormat": "Float32",
+          "bounds": "0:1",
+          "imageType": "WeightMap",
+          "colorSpace": "Gray",
+          "location": "attachment:164237312:144769024",
+          "AstrometricPropertyIds": []
+        }
+      ]
+    },
+    {
+      "Path": "tim-ray/Sh2-188_Sii_drizzle_2x.xisf",
+      "Provider": "tim-ray",
+      "Bytes": 309174272,
+      "Sha256": "c4d2b39926e26742ddf9f8c8713c5a9c126f3ac455fce175a0d573cfbac62f14",
+      "SourcePage": "https://app.astrobin.com/forum/topic/198004/data-for-practice",
+      "FolderUrl": "https://drive.google.com/drive/folders/1Ax1SEt4aoBWF2TXKEht7dphlsybskpzK",
+      "Rights": "Tim Ray / NRIO public processing-practice data; author requests processed results be posted only on AstroBin; no general redistribution license identified",
+      "DownloadUrl": "https://drive.usercontent.google.com/download?id=1__gUdYaWyEVwhtCrMvw2kmUPznF1zeJT&export=download&confirm=t",
+      "OriginalFilename": "Sh2-188_masterLight_BIN-1_3008x3008_EXPOSURE-300.00s_FILTER-Sii_mono_drizzle_2x.xisf",
+      "Images": [
+        {
+          "id": "drizzle_integration",
+          "geometry": "6016:6016:1",
+          "sampleFormat": "Float32",
+          "bounds": "0:1",
+          "imageType": "MasterLight",
+          "colorSpace": "Gray",
+          "location": "attachment:1024000:144769024",
+          "AstrometricPropertyIds": [
+            "PCL:AstrometricSolution:Catalog",
+            "PCL:AstrometricSolution:CelestialPoleNativeCoordinates",
+            "PCL:AstrometricSolution:CreationTime",
+            "PCL:AstrometricSolution:CreatorApplication",
+            "PCL:AstrometricSolution:CreatorModule",
+            "PCL:AstrometricSolution:CreatorOS",
+            "PCL:AstrometricSolution:LinearTransformationMatrix",
+            "PCL:AstrometricSolution:ProjectionSystem",
+            "PCL:AstrometricSolution:ReferenceCelestialCoordinates",
+            "PCL:AstrometricSolution:ReferenceImageCoordinates",
+            "PCL:AstrometricSolution:ReferenceNativeCoordinates",
+            "PCL:AstrometricSolution:SplineWorldTransformation:ControlPoints:Image",
+            "PCL:AstrometricSolution:SplineWorldTransformation:ControlPoints:World",
+            "PCL:AstrometricSolution:SplineWorldTransformation:LinearApproximation",
+            "PCL:AstrometricSolution:SplineWorldTransformation:MaxSplinePoints",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointGridInterpolation:ImageToNative:Delta",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointGridInterpolation:ImageToNative:GridX",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointGridInterpolation:ImageToNative:GridY",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointGridInterpolation:ImageToNative:Rect",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointGridInterpolation:NativeToImage:Delta",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointGridInterpolation:NativeToImage:GridX",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointGridInterpolation:NativeToImage:GridY",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointGridInterpolation:NativeToImage:Rect",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:ImageToNative:LinearFunction",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:ImageToNative:SimplificationErrorX",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:ImageToNative:SimplificationErrorY",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:ImageToNative:SurfaceSplineX:NodeXCoordinates",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:ImageToNative:SurfaceSplineX:NodeYCoordinates",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:ImageToNative:SurfaceSplineX:ScalingFactor",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:ImageToNative:SurfaceSplineX:Serialization",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:ImageToNative:SurfaceSplineX:ZeroOffsetX",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:ImageToNative:SurfaceSplineX:ZeroOffsetY",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:ImageToNative:SurfaceSplineY:NodeXCoordinates",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:ImageToNative:SurfaceSplineY:NodeYCoordinates",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:ImageToNative:SurfaceSplineY:ScalingFactor",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:ImageToNative:SurfaceSplineY:Serialization",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:ImageToNative:SurfaceSplineY:ZeroOffsetX",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:ImageToNative:SurfaceSplineY:ZeroOffsetY",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:ImageToNative:TruncatedX",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:ImageToNative:TruncatedY",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:NativeToImage:LinearFunction",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:NativeToImage:SimplificationErrorX",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:NativeToImage:SimplificationErrorY",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:NativeToImage:SurfaceSplineX:NodeXCoordinates",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:NativeToImage:SurfaceSplineX:NodeYCoordinates",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:NativeToImage:SurfaceSplineX:ScalingFactor",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:NativeToImage:SurfaceSplineX:Serialization",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:NativeToImage:SurfaceSplineX:ZeroOffsetX",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:NativeToImage:SurfaceSplineX:ZeroOffsetY",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:NativeToImage:SurfaceSplineY:NodeXCoordinates",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:NativeToImage:SurfaceSplineY:NodeYCoordinates",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:NativeToImage:SurfaceSplineY:ScalingFactor",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:NativeToImage:SurfaceSplineY:Serialization",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:NativeToImage:SurfaceSplineY:ZeroOffsetX",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:NativeToImage:SurfaceSplineY:ZeroOffsetY",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:NativeToImage:TruncatedX",
+            "PCL:AstrometricSolution:SplineWorldTransformation:PointSurfaceSpline:NativeToImage:TruncatedY",
+            "PCL:AstrometricSolution:SplineWorldTransformation:Projective:ImageToNative",
+            "PCL:AstrometricSolution:SplineWorldTransformation:Projective:NativeToImage",
+            "PCL:AstrometricSolution:SplineWorldTransformation:RBFType",
+            "PCL:AstrometricSolution:SplineWorldTransformation:SimplifierRejectFraction",
+            "PCL:AstrometricSolution:SplineWorldTransformation:SplineOrder",
+            "PCL:AstrometricSolution:SplineWorldTransformation:SplineSmoothness",
+            "PCL:AstrometricSolution:SplineWorldTransformation:Truncated",
+            "PCL:AstrometricSolution:SplineWorldTransformation:UseSimplifiers",
+            "PCL:AstrometricSolution:SplineWorldTransformation:Version"
+          ]
+        },
+        {
+          "id": "drizzle_weights",
+          "geometry": "6016:6016:1",
+          "sampleFormat": "Float32",
+          "bounds": "0:1",
+          "imageType": "WeightMap",
+          "colorSpace": "Gray",
+          "location": "attachment:164405248:144769024",
+          "AstrometricPropertyIds": []
+        }
+      ]
+    },
+    {
+      "Path": "xisf-rust/generated/Float32_Gray_lz4+sh.xisf",
+      "Provider": "xisf-rust",
+      "Bytes": 1012,
+      "Sha256": "a93f2c73d845764ea8fc8442be44f847dcff00404bc390fd0e6a8dd6c839b813",
+      "SourcePage": "https://github.com/cruzzil/xisf/tree/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus",
+      "Revision": "7043131801abc829ed05c002c7c2a85f818ef4b9",
+      "Rights": "Repository MIT license; see xisf-rust/LICENSE and CORPUS-README.md for fixture provenance",
+      "DownloadUrl": "https://raw.githubusercontent.com/cruzzil/xisf/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus/generated/Float32_Gray_lz4%2Bsh.xisf",
+      "Images": [
+        {
+          "geometry": "17:11:1",
+          "sampleFormat": "Float32",
+          "colorSpace": "Gray",
+          "imageType": "Light",
+          "pixelStorage": "Planar",
+          "bounds": "0.000000:1.000000",
+          "location": "attachment:744:268",
+          "compression": "lz4+sh:748:4",
+          "subblocks": "268,748",
+          "AstrometricPropertyIds": []
+        }
+      ]
+    },
+    {
+      "Path": "xisf-rust/generated/Float32_Gray_lz4.xisf",
+      "Provider": "xisf-rust",
+      "Bytes": 1491,
+      "Sha256": "cac93c7b08b4407ff641f0ee939336fd8493245e42dff3d8c309702d3e842f3e",
+      "SourcePage": "https://github.com/cruzzil/xisf/tree/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus",
+      "Revision": "7043131801abc829ed05c002c7c2a85f818ef4b9",
+      "Rights": "Repository MIT license; see xisf-rust/LICENSE and CORPUS-README.md for fixture provenance",
+      "DownloadUrl": "https://raw.githubusercontent.com/cruzzil/xisf/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus/generated/Float32_Gray_lz4.xisf",
+      "Images": [
+        {
+          "geometry": "17:11:1",
+          "sampleFormat": "Float32",
+          "colorSpace": "Gray",
+          "imageType": "Light",
+          "pixelStorage": "Planar",
+          "bounds": "0.000000:1.000000",
+          "location": "attachment:739:752",
+          "compression": "lz4:748",
+          "subblocks": "752,748",
+          "AstrometricPropertyIds": []
+        }
+      ]
+    },
+    {
+      "Path": "xisf-rust/generated/Float32_Gray_lz4hc.xisf",
+      "Provider": "xisf-rust",
+      "Bytes": 1493,
+      "Sha256": "46487a9010516436c6acc004d7a0428e85753c2aee6090d7d3e2a8f830072cd5",
+      "SourcePage": "https://github.com/cruzzil/xisf/tree/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus",
+      "Revision": "7043131801abc829ed05c002c7c2a85f818ef4b9",
+      "Rights": "Repository MIT license; see xisf-rust/LICENSE and CORPUS-README.md for fixture provenance",
+      "DownloadUrl": "https://raw.githubusercontent.com/cruzzil/xisf/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus/generated/Float32_Gray_lz4hc.xisf",
+      "Images": [
+        {
+          "geometry": "17:11:1",
+          "sampleFormat": "Float32",
+          "colorSpace": "Gray",
+          "imageType": "Light",
+          "pixelStorage": "Planar",
+          "bounds": "0.000000:1.000000",
+          "location": "attachment:741:752",
+          "compression": "lz4hc:748",
+          "subblocks": "752,748",
+          "AstrometricPropertyIds": []
+        }
+      ]
+    },
+    {
+      "Path": "xisf-rust/generated/Float32_Gray_none.xisf",
+      "Provider": "xisf-rust",
+      "Bytes": 1445,
+      "Sha256": "4aee35078e31c95ca7a00c590d6feb23748844636cfdb4dde3c63f732658fa1c",
+      "SourcePage": "https://github.com/cruzzil/xisf/tree/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus",
+      "Revision": "7043131801abc829ed05c002c7c2a85f818ef4b9",
+      "Rights": "Repository MIT license; see xisf-rust/LICENSE and CORPUS-README.md for fixture provenance",
+      "DownloadUrl": "https://raw.githubusercontent.com/cruzzil/xisf/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus/generated/Float32_Gray_none.xisf",
+      "Images": [
+        {
+          "geometry": "17:11:1",
+          "sampleFormat": "Float32",
+          "colorSpace": "Gray",
+          "imageType": "Light",
+          "pixelStorage": "Planar",
+          "bounds": "0.000000:1.000000",
+          "location": "attachment:697:748",
+          "AstrometricPropertyIds": []
+        }
+      ]
+    },
+    {
+      "Path": "xisf-rust/generated/Float32_Gray_zlib+sh.xisf",
+      "Provider": "xisf-rust",
+      "Bytes": 1029,
+      "Sha256": "b01313eeb3d60c211796dbb3f5c1d81aa16765e8a547f3b679beac7ab35940cc",
+      "SourcePage": "https://github.com/cruzzil/xisf/tree/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus",
+      "Revision": "7043131801abc829ed05c002c7c2a85f818ef4b9",
+      "Rights": "Repository MIT license; see xisf-rust/LICENSE and CORPUS-README.md for fixture provenance",
+      "DownloadUrl": "https://raw.githubusercontent.com/cruzzil/xisf/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus/generated/Float32_Gray_zlib%2Bsh.xisf",
+      "Images": [
+        {
+          "geometry": "17:11:1",
+          "sampleFormat": "Float32",
+          "colorSpace": "Gray",
+          "imageType": "Light",
+          "pixelStorage": "Planar",
+          "bounds": "0.000000:1.000000",
+          "location": "attachment:745:284",
+          "compression": "zlib+sh:748:4",
+          "subblocks": "284,748",
+          "AstrometricPropertyIds": []
+        }
+      ]
+    },
+    {
+      "Path": "xisf-rust/generated/Float32_Gray_zlib.xisf",
+      "Provider": "xisf-rust",
+      "Bytes": 1368,
+      "Sha256": "f2cfdf3d925d5a8fe0568abf76213b3e9b92ae38c98f3a5b1322f5c17753308d",
+      "SourcePage": "https://github.com/cruzzil/xisf/tree/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus",
+      "Revision": "7043131801abc829ed05c002c7c2a85f818ef4b9",
+      "Rights": "Repository MIT license; see xisf-rust/LICENSE and CORPUS-README.md for fixture provenance",
+      "DownloadUrl": "https://raw.githubusercontent.com/cruzzil/xisf/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus/generated/Float32_Gray_zlib.xisf",
+      "Images": [
+        {
+          "geometry": "17:11:1",
+          "sampleFormat": "Float32",
+          "colorSpace": "Gray",
+          "imageType": "Light",
+          "pixelStorage": "Planar",
+          "bounds": "0.000000:1.000000",
+          "location": "attachment:740:628",
+          "compression": "zlib:748",
+          "subblocks": "628,748",
+          "AstrometricPropertyIds": []
+        }
+      ]
+    },
+    {
+      "Path": "xisf-rust/generated/Float32_Gray_zstd.xisf",
+      "Provider": "xisf-rust",
+      "Bytes": 1478,
+      "Sha256": "8583e1c4c48847597b1aa118543e0dd268fd73ff7d857edec78177facd78bef3",
+      "SourcePage": "https://github.com/cruzzil/xisf/tree/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus",
+      "Revision": "7043131801abc829ed05c002c7c2a85f818ef4b9",
+      "Rights": "Repository MIT license; see xisf-rust/LICENSE and CORPUS-README.md for fixture provenance",
+      "DownloadUrl": "https://raw.githubusercontent.com/cruzzil/xisf/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus/generated/Float32_Gray_zstd.xisf",
+      "Images": [
+        {
+          "geometry": "17:11:1",
+          "sampleFormat": "Float32",
+          "colorSpace": "Gray",
+          "imageType": "Light",
+          "pixelStorage": "Planar",
+          "bounds": "0.000000:1.000000",
+          "location": "attachment:720:758",
+          "compression": "zstd:748",
+          "AstrometricPropertyIds": []
+        }
+      ]
+    },
+    {
+      "Path": "xisf-rust/generated/Float32_RGB_none.xisf",
+      "Provider": "xisf-rust",
+      "Bytes": 1114,
+      "Sha256": "032b5c7b6d7e08dc670e1405a1b21bf721dfc432657e5584e418966a51eda8bc",
+      "SourcePage": "https://github.com/cruzzil/xisf/tree/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus",
+      "Revision": "7043131801abc829ed05c002c7c2a85f818ef4b9",
+      "Rights": "Repository MIT license; see xisf-rust/LICENSE and CORPUS-README.md for fixture provenance",
+      "DownloadUrl": "https://raw.githubusercontent.com/cruzzil/xisf/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus/generated/Float32_RGB_none.xisf",
+      "Images": [
+        {
+          "geometry": "5:7:3",
+          "sampleFormat": "Float32",
+          "colorSpace": "RGB",
+          "imageType": "Light",
+          "pixelStorage": "Planar",
+          "bounds": "0.000000:1.000000",
+          "location": "attachment:694:420",
+          "AstrometricPropertyIds": []
+        }
+      ]
+    },
+    {
+      "Path": "xisf-rust/generated/Float64_Gray_lz4+sh.xisf",
+      "Provider": "xisf-rust",
+      "Bytes": 1086,
+      "Sha256": "7e713ccb36f61bb6ea60d32c2427c2aced38c9c5bd9228a65cbe3aca02c58d6e",
+      "SourcePage": "https://github.com/cruzzil/xisf/tree/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus",
+      "Revision": "7043131801abc829ed05c002c7c2a85f818ef4b9",
+      "Rights": "Repository MIT license; see xisf-rust/LICENSE and CORPUS-README.md for fixture provenance",
+      "DownloadUrl": "https://raw.githubusercontent.com/cruzzil/xisf/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus/generated/Float64_Gray_lz4%2Bsh.xisf",
+      "Images": [
+        {
+          "geometry": "17:11:1",
+          "sampleFormat": "Float64",
+          "colorSpace": "Gray",
+          "imageType": "Light",
+          "pixelStorage": "Planar",
+          "bounds": "0.000000:1.000000",
+          "location": "attachment:746:340",
+          "compression": "lz4+sh:1496:8",
+          "subblocks": "340,1496",
+          "AstrometricPropertyIds": []
+        }
+      ]
+    },
+    {
+      "Path": "xisf-rust/generated/Float64_Gray_lz4.xisf",
+      "Provider": "xisf-rust",
+      "Bytes": 1968,
+      "Sha256": "e7f41e2517cdc63d8c3cbe9bb7e1712c3ac9b60ae458d98e29f7aa8f29cd354b",
+      "SourcePage": "https://github.com/cruzzil/xisf/tree/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus",
+      "Revision": "7043131801abc829ed05c002c7c2a85f818ef4b9",
+      "Rights": "Repository MIT license; see xisf-rust/LICENSE and CORPUS-README.md for fixture provenance",
+      "DownloadUrl": "https://raw.githubusercontent.com/cruzzil/xisf/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus/generated/Float64_Gray_lz4.xisf",
+      "Images": [
+        {
+          "geometry": "17:11:1",
+          "sampleFormat": "Float64",
+          "colorSpace": "Gray",
+          "imageType": "Light",
+          "pixelStorage": "Planar",
+          "bounds": "0.000000:1.000000",
+          "location": "attachment:743:1225",
+          "compression": "lz4:1496",
+          "subblocks": "1225,1496",
+          "AstrometricPropertyIds": []
+        }
+      ]
+    },
+    {
+      "Path": "xisf-rust/generated/Float64_Gray_lz4hc.xisf",
+      "Provider": "xisf-rust",
+      "Bytes": 1710,
+      "Sha256": "c5196499f519315954b302f264d31d266f96c792586bc38f120e18129c58a7ac",
+      "SourcePage": "https://github.com/cruzzil/xisf/tree/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus",
+      "Revision": "7043131801abc829ed05c002c7c2a85f818ef4b9",
+      "Rights": "Repository MIT license; see xisf-rust/LICENSE and CORPUS-README.md for fixture provenance",
+      "DownloadUrl": "https://raw.githubusercontent.com/cruzzil/xisf/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus/generated/Float64_Gray_lz4hc.xisf",
+      "Images": [
+        {
+          "geometry": "17:11:1",
+          "sampleFormat": "Float64",
+          "colorSpace": "Gray",
+          "imageType": "Light",
+          "pixelStorage": "Planar",
+          "bounds": "0.000000:1.000000",
+          "location": "attachment:743:967",
+          "compression": "lz4hc:1496",
+          "subblocks": "967,1496",
+          "AstrometricPropertyIds": []
+        }
+      ]
+    },
+    {
+      "Path": "xisf-rust/generated/Float64_Gray_none.xisf",
+      "Provider": "xisf-rust",
+      "Bytes": 2194,
+      "Sha256": "e2e9dbb8580067f5ce914822245629ad09ca2eae7ddb8f011232374e13ab73ae",
+      "SourcePage": "https://github.com/cruzzil/xisf/tree/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus",
+      "Revision": "7043131801abc829ed05c002c7c2a85f818ef4b9",
+      "Rights": "Repository MIT license; see xisf-rust/LICENSE and CORPUS-README.md for fixture provenance",
+      "DownloadUrl": "https://raw.githubusercontent.com/cruzzil/xisf/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus/generated/Float64_Gray_none.xisf",
+      "Images": [
+        {
+          "geometry": "17:11:1",
+          "sampleFormat": "Float64",
+          "colorSpace": "Gray",
+          "imageType": "Light",
+          "pixelStorage": "Planar",
+          "bounds": "0.000000:1.000000",
+          "location": "attachment:698:1496",
+          "AstrometricPropertyIds": []
+        }
+      ]
+    },
+    {
+      "Path": "xisf-rust/generated/Float64_Gray_zlib+sh.xisf",
+      "Provider": "xisf-rust",
+      "Bytes": 1064,
+      "Sha256": "90f13fbd9230a460360ab9f59e5bb12ed2cc3bdb59c98e3183503831371ce9bb",
+      "SourcePage": "https://github.com/cruzzil/xisf/tree/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus",
+      "Revision": "7043131801abc829ed05c002c7c2a85f818ef4b9",
+      "Rights": "Repository MIT license; see xisf-rust/LICENSE and CORPUS-README.md for fixture provenance",
+      "DownloadUrl": "https://raw.githubusercontent.com/cruzzil/xisf/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus/generated/Float64_Gray_zlib%2Bsh.xisf",
+      "Images": [
+        {
+          "geometry": "17:11:1",
+          "sampleFormat": "Float64",
+          "colorSpace": "Gray",
+          "imageType": "Light",
+          "pixelStorage": "Planar",
+          "bounds": "0.000000:1.000000",
+          "location": "attachment:747:317",
+          "compression": "zlib+sh:1496:8",
+          "subblocks": "317,1496",
+          "AstrometricPropertyIds": []
+        }
+      ]
+    },
+    {
+      "Path": "xisf-rust/generated/Float64_Gray_zlib.xisf",
+      "Provider": "xisf-rust",
+      "Bytes": 1489,
+      "Sha256": "fee042bc8ab8a3e3130a6197678f337f73fda76338dfcc53eef6341c3533de5c",
+      "SourcePage": "https://github.com/cruzzil/xisf/tree/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus",
+      "Revision": "7043131801abc829ed05c002c7c2a85f818ef4b9",
+      "Rights": "Repository MIT license; see xisf-rust/LICENSE and CORPUS-README.md for fixture provenance",
+      "DownloadUrl": "https://raw.githubusercontent.com/cruzzil/xisf/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus/generated/Float64_Gray_zlib.xisf",
+      "Images": [
+        {
+          "geometry": "17:11:1",
+          "sampleFormat": "Float64",
+          "colorSpace": "Gray",
+          "imageType": "Light",
+          "pixelStorage": "Planar",
+          "bounds": "0.000000:1.000000",
+          "location": "attachment:742:747",
+          "compression": "zlib:1496",
+          "subblocks": "747,1496",
+          "AstrometricPropertyIds": []
+        }
+      ]
+    },
+    {
+      "Path": "xisf-rust/generated/Float64_Gray_zstd.xisf",
+      "Provider": "xisf-rust",
+      "Bytes": 1053,
+      "Sha256": "d24b0ed63345e1757325bc9a3a83f679e28bf2dd5dc302c53d83b7c3198ef832",
+      "SourcePage": "https://github.com/cruzzil/xisf/tree/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus",
+      "Revision": "7043131801abc829ed05c002c7c2a85f818ef4b9",
+      "Rights": "Repository MIT license; see xisf-rust/LICENSE and CORPUS-README.md for fixture provenance",
+      "DownloadUrl": "https://raw.githubusercontent.com/cruzzil/xisf/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus/generated/Float64_Gray_zstd.xisf",
+      "Images": [
+        {
+          "geometry": "17:11:1",
+          "sampleFormat": "Float64",
+          "colorSpace": "Gray",
+          "imageType": "Light",
+          "pixelStorage": "Planar",
+          "bounds": "0.000000:1.000000",
+          "location": "attachment:721:332",
+          "compression": "zstd:1496",
+          "AstrometricPropertyIds": []
+        }
+      ]
+    },
+    {
+      "Path": "xisf-rust/generated/Float64_RGB_none.xisf",
+      "Provider": "xisf-rust",
+      "Bytes": 1534,
+      "Sha256": "5af65a5d8ec1d2b6c1c191f86f311557902d6e8aff314af7ffc3098dde12b1f6",
+      "SourcePage": "https://github.com/cruzzil/xisf/tree/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus",
+      "Revision": "7043131801abc829ed05c002c7c2a85f818ef4b9",
+      "Rights": "Repository MIT license; see xisf-rust/LICENSE and CORPUS-README.md for fixture provenance",
+      "DownloadUrl": "https://raw.githubusercontent.com/cruzzil/xisf/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus/generated/Float64_RGB_none.xisf",
+      "Images": [
+        {
+          "geometry": "5:7:3",
+          "sampleFormat": "Float64",
+          "colorSpace": "RGB",
+          "imageType": "Light",
+          "pixelStorage": "Planar",
+          "bounds": "0.000000:1.000000",
+          "location": "attachment:694:840",
+          "AstrometricPropertyIds": []
+        }
+      ]
+    },
+    {
+      "Path": "xisf-rust/generated/UInt16_Gray_lz4+sh.xisf",
+      "Provider": "xisf-rust",
+      "Bytes": 988,
+      "Sha256": "8edabe02b34686389e80c64472209366c80d77179c8bb8754840e735205bef12",
+      "SourcePage": "https://github.com/cruzzil/xisf/tree/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus",
+      "Revision": "7043131801abc829ed05c002c7c2a85f818ef4b9",
+      "Rights": "Repository MIT license; see xisf-rust/LICENSE and CORPUS-README.md for fixture provenance",
+      "DownloadUrl": "https://raw.githubusercontent.com/cruzzil/xisf/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus/generated/UInt16_Gray_lz4%2Bsh.xisf",
+      "Images": [
+        {
+          "geometry": "17:11:1",
+          "sampleFormat": "UInt16",
+          "colorSpace": "Gray",
+          "imageType": "Light",
+          "pixelStorage": "Planar",
+          "location": "attachment:716:272",
+          "compression": "lz4+sh:374:2",
+          "subblocks": "272,374",
+          "AstrometricPropertyIds": []
+        }
+      ]
+    },
+    {
+      "Path": "xisf-rust/generated/UInt16_Gray_lz4.xisf",
+      "Provider": "xisf-rust",
+      "Bytes": 1088,
+      "Sha256": "0549434f226f549e645cbf18904685641b330288775d825a0457bb5d511aad09",
+      "SourcePage": "https://github.com/cruzzil/xisf/tree/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus",
+      "Revision": "7043131801abc829ed05c002c7c2a85f818ef4b9",
+      "Rights": "Repository MIT license; see xisf-rust/LICENSE and CORPUS-README.md for fixture provenance",
+      "DownloadUrl": "https://raw.githubusercontent.com/cruzzil/xisf/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus/generated/UInt16_Gray_lz4.xisf",
+      "Images": [
+        {
+          "geometry": "17:11:1",
+          "sampleFormat": "UInt16",
+          "colorSpace": "Gray",
+          "imageType": "Light",
+          "pixelStorage": "Planar",
+          "location": "attachment:711:377",
+          "compression": "lz4:374",
+          "subblocks": "377,374",
+          "AstrometricPropertyIds": []
+        }
+      ]
+    },
+    {
+      "Path": "xisf-rust/generated/UInt16_Gray_lz4hc.xisf",
+      "Provider": "xisf-rust",
+      "Bytes": 1090,
+      "Sha256": "8d89dbc74ebfa7b052fba7d7e38d9f7385b2420134319233b2e895573e5296cb",
+      "SourcePage": "https://github.com/cruzzil/xisf/tree/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus",
+      "Revision": "7043131801abc829ed05c002c7c2a85f818ef4b9",
+      "Rights": "Repository MIT license; see xisf-rust/LICENSE and CORPUS-README.md for fixture provenance",
+      "DownloadUrl": "https://raw.githubusercontent.com/cruzzil/xisf/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus/generated/UInt16_Gray_lz4hc.xisf",
+      "Images": [
+        {
+          "geometry": "17:11:1",
+          "sampleFormat": "UInt16",
+          "colorSpace": "Gray",
+          "imageType": "Light",
+          "pixelStorage": "Planar",
+          "location": "attachment:713:377",
+          "compression": "lz4hc:374",
+          "subblocks": "377,374",
+          "AstrometricPropertyIds": []
+        }
+      ]
+    },
+    {
+      "Path": "xisf-rust/generated/UInt16_Gray_none.xisf",
+      "Provider": "xisf-rust",
+      "Bytes": 1043,
+      "Sha256": "b20fa9547401c856beb41e22b632949452ed7f2792a5170d85f2615491918163",
+      "SourcePage": "https://github.com/cruzzil/xisf/tree/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus",
+      "Revision": "7043131801abc829ed05c002c7c2a85f818ef4b9",
+      "Rights": "Repository MIT license; see xisf-rust/LICENSE and CORPUS-README.md for fixture provenance",
+      "DownloadUrl": "https://raw.githubusercontent.com/cruzzil/xisf/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus/generated/UInt16_Gray_none.xisf",
+      "Images": [
+        {
+          "geometry": "17:11:1",
+          "sampleFormat": "UInt16",
+          "colorSpace": "Gray",
+          "imageType": "Light",
+          "pixelStorage": "Planar",
+          "location": "attachment:669:374",
+          "AstrometricPropertyIds": []
+        }
+      ]
+    },
+    {
+      "Path": "xisf-rust/generated/UInt16_Gray_zlib+sh.xisf",
+      "Provider": "xisf-rust",
+      "Bytes": 1001,
+      "Sha256": "91699488ad8624f8f9dca45d656bfd4d641a14daa340a568b391650401eb8bfc",
+      "SourcePage": "https://github.com/cruzzil/xisf/tree/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus",
+      "Revision": "7043131801abc829ed05c002c7c2a85f818ef4b9",
+      "Rights": "Repository MIT license; see xisf-rust/LICENSE and CORPUS-README.md for fixture provenance",
+      "DownloadUrl": "https://raw.githubusercontent.com/cruzzil/xisf/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus/generated/UInt16_Gray_zlib%2Bsh.xisf",
+      "Images": [
+        {
+          "geometry": "17:11:1",
+          "sampleFormat": "UInt16",
+          "colorSpace": "Gray",
+          "imageType": "Light",
+          "pixelStorage": "Planar",
+          "location": "attachment:717:284",
+          "compression": "zlib+sh:374:2",
+          "subblocks": "284,374",
+          "AstrometricPropertyIds": []
+        }
+      ]
+    },
+    {
+      "Path": "xisf-rust/generated/UInt16_Gray_zlib.xisf",
+      "Provider": "xisf-rust",
+      "Bytes": 1097,
+      "Sha256": "96ff01b8b1f6a91d8b5d0a0e935457ef5142fb071c6a559545a62ba1e153f86b",
+      "SourcePage": "https://github.com/cruzzil/xisf/tree/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus",
+      "Revision": "7043131801abc829ed05c002c7c2a85f818ef4b9",
+      "Rights": "Repository MIT license; see xisf-rust/LICENSE and CORPUS-README.md for fixture provenance",
+      "DownloadUrl": "https://raw.githubusercontent.com/cruzzil/xisf/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus/generated/UInt16_Gray_zlib.xisf",
+      "Images": [
+        {
+          "geometry": "17:11:1",
+          "sampleFormat": "UInt16",
+          "colorSpace": "Gray",
+          "imageType": "Light",
+          "pixelStorage": "Planar",
+          "location": "attachment:712:385",
+          "compression": "zlib:374",
+          "subblocks": "385,374",
+          "AstrometricPropertyIds": []
+        }
+      ]
+    },
+    {
+      "Path": "xisf-rust/generated/UInt16_Gray_zstd.xisf",
+      "Provider": "xisf-rust",
+      "Bytes": 1076,
+      "Sha256": "c3c8af28ba9d2d6428ade31f709483ce20305e26497a95ee00c77e90a88f74af",
+      "SourcePage": "https://github.com/cruzzil/xisf/tree/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus",
+      "Revision": "7043131801abc829ed05c002c7c2a85f818ef4b9",
+      "Rights": "Repository MIT license; see xisf-rust/LICENSE and CORPUS-README.md for fixture provenance",
+      "DownloadUrl": "https://raw.githubusercontent.com/cruzzil/xisf/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus/generated/UInt16_Gray_zstd.xisf",
+      "Images": [
+        {
+          "geometry": "17:11:1",
+          "sampleFormat": "UInt16",
+          "colorSpace": "Gray",
+          "imageType": "Light",
+          "pixelStorage": "Planar",
+          "location": "attachment:692:384",
+          "compression": "zstd:374",
+          "AstrometricPropertyIds": []
+        }
+      ]
+    },
+    {
+      "Path": "xisf-rust/generated/UInt16_RGB_none.xisf",
+      "Provider": "xisf-rust",
+      "Bytes": 876,
+      "Sha256": "e11a093e4095063c54a5f201312b3b6a6e8fda0c5f3117711af7c71bec2e14cd",
+      "SourcePage": "https://github.com/cruzzil/xisf/tree/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus",
+      "Revision": "7043131801abc829ed05c002c7c2a85f818ef4b9",
+      "Rights": "Repository MIT license; see xisf-rust/LICENSE and CORPUS-README.md for fixture provenance",
+      "DownloadUrl": "https://raw.githubusercontent.com/cruzzil/xisf/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus/generated/UInt16_RGB_none.xisf",
+      "Images": [
+        {
+          "geometry": "5:7:3",
+          "sampleFormat": "UInt16",
+          "colorSpace": "RGB",
+          "imageType": "Light",
+          "pixelStorage": "Planar",
+          "location": "attachment:666:210",
+          "AstrometricPropertyIds": []
+        }
+      ]
+    },
+    {
+      "Path": "xisf-rust/generated/UInt32_Gray_lz4+sh.xisf",
+      "Provider": "xisf-rust",
+      "Bytes": 984,
+      "Sha256": "ddd5d8664f44a40b0711e2705d1fe44d759233216545055bb2b540e8ba5b2e47",
+      "SourcePage": "https://github.com/cruzzil/xisf/tree/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus",
+      "Revision": "7043131801abc829ed05c002c7c2a85f818ef4b9",
+      "Rights": "Repository MIT license; see xisf-rust/LICENSE and CORPUS-README.md for fixture provenance",
+      "DownloadUrl": "https://raw.githubusercontent.com/cruzzil/xisf/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus/generated/UInt32_Gray_lz4%2Bsh.xisf",
+      "Images": [
+        {
+          "geometry": "17:11:1",
+          "sampleFormat": "UInt32",
+          "colorSpace": "Gray",
+          "imageType": "Light",
+          "pixelStorage": "Planar",
+          "location": "attachment:716:268",
+          "compression": "lz4+sh:748:4",
+          "subblocks": "268,748",
+          "AstrometricPropertyIds": []
+        }
+      ]
+    },
+    {
+      "Path": "xisf-rust/generated/UInt32_Gray_lz4.xisf",
+      "Provider": "xisf-rust",
+      "Bytes": 1463,
+      "Sha256": "a1965ddf417fc12561d282e207ced37f4ae9498956266b95092eea5a85049b6f",
+      "SourcePage": "https://github.com/cruzzil/xisf/tree/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus",
+      "Revision": "7043131801abc829ed05c002c7c2a85f818ef4b9",
+      "Rights": "Repository MIT license; see xisf-rust/LICENSE and CORPUS-README.md for fixture provenance",
+      "DownloadUrl": "https://raw.githubusercontent.com/cruzzil/xisf/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus/generated/UInt32_Gray_lz4.xisf",
+      "Images": [
+        {
+          "geometry": "17:11:1",
+          "sampleFormat": "UInt32",
+          "colorSpace": "Gray",
+          "imageType": "Light",
+          "pixelStorage": "Planar",
+          "location": "attachment:711:752",
+          "compression": "lz4:748",
+          "subblocks": "752,748",
+          "AstrometricPropertyIds": []
+        }
+      ]
+    },
+    {
+      "Path": "xisf-rust/generated/UInt32_Gray_lz4hc.xisf",
+      "Provider": "xisf-rust",
+      "Bytes": 1465,
+      "Sha256": "59a607aef036d3c104da6fc33cbb0133a0a2ddb920af2c29726c6ba045fb5c0e",
+      "SourcePage": "https://github.com/cruzzil/xisf/tree/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus",
+      "Revision": "7043131801abc829ed05c002c7c2a85f818ef4b9",
+      "Rights": "Repository MIT license; see xisf-rust/LICENSE and CORPUS-README.md for fixture provenance",
+      "DownloadUrl": "https://raw.githubusercontent.com/cruzzil/xisf/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus/generated/UInt32_Gray_lz4hc.xisf",
+      "Images": [
+        {
+          "geometry": "17:11:1",
+          "sampleFormat": "UInt32",
+          "colorSpace": "Gray",
+          "imageType": "Light",
+          "pixelStorage": "Planar",
+          "location": "attachment:713:752",
+          "compression": "lz4hc:748",
+          "subblocks": "752,748",
+          "AstrometricPropertyIds": []
+        }
+      ]
+    },
+    {
+      "Path": "xisf-rust/generated/UInt32_Gray_none.xisf",
+      "Provider": "xisf-rust",
+      "Bytes": 1417,
+      "Sha256": "af5337c10b3556d683caefda4bd4c5e736f107eed7c8c62a6446f257b29dc232",
+      "SourcePage": "https://github.com/cruzzil/xisf/tree/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus",
+      "Revision": "7043131801abc829ed05c002c7c2a85f818ef4b9",
+      "Rights": "Repository MIT license; see xisf-rust/LICENSE and CORPUS-README.md for fixture provenance",
+      "DownloadUrl": "https://raw.githubusercontent.com/cruzzil/xisf/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus/generated/UInt32_Gray_none.xisf",
+      "Images": [
+        {
+          "geometry": "17:11:1",
+          "sampleFormat": "UInt32",
+          "colorSpace": "Gray",
+          "imageType": "Light",
+          "pixelStorage": "Planar",
+          "location": "attachment:669:748",
+          "AstrometricPropertyIds": []
+        }
+      ]
+    },
+    {
+      "Path": "xisf-rust/generated/UInt32_Gray_zlib+sh.xisf",
+      "Provider": "xisf-rust",
+      "Bytes": 1001,
+      "Sha256": "cf4adbc0d4042ce41e2e79a98ec012f2b9d883bbeaebbbd46720683d6ba063e9",
+      "SourcePage": "https://github.com/cruzzil/xisf/tree/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus",
+      "Revision": "7043131801abc829ed05c002c7c2a85f818ef4b9",
+      "Rights": "Repository MIT license; see xisf-rust/LICENSE and CORPUS-README.md for fixture provenance",
+      "DownloadUrl": "https://raw.githubusercontent.com/cruzzil/xisf/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus/generated/UInt32_Gray_zlib%2Bsh.xisf",
+      "Images": [
+        {
+          "geometry": "17:11:1",
+          "sampleFormat": "UInt32",
+          "colorSpace": "Gray",
+          "imageType": "Light",
+          "pixelStorage": "Planar",
+          "location": "attachment:717:284",
+          "compression": "zlib+sh:748:4",
+          "subblocks": "284,748",
+          "AstrometricPropertyIds": []
+        }
+      ]
+    },
+    {
+      "Path": "xisf-rust/generated/UInt32_Gray_zlib.xisf",
+      "Provider": "xisf-rust",
+      "Bytes": 1340,
+      "Sha256": "21007e82ee391127084f7bc0d8b330d0e979f5418bef23f32d275d7b408c1bff",
+      "SourcePage": "https://github.com/cruzzil/xisf/tree/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus",
+      "Revision": "7043131801abc829ed05c002c7c2a85f818ef4b9",
+      "Rights": "Repository MIT license; see xisf-rust/LICENSE and CORPUS-README.md for fixture provenance",
+      "DownloadUrl": "https://raw.githubusercontent.com/cruzzil/xisf/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus/generated/UInt32_Gray_zlib.xisf",
+      "Images": [
+        {
+          "geometry": "17:11:1",
+          "sampleFormat": "UInt32",
+          "colorSpace": "Gray",
+          "imageType": "Light",
+          "pixelStorage": "Planar",
+          "location": "attachment:712:628",
+          "compression": "zlib:748",
+          "subblocks": "628,748",
+          "AstrometricPropertyIds": []
+        }
+      ]
+    },
+    {
+      "Path": "xisf-rust/generated/UInt32_Gray_zstd.xisf",
+      "Provider": "xisf-rust",
+      "Bytes": 1450,
+      "Sha256": "4a9614e49bd91bbcdd62ee5c6a451d58cfec285cc0bb5cb148195db0f986ad6f",
+      "SourcePage": "https://github.com/cruzzil/xisf/tree/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus",
+      "Revision": "7043131801abc829ed05c002c7c2a85f818ef4b9",
+      "Rights": "Repository MIT license; see xisf-rust/LICENSE and CORPUS-README.md for fixture provenance",
+      "DownloadUrl": "https://raw.githubusercontent.com/cruzzil/xisf/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus/generated/UInt32_Gray_zstd.xisf",
+      "Images": [
+        {
+          "geometry": "17:11:1",
+          "sampleFormat": "UInt32",
+          "colorSpace": "Gray",
+          "imageType": "Light",
+          "pixelStorage": "Planar",
+          "location": "attachment:692:758",
+          "compression": "zstd:748",
+          "AstrometricPropertyIds": []
+        }
+      ]
+    },
+    {
+      "Path": "xisf-rust/generated/UInt32_RGB_none.xisf",
+      "Provider": "xisf-rust",
+      "Bytes": 1086,
+      "Sha256": "5cd02e4bd09151b456c457eca034c5189fb3e49c416b50841fca75d14a93a8a9",
+      "SourcePage": "https://github.com/cruzzil/xisf/tree/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus",
+      "Revision": "7043131801abc829ed05c002c7c2a85f818ef4b9",
+      "Rights": "Repository MIT license; see xisf-rust/LICENSE and CORPUS-README.md for fixture provenance",
+      "DownloadUrl": "https://raw.githubusercontent.com/cruzzil/xisf/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus/generated/UInt32_RGB_none.xisf",
+      "Images": [
+        {
+          "geometry": "5:7:3",
+          "sampleFormat": "UInt32",
+          "colorSpace": "RGB",
+          "imageType": "Light",
+          "pixelStorage": "Planar",
+          "location": "attachment:666:420",
+          "AstrometricPropertyIds": []
+        }
+      ]
+    },
+    {
+      "Path": "xisf-rust/generated/UInt8_Gray_lz4+sh.xisf",
+      "Provider": "xisf-rust",
+      "Bytes": 735,
+      "Sha256": "88d19d03e89e02c86f54a6ddcc48eb92ea1e8c5d2386f56c3fd08699d9df070c",
+      "SourcePage": "https://github.com/cruzzil/xisf/tree/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus",
+      "Revision": "7043131801abc829ed05c002c7c2a85f818ef4b9",
+      "Rights": "Repository MIT license; see xisf-rust/LICENSE and CORPUS-README.md for fixture provenance",
+      "DownloadUrl": "https://raw.githubusercontent.com/cruzzil/xisf/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus/generated/UInt8_Gray_lz4%2Bsh.xisf",
+      "Images": [
+        {
+          "geometry": "17:11:1",
+          "sampleFormat": "UInt8",
+          "colorSpace": "Gray",
+          "imageType": "Light",
+          "pixelStorage": "Planar",
+          "location": "attachment:708:27",
+          "compression": "lz4:187",
+          "subblocks": "27,187",
+          "AstrometricPropertyIds": []
+        }
+      ]
+    },
+    {
+      "Path": "xisf-rust/generated/UInt8_Gray_lz4.xisf",
+      "Provider": "xisf-rust",
+      "Bytes": 735,
+      "Sha256": "88d19d03e89e02c86f54a6ddcc48eb92ea1e8c5d2386f56c3fd08699d9df070c",
+      "SourcePage": "https://github.com/cruzzil/xisf/tree/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus",
+      "Revision": "7043131801abc829ed05c002c7c2a85f818ef4b9",
+      "Rights": "Repository MIT license; see xisf-rust/LICENSE and CORPUS-README.md for fixture provenance",
+      "DownloadUrl": "https://raw.githubusercontent.com/cruzzil/xisf/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus/generated/UInt8_Gray_lz4.xisf",
+      "Images": [
+        {
+          "geometry": "17:11:1",
+          "sampleFormat": "UInt8",
+          "colorSpace": "Gray",
+          "imageType": "Light",
+          "pixelStorage": "Planar",
+          "location": "attachment:708:27",
+          "compression": "lz4:187",
+          "subblocks": "27,187",
+          "AstrometricPropertyIds": []
+        }
+      ]
+    },
+    {
+      "Path": "xisf-rust/generated/UInt8_Gray_lz4hc.xisf",
+      "Provider": "xisf-rust",
+      "Bytes": 737,
+      "Sha256": "534c38914c11c4a56000e5ece03d401bb0e2b21da5c9306199122639587fba53",
+      "SourcePage": "https://github.com/cruzzil/xisf/tree/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus",
+      "Revision": "7043131801abc829ed05c002c7c2a85f818ef4b9",
+      "Rights": "Repository MIT license; see xisf-rust/LICENSE and CORPUS-README.md for fixture provenance",
+      "DownloadUrl": "https://raw.githubusercontent.com/cruzzil/xisf/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus/generated/UInt8_Gray_lz4hc.xisf",
+      "Images": [
+        {
+          "geometry": "17:11:1",
+          "sampleFormat": "UInt8",
+          "colorSpace": "Gray",
+          "imageType": "Light",
+          "pixelStorage": "Planar",
+          "location": "attachment:710:27",
+          "compression": "lz4hc:187",
+          "subblocks": "27,187",
+          "AstrometricPropertyIds": []
+        }
+      ]
+    },
+    {
+      "Path": "xisf-rust/generated/UInt8_Gray_none.xisf",
+      "Provider": "xisf-rust",
+      "Bytes": 855,
+      "Sha256": "7f7396139fded2df10b93bb2581ace590626609cdf81249a24c02a361418755f",
+      "SourcePage": "https://github.com/cruzzil/xisf/tree/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus",
+      "Revision": "7043131801abc829ed05c002c7c2a85f818ef4b9",
+      "Rights": "Repository MIT license; see xisf-rust/LICENSE and CORPUS-README.md for fixture provenance",
+      "DownloadUrl": "https://raw.githubusercontent.com/cruzzil/xisf/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus/generated/UInt8_Gray_none.xisf",
+      "Images": [
+        {
+          "geometry": "17:11:1",
+          "sampleFormat": "UInt8",
+          "colorSpace": "Gray",
+          "imageType": "Light",
+          "pixelStorage": "Planar",
+          "location": "attachment:668:187",
+          "AstrometricPropertyIds": []
+        }
+      ]
+    },
+    {
+      "Path": "xisf-rust/generated/UInt8_Gray_zlib+sh.xisf",
+      "Provider": "xisf-rust",
+      "Bytes": 737,
+      "Sha256": "299c2f8c777731c59b3e00e9ea5c06513eb78a4907fca71cc8ed09fac6fcaff2",
+      "SourcePage": "https://github.com/cruzzil/xisf/tree/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus",
+      "Revision": "7043131801abc829ed05c002c7c2a85f818ef4b9",
+      "Rights": "Repository MIT license; see xisf-rust/LICENSE and CORPUS-README.md for fixture provenance",
+      "DownloadUrl": "https://raw.githubusercontent.com/cruzzil/xisf/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus/generated/UInt8_Gray_zlib%2Bsh.xisf",
+      "Images": [
+        {
+          "geometry": "17:11:1",
+          "sampleFormat": "UInt8",
+          "colorSpace": "Gray",
+          "imageType": "Light",
+          "pixelStorage": "Planar",
+          "location": "attachment:709:28",
+          "compression": "zlib:187",
+          "subblocks": "28,187",
+          "AstrometricPropertyIds": []
+        }
+      ]
+    },
+    {
+      "Path": "xisf-rust/generated/UInt8_Gray_zlib.xisf",
+      "Provider": "xisf-rust",
+      "Bytes": 737,
+      "Sha256": "299c2f8c777731c59b3e00e9ea5c06513eb78a4907fca71cc8ed09fac6fcaff2",
+      "SourcePage": "https://github.com/cruzzil/xisf/tree/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus",
+      "Revision": "7043131801abc829ed05c002c7c2a85f818ef4b9",
+      "Rights": "Repository MIT license; see xisf-rust/LICENSE and CORPUS-README.md for fixture provenance",
+      "DownloadUrl": "https://raw.githubusercontent.com/cruzzil/xisf/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus/generated/UInt8_Gray_zlib.xisf",
+      "Images": [
+        {
+          "geometry": "17:11:1",
+          "sampleFormat": "UInt8",
+          "colorSpace": "Gray",
+          "imageType": "Light",
+          "pixelStorage": "Planar",
+          "location": "attachment:709:28",
+          "compression": "zlib:187",
+          "subblocks": "28,187",
+          "AstrometricPropertyIds": []
+        }
+      ]
+    },
+    {
+      "Path": "xisf-rust/generated/UInt8_Gray_zstd.xisf",
+      "Provider": "xisf-rust",
+      "Bytes": 722,
+      "Sha256": "bec0c28a980b939765989f722f73e83566133eadee2366b40a4f2ce05c4d3154",
+      "SourcePage": "https://github.com/cruzzil/xisf/tree/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus",
+      "Revision": "7043131801abc829ed05c002c7c2a85f818ef4b9",
+      "Rights": "Repository MIT license; see xisf-rust/LICENSE and CORPUS-README.md for fixture provenance",
+      "DownloadUrl": "https://raw.githubusercontent.com/cruzzil/xisf/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus/generated/UInt8_Gray_zstd.xisf",
+      "Images": [
+        {
+          "geometry": "17:11:1",
+          "sampleFormat": "UInt8",
+          "colorSpace": "Gray",
+          "imageType": "Light",
+          "pixelStorage": "Planar",
+          "location": "attachment:690:32",
+          "compression": "zstd:187",
+          "AstrometricPropertyIds": []
+        }
+      ]
+    },
+    {
+      "Path": "xisf-rust/generated/UInt8_RGB_none.xisf",
+      "Provider": "xisf-rust",
+      "Bytes": 770,
+      "Sha256": "dc3a97ab54ed90f1450e737174b0e80384f115dd04f1d412eed57ce4f34e5bdd",
+      "SourcePage": "https://github.com/cruzzil/xisf/tree/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus",
+      "Revision": "7043131801abc829ed05c002c7c2a85f818ef4b9",
+      "Rights": "Repository MIT license; see xisf-rust/LICENSE and CORPUS-README.md for fixture provenance",
+      "DownloadUrl": "https://raw.githubusercontent.com/cruzzil/xisf/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus/generated/UInt8_RGB_none.xisf",
+      "Images": [
+        {
+          "geometry": "5:7:3",
+          "sampleFormat": "UInt8",
+          "colorSpace": "RGB",
+          "imageType": "Light",
+          "pixelStorage": "Planar",
+          "location": "attachment:665:105",
+          "AstrometricPropertyIds": []
+        }
+      ]
+    },
+    {
+      "Path": "xisf-rust/pixinsight/Sample_F32_NoCompression_NoSecurity.xisf",
+      "Provider": "xisf-rust",
+      "Bytes": 520960,
+      "Sha256": "19b6e983487353734a118b46ae5da12467e20f66c22441eba80603bef94f526c",
+      "SourcePage": "https://github.com/cruzzil/xisf/tree/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus",
+      "Revision": "7043131801abc829ed05c002c7c2a85f818ef4b9",
+      "Rights": "Repository MIT license; see xisf-rust/LICENSE and CORPUS-README.md for fixture provenance",
+      "DownloadUrl": "https://raw.githubusercontent.com/cruzzil/xisf/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus/pixinsight/Sample_F32_NoCompression_NoSecurity.xisf",
+      "Images": [
+        {
+          "geometry": "50:50:3",
+          "sampleFormat": "Float32",
+          "bounds": "0:1",
+          "colorSpace": "RGB",
+          "location": "attachment:8192:30000",
+          "AstrometricPropertyIds": []
+        }
+      ]
+    },
+    {
+      "Path": "xisf-rust/pixinsight/Sample_F32_ZlibCompression_Sha256Security.xisf",
+      "Provider": "xisf-rust",
+      "Bytes": 47082,
+      "Sha256": "c5bf4a01d0d64d68e6160db61a0489a8567a639eb35a4b927d37f5d52b1e7d49",
+      "SourcePage": "https://github.com/cruzzil/xisf/tree/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus",
+      "Revision": "7043131801abc829ed05c002c7c2a85f818ef4b9",
+      "Rights": "Repository MIT license; see xisf-rust/LICENSE and CORPUS-README.md for fixture provenance",
+      "DownloadUrl": "https://raw.githubusercontent.com/cruzzil/xisf/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus/pixinsight/Sample_F32_ZlibCompression_Sha256Security.xisf",
+      "Images": [
+        {
+          "geometry": "50:50:3",
+          "sampleFormat": "Float32",
+          "bounds": "0:1",
+          "colorSpace": "RGB",
+          "compression": "zlib+sh:30000:4",
+          "checksum": "sha256:d60477d1c651b6bc42a8aa938a6132006257d76f229a2d7481db84d23dea8b96",
+          "location": "attachment:9869:23042",
+          "AstrometricPropertyIds": []
+        }
+      ]
+    },
+    {
+      "Path": "xisf-rust/pixinsight/simple_10by10.xisf",
+      "Provider": "xisf-rust",
+      "Bytes": 1430,
+      "Sha256": "0f24c0e60ab2578927306fedb5d612bba104923ebc6bece7c541b9ceaa52735e",
+      "SourcePage": "https://github.com/cruzzil/xisf/tree/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus",
+      "Revision": "7043131801abc829ed05c002c7c2a85f818ef4b9",
+      "Rights": "Repository MIT license; see xisf-rust/LICENSE and CORPUS-README.md for fixture provenance",
+      "DownloadUrl": "https://raw.githubusercontent.com/cruzzil/xisf/7043131801abc829ed05c002c7c2a85f818ef4b9/corpus/pixinsight/simple_10by10.xisf",
+      "Images": [
+        {
+          "geometry": "10:10:3",
+          "sampleFormat": "UInt8",
+          "colorSpace": "RGB",
+          "location": "embedded",
+          "AstrometricPropertyIds": []
+        }
+      ]
+    },
+    {
+      "Path": "xisfits/xisf-image-gray-256x256-16bits-zlib.xisf",
+      "Provider": "xisfits",
+      "Bytes": 40882,
+      "Sha256": "538e2e89e25f4420e5e317e64ee81592db25fa55a0374474b4ddad6265bb5cb1",
+      "SourcePage": "https://github.com/vrruiz/xisfits/tree/f38642761d10895a3dd97e877d135f8c9ab5d1da/tests/images",
+      "Revision": "f38642761d10895a3dd97e877d135f8c9ab5d1da",
+      "Rights": "Repository MIT license; see xisfits/LICENSE",
+      "DownloadUrl": "https://raw.githubusercontent.com/vrruiz/xisfits/f38642761d10895a3dd97e877d135f8c9ab5d1da/tests/images/xisf-image-gray-256x256-16bits-zlib.xisf",
+      "Images": [
+        {
+          "geometry": "256:256:1",
+          "sampleFormat": "UInt16",
+          "colorSpace": "Gray",
+          "compression": "zlib:131072",
+          "location": "attachment:1243:39639",
+          "AstrometricPropertyIds": []
+        }
+      ]
+    },
+    {
+      "Path": "xisfits/xisf-image-gray-256x256-16bits-zlib_sh.xisf",
+      "Provider": "xisfits",
+      "Bytes": 59676,
+      "Sha256": "b28dd4a3f98432c437479262773302dc0deee27f91adc73843130ccc5113be1b",
+      "SourcePage": "https://github.com/vrruiz/xisfits/tree/f38642761d10895a3dd97e877d135f8c9ab5d1da/tests/images",
+      "Revision": "f38642761d10895a3dd97e877d135f8c9ab5d1da",
+      "Rights": "Repository MIT license; see xisfits/LICENSE",
+      "DownloadUrl": "https://raw.githubusercontent.com/vrruiz/xisfits/f38642761d10895a3dd97e877d135f8c9ab5d1da/tests/images/xisf-image-gray-256x256-16bits-zlib_sh.xisf",
+      "Images": [
+        {
+          "geometry": "256:256:1",
+          "sampleFormat": "UInt16",
+          "colorSpace": "Gray",
+          "compression": "zlib+sh:131072:2",
+          "location": "attachment:1054:58622",
+          "AstrometricPropertyIds": []
+        }
+      ]
+    },
+    {
+      "Path": "xisfits/xisf-image-gray-256x256-8bits.xisf",
+      "Provider": "xisfits",
+      "Bytes": 69632,
+      "Sha256": "7eb3b14b70735b3565bb690e0090a1c1e731ae922b5174387c7b0dea270a91d5",
+      "SourcePage": "https://github.com/vrruiz/xisfits/tree/f38642761d10895a3dd97e877d135f8c9ab5d1da/tests/images",
+      "Revision": "f38642761d10895a3dd97e877d135f8c9ab5d1da",
+      "Rights": "Repository MIT license; see xisfits/LICENSE",
+      "DownloadUrl": "https://raw.githubusercontent.com/vrruiz/xisfits/f38642761d10895a3dd97e877d135f8c9ab5d1da/tests/images/xisf-image-gray-256x256-8bits.xisf",
+      "Images": [
+        {
+          "geometry": "256:256:1",
+          "sampleFormat": "UInt8",
+          "colorSpace": "Gray",
+          "location": "attachment:4096:65536",
+          "AstrometricPropertyIds": []
+        }
+      ]
+    },
+    {
+      "Path": "xisfits/xisf-image-gray-256x256-float-32bits.xisf",
+      "Provider": "xisfits",
+      "Bytes": 264196,
+      "Sha256": "62e095852d2e4a140b04f9ff9d1eff39fc260765e9b215a317beeadf3f9a6a32",
+      "SourcePage": "https://github.com/vrruiz/xisfits/tree/f38642761d10895a3dd97e877d135f8c9ab5d1da/tests/images",
+      "Revision": "f38642761d10895a3dd97e877d135f8c9ab5d1da",
+      "Rights": "Repository MIT license; see xisfits/LICENSE",
+      "DownloadUrl": "https://raw.githubusercontent.com/vrruiz/xisfits/f38642761d10895a3dd97e877d135f8c9ab5d1da/tests/images/xisf-image-gray-256x256-float-32bits.xisf",
+      "Images": [
+        {
+          "geometry": "255:255:1",
+          "sampleFormat": "Float32",
+          "bounds": "0:1",
+          "colorSpace": "Gray",
+          "location": "attachment:4096:260100",
+          "AstrometricPropertyIds": []
+        }
+      ]
+    },
+    {
+      "Path": "xisfits/xisf-image-gray-256x256-float-64bits.xisf",
+      "Provider": "xisfits",
+      "Bytes": 524296,
+      "Sha256": "5acd3c3c69a77f78950844c333f153ab16c5851e678fd995f595434e6074d7f5",
+      "SourcePage": "https://github.com/vrruiz/xisfits/tree/f38642761d10895a3dd97e877d135f8c9ab5d1da/tests/images",
+      "Revision": "f38642761d10895a3dd97e877d135f8c9ab5d1da",
+      "Rights": "Repository MIT license; see xisfits/LICENSE",
+      "DownloadUrl": "https://raw.githubusercontent.com/vrruiz/xisfits/f38642761d10895a3dd97e877d135f8c9ab5d1da/tests/images/xisf-image-gray-256x256-float-64bits.xisf",
+      "Images": [
+        {
+          "geometry": "255:255:1",
+          "sampleFormat": "Float64",
+          "bounds": "0:1",
+          "colorSpace": "Gray",
+          "location": "attachment:4096:520200",
+          "AstrometricPropertyIds": []
+        }
+      ]
+    },
+    {
+      "Path": "xisfits/xisf-image-rgb-256x256-16bits.xisf",
+      "Provider": "xisfits",
+      "Bytes": 401408,
+      "Sha256": "61c52cb3cd6e9ecf1307a7db9c102346056b26e77ee6bb388da74c1239d5421c",
+      "SourcePage": "https://github.com/vrruiz/xisfits/tree/f38642761d10895a3dd97e877d135f8c9ab5d1da/tests/images",
+      "Revision": "f38642761d10895a3dd97e877d135f8c9ab5d1da",
+      "Rights": "Repository MIT license; see xisfits/LICENSE",
+      "DownloadUrl": "https://raw.githubusercontent.com/vrruiz/xisfits/f38642761d10895a3dd97e877d135f8c9ab5d1da/tests/images/xisf-image-rgb-256x256-16bits.xisf",
+      "Images": [
+        {
+          "geometry": "256:256:3",
+          "sampleFormat": "UInt16",
+          "colorSpace": "RGB",
+          "location": "attachment:8192:393216",
+          "AstrometricPropertyIds": []
+        }
+      ]
+    },
+    {
+      "Path": "xisfits/xisf-image-rgb-256x256-32bits.xisf",
+      "Provider": "xisfits",
+      "Bytes": 794624,
+      "Sha256": "8521f57b8d2063591487bebdab652671e4d1a0efe6920f39574d08ea1e6c434b",
+      "SourcePage": "https://github.com/vrruiz/xisfits/tree/f38642761d10895a3dd97e877d135f8c9ab5d1da/tests/images",
+      "Revision": "f38642761d10895a3dd97e877d135f8c9ab5d1da",
+      "Rights": "Repository MIT license; see xisfits/LICENSE",
+      "DownloadUrl": "https://raw.githubusercontent.com/vrruiz/xisfits/f38642761d10895a3dd97e877d135f8c9ab5d1da/tests/images/xisf-image-rgb-256x256-32bits.xisf",
+      "Images": [
+        {
+          "geometry": "256:256:3",
+          "sampleFormat": "UInt32",
+          "colorSpace": "RGB",
+          "location": "attachment:8192:786432",
+          "AstrometricPropertyIds": []
+        }
+      ]
+    },
+    {
+      "Path": "xisfits/xisf-image-rgb-256x256-8bits-compressed.xisf",
+      "Provider": "xisfits",
+      "Bytes": 1177,
+      "Sha256": "97c3d89fddd72efdc9fa48360e4f21df52501ee717cbd5b69b9046f065949d09",
+      "SourcePage": "https://github.com/vrruiz/xisfits/tree/f38642761d10895a3dd97e877d135f8c9ab5d1da/tests/images",
+      "Revision": "f38642761d10895a3dd97e877d135f8c9ab5d1da",
+      "Rights": "Repository MIT license; see xisfits/LICENSE",
+      "DownloadUrl": "https://raw.githubusercontent.com/vrruiz/xisfits/f38642761d10895a3dd97e877d135f8c9ab5d1da/tests/images/xisf-image-rgb-256x256-8bits-compressed.xisf",
+      "Images": [
+        {
+          "geometry": "256:256:1",
+          "sampleFormat": "UInt8",
+          "colorSpace": "Gray",
+          "location": "embedded",
+          "AstrometricPropertyIds": []
+        }
+      ]
+    },
+    {
+      "Path": "xisfits/xisf-image-rgb-256x256-8bits.xisf",
+      "Provider": "xisfits",
+      "Bytes": 204800,
+      "Sha256": "598de2f9cc84df6c6db571b3ee0e6bd5645373eb118b0111462778d348299d4d",
+      "SourcePage": "https://github.com/vrruiz/xisfits/tree/f38642761d10895a3dd97e877d135f8c9ab5d1da/tests/images",
+      "Revision": "f38642761d10895a3dd97e877d135f8c9ab5d1da",
+      "Rights": "Repository MIT license; see xisfits/LICENSE",
+      "DownloadUrl": "https://raw.githubusercontent.com/vrruiz/xisfits/f38642761d10895a3dd97e877d135f8c9ab5d1da/tests/images/xisf-image-rgb-256x256-8bits.xisf",
+      "Images": [
+        {
+          "geometry": "256:256:3",
+          "sampleFormat": "UInt8",
+          "colorSpace": "RGB",
+          "location": "attachment:8192:196608",
+          "AstrometricPropertyIds": []
+        }
+      ]
+    }
+  ]
+}
