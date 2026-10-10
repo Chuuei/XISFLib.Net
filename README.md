@@ -8,6 +8,8 @@ The [performance guide](docs/performance.md) records benchmark results and expla
 
 ## Usage
 
+See [API contracts and migration](docs/api-migration.md) for editable documents, consistent sample layouts, typed metadata, conversion reports, and safe defaults.
+
 ```csharp
 using XISFLib;
 
@@ -83,7 +85,7 @@ XisfWriter.Write("capture.xisf", [outputImage], new XisfWriterOptions
 
 `XisfImageData.FromArray(T[,])` accepts conventional `[height, width]` grayscale arrays. `FromArray(T[,,])` accepts `[height, width, channel]` interleaved images. `FromRaw` accepts already serialized XISF sample bytes, while `FromSamples` supports `byte`, `ushort`, `uint`, `ulong`, `float`, `double`, `XisfComplex32`, and `System.Numerics.Complex`. Writers target either a file path or any writable `Stream`.
 
-Use `XisfWriter.WriteDistributed("capture.xish", "capture.xisb", images)` for indexed distributed output. A loaded document can be edited through `XisfDocument.Xml` and saved with `XisfWriter.Write`; unknown extension elements and data blocks are retained. `XisfWriter.WriteSigned` creates a monolithic file with a verifiable detached RSA XML signature.
+Use `XisfWriter.WriteDistributed("capture.xish", "capture.xisb", images)` for indexed distributed output. Call `document.ToEditable()` to edit images, global properties, tables and extensions through `XisfDocumentData`. Parsed XML is an inspection copy; advanced `document.EditXml(xml => ...)` edits return a reparsed document retaining original block sources. `XisfWriter.WriteSigned` creates a monolithic file with a verifiable detached RSA XML signature.
 
 ### FITS files and conversion
 
@@ -98,7 +100,7 @@ double[] physicalPixels = fitsImage.GetPhysicalSamples();
 FitsConverter.ConvertFitsToXisf("capture.fits", "capture.xisf",
     new XisfWriterOptions { Compression = XisfCompression.Zlib });
 FitsConverter.ConvertXisfToFits("capture.xisf", "capture.fits",
-    new FitsWriterOptions { WriteChecksums = true });
+    new FitsWriterOptions { WriteChecksums = true }, lossPolicy: ConversionLossPolicy.Allow);
 ```
 
 FITS integer `BITPIX` images, standard unsigned `BZERO` conventions, floating-point images, arbitrary-dimensional cubes, and common three- or four-plane color cubes are converted. Original `BITPIX`, scaling, and blank-value metadata are stored as XISF properties so a FITS → XISF → FITS round trip can reconstruct the original storage. Standard FITS image HDUs have no complex pixel type, so complex XISF images are rejected rather than silently losing their imaginary components.

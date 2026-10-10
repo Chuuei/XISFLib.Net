@@ -31,15 +31,15 @@ public sealed class BatchConversionTests : IDisposable
         Assert.Equal(3, result.Hdus.Count);
         Assert.Equal([0d, 65535d], Assert.IsType<FitsImage>(result.Hdus[0].Content).GetPhysicalSamples());
         Assert.Equal([0.25d], Assert.IsType<FitsImage>(result.Hdus[1].Content).GetPhysicalSamples());
-        Assert.Equal("M31", result.Hdus[0].Header.GetValue<string>("OBJECT"));
+        Assert.Equal("M31", result.Hdus[0].Header.GetValueOrDefault<string>("OBJECT"));
         Assert.Equal("Original target", result.Hdus[0].Header.FindFirst("OBJECT")!.Comment);
-        Assert.Equal("M42", result.Hdus[1].Header.GetValue<string>("OBJECT"));
-        Assert.Equal(120.5, result.Hdus[0].Header.GetValue<double>("EXPTIME"));
-        Assert.Equal(123.45, result.Hdus[0].Header.GetValue<double>("CRVAL1"));
+        Assert.Equal("M42", result.Hdus[1].Header.GetValueOrDefault<string>("OBJECT"));
+        Assert.Equal(120.5, result.Hdus[0].Header.GetValueOrDefault<double>("EXPTIME"));
+        Assert.Equal(123.45, result.Hdus[0].Header.GetValueOrDefault<double>("CRVAL1"));
         Assert.Equal(new[] { "First", "Second" }, result.Hdus[0].Header.Find("HISTORY").Take(2).Select(card => card.Value));
         Assert.All(result.Hdus, hdu => { Assert.True(hdu.ChecksumValid); Assert.True(hdu.DataChecksumValid); });
-        Assert.Equal("XISFMETA", result.Hdus[2].Header.GetValue<string>("EXTNAME"));
-        XElement archive = XElement.Parse(Encoding.UTF8.GetString(result.Hdus[2].Data));
+        Assert.Equal("XISFMETA", result.Hdus[2].Header.GetValueOrDefault<string>("EXTNAME"));
+        XElement archive = XElement.Parse(Encoding.UTF8.GetString(result.Hdus[2].Data.Span));
         Assert.Contains("nébuleuse 星", archive.Value);
         XElement vector = archive.Elements("Image").First().Element("Properties")!.Elements("Property")
             .Single(element => (string?)element.Attribute("id") == "Custom:Vector").Element("Array")!;
@@ -80,19 +80,22 @@ public sealed class BatchConversionTests : IDisposable
         stream.Position = 0;
         XisfDocument document = XisfReader.Load(stream);
         XNamespace ns = document.Xml.Root!.Name.Namespace;
-        document.Xml.Root.Add(new XElement(ns + "Property", new XAttribute("id", "Observation:Object:Name"),
-            new XAttribute("type", "String"), "Global target"));
-        document.Xml.Root.Add(new XElement(ns + "Property", new XAttribute("id", "Instrument:Telescope:Name"),
-            new XAttribute("type", "String"), "Global telescope"));
+        document = document.EditXml(xml =>
+        {
+            xml.Root!.Add(new XElement(ns + "Property", new XAttribute("id", "Observation:Object:Name"),
+                new XAttribute("type", "String"), "Global target"));
+            xml.Root.Add(new XElement(ns + "Property", new XAttribute("id", "Instrument:Telescope:Name"),
+                new XAttribute("type", "String"), "Global telescope"));
+        });
         using MemoryStream updated = new();
         XisfWriter.Write(updated, document);
         updated.Position = 0;
 
         FitsDocument result = BatchConversion.CreateDocument(XisfReader.Load(updated));
 
-        Assert.Equal("Image target", result.Hdus[0].Header.GetValue<string>("OBJECT"));
-        Assert.Equal("Global telescope", result.Hdus[0].Header.GetValue<string>("TELESCOP"));
-        Assert.Contains("Global target", Encoding.UTF8.GetString(result.Hdus[^1].Data));
+        Assert.Equal("Image target", result.Hdus[0].Header.GetValueOrDefault<string>("OBJECT"));
+        Assert.Equal("Global telescope", result.Hdus[0].Header.GetValueOrDefault<string>("TELESCOP"));
+        Assert.Contains("Global target", Encoding.UTF8.GetString(result.Hdus[^1].Data.Span));
     }
 
     [Fact]
@@ -143,7 +146,7 @@ public sealed class BatchConversionTests : IDisposable
         {
             FitsDocument result = FitsReader.Load(Path.Combine(_folder, $"capture-{index}.fits"));
             Assert.Equal(new[] { (double)index }, Assert.IsType<FitsImage>(result.Hdus[0].Content).GetPhysicalSamples());
-            Assert.Equal($"Target {index}", result.Hdus[0].Header.GetValue<string>("OBJECT"));
+            Assert.Equal($"Target {index}", result.Hdus[0].Header.GetValueOrDefault<string>("OBJECT"));
             Assert.All(result.Hdus, hdu => { Assert.True(hdu.ChecksumValid); Assert.True(hdu.DataChecksumValid); });
         }
         Assert.Empty(Directory.GetFiles(_folder, "*.tmp"));

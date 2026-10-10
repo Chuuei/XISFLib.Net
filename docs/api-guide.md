@@ -1,5 +1,7 @@
 # API guide
 
+See [API contracts and migration](api-migration.md) for editable documents, typed metadata, authoritative FITS payloads, conversion reports and current defaults. Full-image and region reads default to planar order on parsed and editable images. Parsed XML is a detached copy; use `ToEditable()` or `EditXml` to change content.
+
 ## Documents and image storage
 
 `XisfDocument` exposes XML, global properties, creation metadata, tables, and images. `XisfImage` represents a parsed image and decodes its data when requested. `XisfImageData` owns sample bytes and supports editing known metadata before writing.
@@ -19,7 +21,9 @@ Binary128 types are property storage types, not image sample formats. See [owner
 
 `FitsDocument` contains ordered `FitsHdu` values. The first HDU is primary; it may be empty. Each HDU has a `FitsHeader`, raw `Data`, optional decoded `Content`, and nullable checksum results. `FitsImage` retains big-endian storage and the `BITPIX`, `BSCALE`, `BZERO`, and `BLANK` conventions. `GetPhysicalSamples` applies scaling and maps integer blanks to NaN, returning doubles.
 
-`FitsHeader` preserves card order and repeated keywords. `Find`, `FindFirst`, and `GetValue<T>` compare keywords without case sensitivity. `FitsHeaderCard` holds a typed value and optional comment. `FitsTable` exposes decoded rows and `FitsTableColumn` definitions, including format, unit, scaling, and null metadata. FITS writing uses retained raw table data; decoded rows are not an editable table serialization model.
+`FitsHeader` preserves card order and repeated keywords. `Find`, `FindFirst`, `TryGetValue<T>`, `GetRequiredValue<T>` and `GetValueOrDefault<T>` compare keywords without case sensitivity. `FitsHeaderCard` holds a typed value and optional comment. `FitsTable` exposes decoded rows and `FitsTableColumn` definitions, including format, unit, scaling, and null metadata. FITS writing uses retained raw table data; decoded rows are not an editable table serialization model.
+
+Use required access when absence is an error, try access to distinguish absence from numeric zero, and default access when a fallback is intentional. `Set` replaces matching cards; `Add` appends repeated commentary. `FitsHdu.Data` is read-only; `ReplaceImage` updates image storage and structural metadata together, while inconsistent structural header edits are rejected. `ReplaceRawData` replaces non-image payloads and clears stale decoded content/checksum results.
 
 ## Metadata, properties, and tables
 
@@ -66,7 +70,7 @@ Here `editable` is an `XisfImageData` instance. An explicitly declared type must
 
 XISF block checksums are verified when blocks are read. XISF output defaults to SHA-256; `XisfChecksum` also selects other supported digests. SHA-3 uses a portable fallback when the native provider does not support it. FITS checksum output is opt-in through `WriteChecksums`. Missing FITS checksums yield null validation results.
 
-`XisfWriter.Sign` modifies the current XML header. Rebuilding attachments can change that header, so use `WriteSigned` when producing signed serialized output. `VerifyXmlSignature` verifies the signature against an embedded key; applications must establish signer trust separately. Signatures are detached elements following the XISF root, and reference its complete contents. These APIs do not provide certificate-policy validation.
+`XisfWriter.Sign` returns a signed copy of the current XML header. Rebuilding attachments can change that header, so use `WriteSigned` when producing signed serialized output. `VerifyXmlSignature` verifies the signature against an embedded key; applications must establish signer trust separately. Signatures are detached elements following the XISF root, and reference its complete contents. These APIs do not provide certificate-policy validation.
 
 ## Image utilities and celestial coordinates
 

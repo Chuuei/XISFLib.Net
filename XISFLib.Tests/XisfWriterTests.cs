@@ -237,7 +237,7 @@ public class XisfWriterTests
         XisfWriter.Write(first, [image], new XisfWriterOptions { Compression = XisfCompression.Zlib });
         first.Position = 0;
         XisfDocument loaded = XisfReader.Load(first);
-        loaded.Xml.Root!.Add(new XElement(XName.Get("Custom", "urn:test"), new XAttribute("answer", 42)));
+        loaded = loaded.EditXml(xml => xml.Root!.Add(new XElement(XName.Get("Custom", "urn:test"), new XAttribute("answer", 42))));
 
         using MemoryStream second = new();
         XisfWriter.Write(second, loaded);

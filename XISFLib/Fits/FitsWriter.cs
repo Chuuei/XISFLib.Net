@@ -6,6 +6,7 @@ namespace XISFLib;
 /// <summary>Controls optional FITS checksum generation.</summary>
 public sealed class FitsWriterOptions
 {
+    internal FitsWriterOptions Snapshot() => (FitsWriterOptions)MemberwiseClone();
     /// <summary>Whether DATASUM and CHECKSUM cards are generated for each HDU.</summary>
     public bool WriteChecksums { get; set; }
 }
@@ -37,8 +38,10 @@ public static class FitsWriter
     /// <param name="options">The operation settings, or null to use defaults.</param>
     /// <param name="cancellationToken">A token observed at the documented cooperative cancellation boundaries.</param>
     /// <returns>A task completing after the staged file is written and committed.</returns>
-    public static Task WriteAsync(string path, FitsDocument document, FitsWriterOptions? options = null, CancellationToken cancellationToken = default) =>
-        Task.Run(() =>
+    public static Task WriteAsync(string path, FitsDocument document, FitsWriterOptions? options = null, CancellationToken cancellationToken = default)
+    {
+        options = options?.Snapshot();
+        return Task.Run(() =>
         {
             cancellationToken.ThrowIfCancellationRequested();
             ArgumentException.ThrowIfNullOrWhiteSpace(path);
@@ -48,6 +51,21 @@ public static class FitsWriter
                 cancellationToken.ThrowIfCancellationRequested();
             });
         }, cancellationToken);
+    }
+
+    /// <summary>Writes FITS on a worker thread to a caller-owned stream.</summary>
+    /// <param name="stream">The writable stream; errors may leave partial output.</param>
+    /// <param name="document">The document; do not mutate it until completion.</param>
+    /// <param name="options">Settings snapshotted at invocation.</param>
+    /// <param name="cancellationToken">Cancellation checked before and after serialization.</param>
+    /// <returns>The write operation.</returns>
+    public static Task WriteAsync(Stream stream, FitsDocument document, FitsWriterOptions? options = null, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(stream);
+        ArgumentNullException.ThrowIfNull(document);
+        var settings = options?.Snapshot();
+        return Task.Run(() => { cancellationToken.ThrowIfCancellationRequested(); Write(stream, document, settings); cancellationToken.ThrowIfCancellationRequested(); }, cancellationToken);
+    }
 
     /// <summary>Serializes a document or images to the supplied file or stream.</summary>
     /// <param name="stream">The caller-owned stream, positioned at the file origin; it remains open.</param>
@@ -59,7 +77,7 @@ public static class FitsWriter
         ArgumentNullException.ThrowIfNull(stream);
         ArgumentNullException.ThrowIfNull(document);
         if (!stream.CanWrite) throw new ArgumentException("The FITS stream must be writable.", nameof(stream));
-        options ??= new FitsWriterOptions();
+        options = options?.Snapshot() ?? new FitsWriterOptions();
         for (int index = 0; index < document.Hdus.Count; index++)
             WriteHdu(stream, document.Hdus[index], index == 0, index < document.Hdus.Count - 1, options);
     }
@@ -67,7 +85,7 @@ public static class FitsWriter
     private static void WriteHdu(Stream stream, FitsHdu hdu, bool first, bool hasExtensions, FitsWriterOptions options)
     {
         if (first && hdu.Type != FitsHduType.Primary) throw new FitsFormatException("The first HDU must be primary.");
-        byte[] data = hdu.Content is FitsImage image ? image.RawData : hdu.Data;
+        byte[] data = hdu.Content is FitsImage image ? image.RawData : hdu.DataBuffer;
         List<FitsHeaderCard> cards = BuildCards(hdu, first, hasExtensions, data);
         byte[] padding = new byte[(BlockSize - data.Length % BlockSize) % BlockSize];
         if (hdu.Type == FitsHduType.AsciiTable) padding.AsSpan().Fill((byte)' ');
@@ -120,7 +138,7 @@ public static class FitsWriter
                 FitsHduType.Image => "IMAGE",
                 FitsHduType.AsciiTable => "TABLE",
                 FitsHduType.BinaryTable => "BINTABLE",
-                _ => hdu.Header.GetValue<string>("XTENSION", "UNKNOWN")!
+                _ => hdu.Header.GetValueOrDefault<string>("XTENSION", "UNKNOWN")!
             };
             cards.Add(new FitsHeaderCard("XTENSION", extension));
             if (image is not null) AddImageStructure(cards, image, true);
@@ -159,20 +177,20 @@ public static class FitsWriter
         {
             cards.Add(new FitsHeaderCard("BITPIX", 8));
             cards.Add(new FitsHeaderCard("NAXIS", 2));
-            cards.Add(new FitsHeaderCard("NAXIS1", hdu.Header.GetValue<long>("NAXIS1")));
-            cards.Add(new FitsHeaderCard("NAXIS2", hdu.Header.GetValue<long>("NAXIS2")));
-            cards.Add(new FitsHeaderCard("PCOUNT", hdu.Header.GetValue<long>("PCOUNT", 0)));
+            cards.Add(new FitsHeaderCard("NAXIS1", hdu.Header.GetValueOrDefault<long>("NAXIS1")));
+            cards.Add(new FitsHeaderCard("NAXIS2", hdu.Header.GetValueOrDefault<long>("NAXIS2")));
+            cards.Add(new FitsHeaderCard("PCOUNT", hdu.Header.GetValueOrDefault<long>("PCOUNT", 0)));
             cards.Add(new FitsHeaderCard("GCOUNT", 1));
             return;
         }
-        int bitPix = checked((int)hdu.Header.GetValue<long>("BITPIX", 8));
-        int naxis = checked((int)hdu.Header.GetValue<long>("NAXIS", data.Length == 0 ? 0 : 1));
+        int bitPix = checked((int)hdu.Header.GetValueOrDefault<long>("BITPIX", 8));
+        int naxis = checked((int)hdu.Header.GetValueOrDefault<long>("NAXIS", data.Length == 0 ? 0 : 1));
         cards.Add(new FitsHeaderCard("BITPIX", bitPix));
         cards.Add(new FitsHeaderCard("NAXIS", naxis));
         for (int axis = 1; axis <= naxis; axis++)
-            cards.Add(new FitsHeaderCard($"NAXIS{axis}", hdu.Header.GetValue<long>($"NAXIS{axis}", axis == 1 ? data.Length : 1)));
-        cards.Add(new FitsHeaderCard("PCOUNT", hdu.Header.GetValue<long>("PCOUNT", 0)));
-        cards.Add(new FitsHeaderCard("GCOUNT", hdu.Header.GetValue<long>("GCOUNT", 1)));
+            cards.Add(new FitsHeaderCard($"NAXIS{axis}", hdu.Header.GetValueOrDefault<long>($"NAXIS{axis}", axis == 1 ? data.Length : 1)));
+        cards.Add(new FitsHeaderCard("PCOUNT", hdu.Header.GetValueOrDefault<long>("PCOUNT", 0)));
+        cards.Add(new FitsHeaderCard("GCOUNT", hdu.Header.GetValueOrDefault<long>("GCOUNT", 1)));
     }
 
     private static bool IsStructural(string keyword) => StructuralKeywords.Contains(keyword) ||

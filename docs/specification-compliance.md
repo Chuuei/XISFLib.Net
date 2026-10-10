@@ -40,6 +40,8 @@ The previous library had useful container, image, compression and metadata found
 
 ## Compatibility and preservation
 
+The API separates parsed documents from editable `XisfDocumentData`. XML inspection returns copies; advanced `EditXml` returns reparsed views. Editable copies retain unavailable properties/cells, unsupported ancillary objects and extension elements, with original block sources required until serialization where applicable. Format conversion reports omissions and rejects them by default; these API policies do not reduce stored-format support.
+
 Unknown property types and optional objects expose availability diagnostics and retain their original XML. An unsupported image does not prevent access to other images. Astrometric layers fall back independently as required; unknown major revisions preserve the entire solution without interpreting it. No FITS keyword is used to evaluate a native XISF astrometric solution.
 
 Saving a loaded `XisfDocument` preserves opaque serialized blocks without requiring their compression codec. `XisfImageData.FromImage` materializes pixels and known image metadata for editing; use the document-preserving writer when arbitrary extension or unsupported ancillary objects must survive. Unknown astrometric properties and unavailable properties/table cells retain their original representations in editable copies.

@@ -65,11 +65,11 @@ public class ReviewRegressionTests
         ulong[] samples = [0, 1, (1UL << 53) + 1, (1UL << 63) + 1, ulong.MaxValue];
         FitsImage original = FitsImage.FromPhysicalSamples(samples, [samples.Length, 1]);
         XisfImageData converted = FitsConverter.ToXisf(original);
-        Assert.Equal(original.ReadRawData(), FitsConverter.FromXisf([converted]).Images.Single().ReadRawData());
+        Assert.Equal(original.ReadRawData(), FitsConverter.FromXisf([converted], ConversionLossPolicy.Reject).Images.Single().ReadRawData());
         using MemoryStream stream = new();
         XisfWriter.Write(stream, [converted]);
         stream.Position = 0;
-        Assert.Equal(original.ReadRawData(), FitsConverter.FromXisf(XisfReader.Load(stream).Images).Images.Single().ReadRawData());
+        Assert.Equal(original.ReadRawData(), FitsConverter.FromXisf(XisfReader.Load(stream).Images, ConversionLossPolicy.Reject).Images.Single().ReadRawData());
     }
 
     [Fact]

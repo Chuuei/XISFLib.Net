@@ -9,8 +9,9 @@ public sealed class XisfImageData
     private XisfImageData(byte[] data, int[] dimensions, int channelCount, XisfSampleFormat sampleFormat, XisfPixelLayout pixelStorage, bool isBigEndian)
     {
         Validate(data, dimensions, channelCount, sampleFormat);
+        ApiContracts.Defined(pixelStorage, nameof(pixelStorage));
         Data = data;
-        Dimensions = dimensions;
+        Dimensions = Array.AsReadOnly(dimensions);
         ChannelCount = channelCount;
         SampleFormat = sampleFormat;
         PixelStorage = pixelStorage;
@@ -50,7 +51,8 @@ public sealed class XisfImageData
     /// <summary>The upper sample bound used for normalization.</summary>
     public double? UpperBound { get; set; }
     /// <summary>Typed properties indexed by case-sensitive identifiers.</summary>
-    public IDictionary<string, object?> Properties { get; } = new Dictionary<string, object?>(StringComparer.Ordinal);
+    public XisfPropertyCollection Properties { get; } = new();
+    internal IList<XisfPreservedElement> PreservedElements { get; } = [];
     /// <summary>The ordered FITS keywords associated with the image.</summary>
     public IList<XisfFitsKeyword> FitsKeywords { get; } = [];
     /// <summary>The tables associated with this image or document.</summary>
@@ -96,6 +98,10 @@ public sealed class XisfImageData
         copy.RgbWorkingSpace = image.RgbWorkingSpace;
         copy.DisplayFunction = image.DisplayFunction;
         copy.Resolution = image.Resolution;
+        foreach (var element in image.XmlCore.Elements().Where(e => e.Name.Namespace != image.XmlCore.Name.Namespace && e.Name != System.Xml.Linq.XName.Get("Signature", "http://www.w3.org/2000/09/xmldsig#")))
+            copy.PreservedElements.Add(new(new System.Xml.Linq.XElement(element), image.Source));
+        foreach (var unavailable in image.UnavailableObjects)
+            copy.PreservedElements.Add(new(unavailable.Xml, image.Source));
         foreach ((string id, XisfProperty property) in image.Properties)
             copy.Properties[id] = !property.IsAvailable || id.StartsWith("AstrometricSolution:", StringComparison.Ordinal) ? property : new XisfPropertyData(property.Type, property.Value, property.Format, property.Comment);
         foreach (XisfFitsKeyword keyword in image.FitsKeywords)
@@ -139,10 +145,13 @@ public sealed class XisfImageData
         where T : unmanaged
     {
         XisfSampleFormat format = SampleFormatOf<T>();
+        int[] axes = CopyDimensions(dimensions);
+        ApiContracts.Defined(pixelStorage, nameof(pixelStorage));
+        ValidateLength(checked((long)samples.Length * BytesPerSample(format)), axes, channelCount, format);
         byte[] data = MemoryMarshal.AsBytes(samples.Span).ToArray();
         int componentSize = format is XisfSampleFormat.Complex32 ? 4 : format is XisfSampleFormat.Complex64 ? 8 : BytesPerSample(format);
         if (isBigEndian == BitConverter.IsLittleEndian) XisfSampleBuffer.ReverseComponents(data, componentSize);
-        return new XisfImageData(data, CopyDimensions(dimensions), channelCount, format, pixelStorage, isBigEndian);
+        return new XisfImageData(data, axes, channelCount, format, pixelStorage, isBigEndian);
     }
 
     /// <summary>Copies an array into image storage; indices are height, width, then optional channels.</summary>
@@ -225,28 +234,19 @@ public sealed class XisfImageData
     }
 
     private static void Validate(byte[] data, int[] dimensions, int channelCount, XisfSampleFormat sampleFormat)
+        => ValidateLength(data.LongLength, dimensions, channelCount, sampleFormat);
+
+    private static void ValidateLength(long length, int[] dimensions, int channelCount, XisfSampleFormat sampleFormat)
     {
         if (dimensions.Length < 1 || dimensions.Any(dimension => dimension <= 0))
             throw new ArgumentException("An image requires at least one positive dimension.", nameof(dimensions));
         if (channelCount <= 0)
             throw new ArgumentOutOfRangeException(nameof(channelCount), "The channel count must be positive.");
-        long sampleCount = dimensions.Aggregate(1L, (total, dimension) => checked(total * dimension)) * channelCount;
+        long sampleCount = checked(dimensions.Aggregate(1L, (total, dimension) => checked(total * dimension)) * channelCount);
         long expectedLength = checked(sampleCount * BytesPerSample(sampleFormat));
-        if (data.LongLength != expectedLength)
-            throw new ArgumentException($"The sample data has {data.LongLength} bytes; expected {expectedLength}.", nameof(data));
+        if (length != expectedLength)
+            throw new ArgumentException($"The sample data has {length} bytes; expected {expectedLength}.", "samples");
     }
 
-    private static XisfSampleFormat SampleFormatOf<T>() where T : unmanaged
-    {
-        Type type = typeof(T);
-        if (type == typeof(byte)) return XisfSampleFormat.UInt8;
-        if (type == typeof(ushort)) return XisfSampleFormat.UInt16;
-        if (type == typeof(uint)) return XisfSampleFormat.UInt32;
-        if (type == typeof(ulong)) return XisfSampleFormat.UInt64;
-        if (type == typeof(float)) return XisfSampleFormat.Float32;
-        if (type == typeof(double)) return XisfSampleFormat.Float64;
-        if (type == typeof(XisfComplex32)) return XisfSampleFormat.Complex32;
-        if (type == typeof(Complex)) return XisfSampleFormat.Complex64;
-        throw new NotSupportedException($"The .NET sample type '{type.Name}' has no supported XISF image sample format.");
-    }
+    private static XisfSampleFormat SampleFormatOf<T>() where T : unmanaged => XisfNumericTypes.ImageFormat(typeof(T));
 }

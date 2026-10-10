@@ -104,7 +104,7 @@ public partial class MainWindow : Window
         if (IsFitsPath(path))
         {
             FitsDocument fits = FitsReader.Load(path);
-            IReadOnlyList<XisfImageData> converted = FitsConverter.ToXisf(fits);
+            IReadOnlyList<XisfImageData> converted = FitsConverter.ToXisf(fits, new() { AxisInterpretation = FitsAxisInterpretation.RgbOrRgba, LossPolicy = ConversionLossPolicy.Allow });
             if (converted.Count == 0) throw new FitsFormatException("The FITS document does not contain a convertible image HDU.");
             return new LoadedFile(null, fits, converted.Select(image => (XisfImageData?)image).ToArray());
         }

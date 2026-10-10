@@ -12,7 +12,7 @@ public class XisfUtilityTests
         ];
         XisfImageData image = XisfImageData.FromSamples(samples, [3, 2], 3, XisfPixelLayout.Interleaved);
 
-        Assert.Equal([2, 20, 200, 3, 30, 300, 5, 50, 500, 6, 60, 600], image.ReadRegion<int>(1, 0, 2, 2));
+        Assert.Equal([2, 20, 200, 3, 30, 300, 5, 50, 500, 6, 60, 600], image.ReadRegion<int>(1, 0, 2, 2, XisfPixelLayout.Interleaved));
         Assert.Equal([10, 20, 30, 40, 50, 60], image.ReadChannel<int>(1));
         Assert.Equal([2, 3, 5, 6, 20, 30, 50, 60, 200, 300, 500, 600],
             image.ReadRegion<int>(1, 0, 2, 2, XisfPixelLayout.Planar));

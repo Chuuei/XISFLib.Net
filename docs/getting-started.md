@@ -51,12 +51,14 @@ XisfWriter.Write("edited.xisf", [editable]);
 
 ## Read and convert FITS
 
+For complete document editing, use `document.ToEditable()`, edit its images/global properties/tables, and write the resulting `XisfDocumentData`. Parsed XML is an inspection copy; advanced `EditXml` returns a reparsed document. See [API contracts](api-migration.md) for preservation and migration details.
+
 ```csharp
 FitsDocument fits = FitsReader.Load("capture.fits");
 IReadOnlyList<XisfImageData> images = FitsConverter.ToXisf(fits);
 XisfWriter.Write("converted.xisf", images);
 
-FitsDocument converted = FitsConverter.FromXisf(images);
+FitsDocument converted = FitsConverter.FromXisf(images, ConversionLossPolicy.Allow);
 FitsWriter.Write("converted.fits", converted,
     new FitsWriterOptions { WriteChecksums = true });
 ```

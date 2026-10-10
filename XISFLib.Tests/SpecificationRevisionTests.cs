@@ -232,7 +232,7 @@ public class SpecificationRevisionTests
         image.Properties["AstrometricSolution:FutureProperty"] = new double[] { 2, 3 };
         var doc = RoundTrip(image, new() { Compression = XisfCompression.Zstd });
         var property = doc.Images[0].Properties["AstrometricSolution:FutureProperty"];
-        property.Xml.SetAttributeValue("compression", "future:16");
+        doc = doc.EditXml(xml => xml.Descendants().Single(e => (string?)e.Attribute("id") == property.Id).SetAttributeValue("compression", "future:16"));
         using MemoryStream saved = new(); XisfWriter.Write(saved, doc); saved.Position = 0;
         var loaded = XisfReader.Load(saved);
         Assert.False(loaded.Images[0].Properties[property.Id].IsAvailable);
@@ -262,8 +262,10 @@ public class SpecificationRevisionTests
         Assert.True(XisfReader.VerifyXmlSignature(XisfReader.Load(preserved)));
         byte[] tampered = output.ToArray(); tampered[^1] ^= 1;
         Assert.False(XisfReader.VerifyXmlSignature(XisfReader.Load(new MemoryStream(tampered))));
-        signed.Xml.Root!.SetAttributeValue("changed", "true");
-        Assert.False(XisfReader.VerifyXmlSignature(signed));
+        var edited = signed.EditXml(xml => xml.Root!.SetAttributeValue("changed", "true"));
+        Assert.False(edited.HasXmlSignature);
+        Assert.False(XisfReader.VerifyXmlSignature(edited));
+        Assert.True(XisfReader.VerifyXmlSignature(signed));
     }
 
     [Fact]

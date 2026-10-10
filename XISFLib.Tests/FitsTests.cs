@@ -11,7 +11,7 @@ public class FitsTests
         source.FitsKeywords.Add(new XisfFitsKeyword("OBJECT", "NGC 6992", "Target"));
         source.FitsKeywords.Add(new XisfFitsKeyword("HIERARCH ESO DET CHIP NAME", "A very long detector description that exceeds one standard FITS value card and must continue without losing text", null));
 
-        FitsDocument created = FitsConverter.FromXisf([source]);
+        FitsDocument created = FitsConverter.FromXisf([source], ConversionLossPolicy.Reject);
         using MemoryStream stream = new();
         FitsWriter.Write(stream, created, new FitsWriterOptions { WriteChecksums = true });
 
@@ -24,8 +24,8 @@ public class FitsTests
         Assert.Equal(32768d, image.BZero);
         Assert.Equal([2, 2], image.Dimensions);
         Assert.Equal([0d, 1d, 32768d, 65535d], image.GetPhysicalSamples());
-        Assert.Equal("NGC 6992", actual.Hdus[0].Header.GetValue<string>("OBJECT"));
-        Assert.StartsWith("A very long detector description", actual.Hdus[0].Header.GetValue<string>("HIERARCH ESO DET CHIP NAME"));
+        Assert.Equal("NGC 6992", actual.Hdus[0].Header.GetValueOrDefault<string>("OBJECT"));
+        Assert.StartsWith("A very long detector description", actual.Hdus[0].Header.GetValueOrDefault<string>("HIERARCH ESO DET CHIP NAME"));
         Assert.True(actual.Hdus[0].ChecksumValid);
         Assert.True(actual.Hdus[0].DataChecksumValid);
     }
@@ -47,12 +47,12 @@ public class FitsTests
 
         Assert.Equal(3, loaded.Hdus.Count);
         Assert.Equal([0.25d, 0.75d], Assert.IsType<FitsImage>(loaded.Hdus[1].Content).GetPhysicalSamples());
-        Assert.Equal([1, 2, 3, 4], loaded.Hdus[2].Data);
+        Assert.Equal([1, 2, 3, 4], loaded.Hdus[2].Data.ToArray());
 
         using MemoryStream second = new();
         FitsWriter.Write(second, loaded);
         second.Position = 0;
-        Assert.Equal([1, 2, 3, 4], FitsReader.Load(second).Hdus[2].Data);
+        Assert.Equal([1, 2, 3, 4], FitsReader.Load(second).Hdus[2].Data.ToArray());
     }
 
     [Fact]
@@ -100,10 +100,12 @@ public class FitsTests
         Assert.Equal([-10d, 20d], ReadXisfValues(xisf));
         Assert.Contains(xisf.FitsKeywords, keyword => keyword.Name == "CRVAL1" && keyword.Value == "123.5");
 
-        FitsDocument roundTrip = FitsConverter.FromXisf([xisf]);
+        var conversion = FitsConverter.ConvertToFits([xisf], ConversionLossPolicy.Allow);
+        Assert.Contains(conversion.Findings, finding => finding.Code == "XISF_BOUNDS");
+        FitsDocument roundTrip = conversion.Value;
         FitsImage actual = Assert.IsType<FitsImage>(Assert.Single(roundTrip.Hdus).Content);
         Assert.Equal([-10d, 20d], actual.GetPhysicalSamples());
-        Assert.Equal(123.5, roundTrip.Hdus[0].Header.GetValue<double>("CRVAL1"));
+        Assert.Equal(123.5, roundTrip.Hdus[0].Header.GetValueOrDefault<double>("CRVAL1"));
     }
 
     [Fact]
@@ -118,7 +120,7 @@ public class FitsTests
         XisfWriter.Write(xisf, [converted]);
         xisf.Position = 0;
 
-        FitsImage actual = Assert.IsType<FitsImage>(Assert.Single(FitsConverter.FromXisf(XisfReader.Load(xisf).Images).Hdus).Content);
+        FitsImage actual = Assert.IsType<FitsImage>(Assert.Single(FitsConverter.FromXisf(XisfReader.Load(xisf).Images, ConversionLossPolicy.Allow).Hdus).Content);
 
         Assert.Equal(16, actual.BitPix);
         Assert.Equal(2, actual.BScale);
@@ -132,8 +134,8 @@ public class FitsTests
     {
         XisfImageData source = XisfImageData.FromSamples(new byte[] { 1, 2, 3, 4, 5, 6 }, [2, 1], 3, XisfPixelLayout.Interleaved);
 
-        FitsImage fits = Assert.IsType<FitsImage>(Assert.Single(FitsConverter.FromXisf([source]).Hdus).Content);
-        XisfImageData roundTrip = FitsConverter.ToXisf(fits);
+        FitsImage fits = Assert.IsType<FitsImage>(Assert.Single(FitsConverter.FromXisf([source], ConversionLossPolicy.Reject).Hdus).Content);
+        XisfImageData roundTrip = FitsConverter.ToXisf(fits, new() { AxisInterpretation = FitsAxisInterpretation.RgbOrRgba });
 
         Assert.Equal([2, 1, 3], fits.Dimensions);
         Assert.Equal([1d, 4d, 2d, 5d, 3d, 6d], fits.GetPhysicalSamples());

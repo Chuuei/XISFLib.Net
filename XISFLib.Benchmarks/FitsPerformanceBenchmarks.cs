@@ -16,8 +16,8 @@ internal static class FitsPerformanceBenchmarks
             var document = FitsReader.Load(path);
             var image = document.Images.First();
             Console.WriteLine($"  {string.Join('x', image.Dimensions)}, BITPIX {image.BitPix}, BSCALE {image.BScale}, BZERO {image.BZero}, checksums {document.Hdus.Any(h => h.ChecksumValid.HasValue || h.DataChecksumValid.HasValue)}");
-            Measure(path, "Convert to XISF", () => GC.KeepAlive(FitsConverter.ToXisf(document)));
-            var converted = FitsConverter.ToXisf(document);
+            Measure(path, "Convert to XISF", () => GC.KeepAlive(FitsConverter.ToXisf(document, new() { AxisInterpretation = FitsAxisInterpretation.RgbOrRgba, LossPolicy = ConversionLossPolicy.Allow })));
+            var converted = FitsConverter.ToXisf(document, new() { AxisInterpretation = FitsAxisInterpretation.RgbOrRgba, LossPolicy = ConversionLossPolicy.Allow });
             Measure(path, "Render", () => GC.KeepAlive(converted[0].ToBgra32Pixels(XisfStretchOptions.Auto)));
         }
 
@@ -27,7 +27,7 @@ internal static class FitsPerformanceBenchmarks
         Measure("synthetic", "Encode Float32", () => GC.KeepAlive(FitsImage.FromPhysicalSamples(floats, [2048, 2048])));
         Measure("synthetic", "Encode UInt16", () => GC.KeepAlive(FitsImage.FromPhysicalSamples(unsigned, [2048, 2048])));
         var scaled = FitsImage.FromRaw(FitsImage.FromPhysicalSamples(unsigned, [2048, 2048]).ReadRawData(), 16, [2048, 2048], 0.5, 500, -32768);
-        Measure("synthetic", "Scaled conversion", () => GC.KeepAlive(FitsConverter.ToXisf(scaled)));
+        Measure("synthetic", "Scaled conversion", () => GC.KeepAlive(FitsConverter.ToXisf(scaled, new() { AxisInterpretation = FitsAxisInterpretation.RgbOrRgba, LossPolicy = ConversionLossPolicy.Allow })));
         var checksumDocument = new FitsDocument([FitsHdu.CreateImage(FitsImage.FromPhysicalSamples(floats, [2048, 2048]), true)]);
         Measure("synthetic", "Write checksums", () => { using var stream = new MemoryStream(); FitsWriter.Write(stream, checksumDocument, new() { WriteChecksums = true }); });
         using var checkedStream = new MemoryStream();

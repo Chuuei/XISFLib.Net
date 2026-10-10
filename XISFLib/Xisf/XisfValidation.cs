@@ -37,11 +37,11 @@ internal static class XisfValidator
     public static IReadOnlyList<XisfDiagnostic> Validate(XisfDocument document)
     {
         List<XisfDiagnostic> diagnostics = [];
-        XElement root = document.Xml.Root!;
+        XElement root = document.XmlCore.Root!;
         if (root.Name.NamespaceName != Namespace) diagnostics.Add(new(XisfDiagnosticSeverity.Warning, "XISF001", "The recommended XISF namespace is absent or different.", root));
         if ((string?)root.Attribute("version") != "1.0") Error("XISF009", "The root version attribute must be '1.0'.", root);
-        if (document.Xml.Declaration is null || !string.Equals(document.Xml.Declaration.Version, "1.0", StringComparison.Ordinal) ||
-            !string.Equals(document.Xml.Declaration.Encoding, "UTF-8", StringComparison.OrdinalIgnoreCase))
+        if (document.XmlCore.Declaration is null || !string.Equals(document.XmlCore.Declaration.Version, "1.0", StringComparison.Ordinal) ||
+            !string.Equals(document.XmlCore.Declaration.Encoding, "UTF-8", StringComparison.OrdinalIgnoreCase))
             Error("XISF002", "The header must have an XML 1.0 UTF-8 declaration.", root);
         XElement[] metadata = root.Elements(XName.Get("Metadata", root.Name.NamespaceName)).ToArray();
         if (metadata.Length != 1) Error("XISF003", "The header must contain exactly one Metadata element.", root);
@@ -78,11 +78,11 @@ internal static class XisfValidator
             Error("XISF013", "Image identifiers must be unique within a unit.", duplicate.First());
         foreach (XisfTable table in document.Tables.Concat(document.Images.SelectMany(i => i.Tables)))
         {
-            if (table.Fields.Count == 0) Error("XISF020", $"Table '{table.Id}' has no fields.", table.Xml);
-            if (table.Fields.Select(f => f.Id).Distinct(StringComparer.Ordinal).Count() != table.Fields.Count) Error("XISF021", $"Table '{table.Id}' has duplicate fields.", table.Xml);
-            if (table.Xml.Attribute("rows") is { } rows && (!int.TryParse(rows.Value, out int rowCount) || rowCount != table.Rows.Count)) Error("XISF023", "Table row count does not match its contents.", table.Xml);
-            if (table.Xml.Attribute("columns") is { } columns && (!int.TryParse(columns.Value, out int columnCount) || columnCount != table.Fields.Count)) Error("XISF024", "Table column count does not match its structure.", table.Xml);
-            if (table.Rows.Any(row => row.Cells.Count != table.Fields.Count)) Error("XISF022", $"Table '{table.Id}' has a row with an invalid cell count.", table.Xml);
+            if (table.Fields.Count == 0) Error("XISF020", $"Table '{table.Id}' has no fields.", table.XmlCore);
+            if (table.Fields.Select(f => f.Id).Distinct(StringComparer.Ordinal).Count() != table.Fields.Count) Error("XISF021", $"Table '{table.Id}' has duplicate fields.", table.XmlCore);
+            if (table.XmlCore.Attribute("rows") is { } rows && (!int.TryParse(rows.Value, out int rowCount) || rowCount != table.Rows.Count)) Error("XISF023", "Table row count does not match its contents.", table.XmlCore);
+            if (table.XmlCore.Attribute("columns") is { } columns && (!int.TryParse(columns.Value, out int columnCount) || columnCount != table.Fields.Count)) Error("XISF024", "Table column count does not match its structure.", table.XmlCore);
+            if (table.Rows.Any(row => row.Cells.Count != table.Fields.Count)) Error("XISF022", $"Table '{table.Id}' has a row with an invalid cell count.", table.XmlCore);
         }
         foreach (XisfImage image in document.Images) ValidateImage(image, false);
         foreach (XElement property in root.Descendants(XName.Get("Property", root.Name.NamespaceName)))
@@ -104,31 +104,31 @@ internal static class XisfValidator
         }
         void ValidateImage(XisfImage image, bool thumbnail)
         {
-            if (image.Id is { } id && !Identifier.IsMatch(id)) Error("XISF030", $"Invalid image identifier '{id}'.", image.Xml);
-            if (!double.IsFinite(image.Offset) || image.Offset < 0) Error("XISF031", "Image offset cannot be negative.", image.Xml);
-            if (!Orientations.Contains(image.Orientation)) Error("XISF032", $"Invalid image orientation '{image.Orientation}'.", image.Xml);
-            if (image.Xml.Attribute("uuid") is { } uuid && (image.Uuid is null || uuid.Value.Length != 36 || uuid.Value[14] != '4' || !"89abAB".Contains(uuid.Value[19])))
-                Error("XISF033", "Image uuid must be a canonical version 4 UUID with the RFC variant.", image.Xml);
-            if (!ColorSpaces.Contains(image.ColorSpace ?? "Gray")) Error("XISF034", $"Unsupported image color space '{image.ColorSpace}'.", image.Xml);
+            if (image.Id is { } id && !Identifier.IsMatch(id)) Error("XISF030", $"Invalid image identifier '{id}'.", image.XmlCore);
+            if (!double.IsFinite(image.Offset) || image.Offset < 0) Error("XISF031", "Image offset cannot be negative.", image.XmlCore);
+            if (!Orientations.Contains(image.Orientation)) Error("XISF032", $"Invalid image orientation '{image.Orientation}'.", image.XmlCore);
+            if (image.XmlCore.Attribute("uuid") is { } uuid && (image.Uuid is null || uuid.Value.Length != 36 || uuid.Value[14] != '4' || !"89abAB".Contains(uuid.Value[19])))
+                Error("XISF033", "Image uuid must be a canonical version 4 UUID with the RFC variant.", image.XmlCore);
+            if (!ColorSpaces.Contains(image.ColorSpace ?? "Gray")) Error("XISF034", $"Unsupported image color space '{image.ColorSpace}'.", image.XmlCore);
             if (image.ColorSpace == "Gray" && image.ChannelCount < 1 || image.ColorSpace is "RGB" or "CIELab" && image.ChannelCount < 3)
-                Error("XISF035", "Image channel count is inconsistent with its color space.", image.Xml);
-            if (image.ImageType is { } imageType && !ImageTypes.Contains(imageType)) Error("XISF039", $"Invalid image type '{imageType}'.", image.Xml);
+                Error("XISF035", "Image channel count is inconsistent with its color space.", image.XmlCore);
+            if (image.ImageType is { } imageType && !ImageTypes.Contains(imageType)) Error("XISF039", $"Invalid image type '{imageType}'.", image.XmlCore);
             if (!double.IsFinite(image.LowerBound) || !double.IsFinite(image.UpperBound) || image.LowerBound >= image.UpperBound)
-                Error("XISF040", "Image bounds must be finite and strictly increasing.", image.Xml);
-            if (((string?)image.Xml.Attribute("location"))?.StartsWith("inline:", StringComparison.OrdinalIgnoreCase) == true)
-                Error("XISF041", "Image pixel data cannot use an inline data block.", image.Xml);
-            if (thumbnail && (image.Dimensions.Count != 2 || image.SampleFormat is not (XisfSampleFormat.UInt8 or XisfSampleFormat.UInt16) || image.ColorSpace is not ("Gray" or "RGB") || image.ChannelCount > (image.ColorSpace == "RGB" ? 4 : 2) || image.Xml.Attribute("bounds") is not null || image.ColorFilterArray is not null || image.Thumbnail is not null))
-                Error("XISF036", "Thumbnail restrictions are not satisfied.", image.Xml);
+                Error("XISF040", "Image bounds must be finite and strictly increasing.", image.XmlCore);
+            if (((string?)image.XmlCore.Attribute("location"))?.StartsWith("inline:", StringComparison.OrdinalIgnoreCase) == true)
+                Error("XISF041", "Image pixel data cannot use an inline data block.", image.XmlCore);
+            if (thumbnail && (image.Dimensions.Count != 2 || image.SampleFormat is not (XisfSampleFormat.UInt8 or XisfSampleFormat.UInt16) || image.ColorSpace is not ("Gray" or "RGB") || image.ChannelCount > (image.ColorSpace == "RGB" ? 4 : 2) || image.XmlCore.Attribute("bounds") is not null || image.ColorFilterArray is not null || image.Thumbnail is not null))
+                Error("XISF036", "Thumbnail restrictions are not satisfied.", image.XmlCore);
             if (image.DisplayFunction is { } display && new[] { display.Midtones.Count, display.Shadows.Count, display.Highlights.Count, display.LowRange.Count, display.HighRange.Count }.Any(n => n != 4))
-                Error("XISF037", "Display function vectors must have four components.", image.Xml);
+                Error("XISF037", "Display function vectors must have four components.", image.XmlCore);
             if (image.Resolution is { } resolution && (!double.IsFinite(resolution.Horizontal) || !double.IsFinite(resolution.Vertical) || resolution.Horizontal <= 0 || resolution.Vertical <= 0 || resolution.Unit is not ("inch" or "cm")))
-                Error("XISF038", "Invalid image resolution.", image.Xml);
+                Error("XISF038", "Invalid image resolution.", image.XmlCore);
             foreach (XisfFitsKeyword keyword in image.FitsKeywords)
             {
-                if (!FitsKeywordName.IsMatch(keyword.Name)) Error("XISF042", $"Invalid FITS keyword name '{keyword.Name}'.", image.Xml);
-                if (keyword.Name is "HISTORY" or "COMMENT" && keyword.Value.Length != 0) Error("XISF045", "HISTORY and COMMENT must have empty values.", image.Xml);
+                if (!FitsKeywordName.IsMatch(keyword.Name)) Error("XISF042", $"Invalid FITS keyword name '{keyword.Name}'.", image.XmlCore);
+                if (keyword.Name is "HISTORY" or "COMMENT" && keyword.Value.Length != 0) Error("XISF045", "HISTORY and COMMENT must have empty values.", image.XmlCore);
             }
-            foreach (XElement keyword in image.Xml.Elements(XName.Get("FITSKeyword", root.Name.NamespaceName)))
+            foreach (XElement keyword in image.XmlCore.Elements(XName.Get("FITSKeyword", root.Name.NamespaceName)))
                 if (keyword.Attribute("comment") is null) Error("XISF046", "FITSKeyword requires its comment attribute.", keyword);
             if (image.RgbWorkingSpace is { } rgb)
             {
@@ -136,19 +136,19 @@ internal static class XisfValidator
                 {
                     double[] derived = XisfColorSpace.DeriveLuminanceCoefficients(rgb);
                     if (rgb.LuminanceCoefficients.Count != 3 || rgb.LuminanceCoefficients.Where((v, i) => !double.IsFinite(v) || Math.Abs(v - derived[i]) > 2e-5).Any())
-                        Error("XISF043", "RGB luminance coefficients are inconsistent with the primaries and D50 white.", image.Xml);
+                        Error("XISF043", "RGB luminance coefficients are inconsistent with the primaries and D50 white.", image.XmlCore);
                 }
-                catch (ArgumentException exception) { Error("XISF043", exception.Message, image.Xml); }
+                catch (ArgumentException exception) { Error("XISF043", exception.Message, image.XmlCore); }
             }
             if (image.AstrometricSolution is { } astrometry)
             {
-                foreach (string diagnostic in astrometry.Diagnostics) diagnostics.Add(new(XisfDiagnosticSeverity.Warning, "XISF050", diagnostic, image.Xml));
-                if (astrometry.AvailableLayer > 0) ValidateProvenance(astrometry, image.Xml);
+                foreach (string diagnostic in astrometry.Diagnostics) diagnostics.Add(new(XisfDiagnosticSeverity.Warning, "XISF050", diagnostic, image.XmlCore));
+                if (astrometry.AvailableLayer > 0) ValidateProvenance(astrometry, image.XmlCore);
             }
             foreach (XisfUnavailableObject unavailable in image.UnavailableObjects)
                 diagnostics.Add(new(XisfDiagnosticSeverity.Warning, "XISF051", unavailable.Reason, unavailable.Xml));
             if (image.IccProfile is { } profile && !IsEmbeddedIccProfile(profile))
-                Error("XISF044", "The ICC profile is malformed or does not set the embedded-profile flag.", image.Xml);
+                Error("XISF044", "The ICC profile is malformed or does not set the embedded-profile flag.", image.XmlCore);
             if (image.Thumbnail is { } child) ValidateImage(child, true);
         }
         void ValidateProvenance(XisfAstrometricSolution astrometry, XElement element)

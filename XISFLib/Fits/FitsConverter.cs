@@ -6,8 +6,11 @@ namespace XISFLib;
 /// <summary>Controls axis interpretation and preservation of structural keywords.</summary>
 public sealed class FitsConversionOptions
 {
-    /// <summary>Whether a third axis of length three or four is interpreted as color channels.</summary>
-    public bool TreatThirdAxisAsColorChannels { get; set; } = true;
+    internal FitsConversionOptions Snapshot() => (FitsConversionOptions)MemberwiseClone();
+    /// <summary>Explicit third-axis interpretation; defaults to preserving scientific dimensions.</summary>
+    public FitsAxisInterpretation AxisInterpretation { get; set; }
+    /// <summary>Whether reported information loss is permitted; defaults to rejection.</summary>
+    public ConversionLossPolicy LossPolicy { get; set; }
     /// <summary>Whether structural FITS cards are also preserved as XISF FITS keywords.</summary>
     public bool IncludeStructuralKeywords { get; set; }
 }
@@ -15,6 +18,100 @@ public sealed class FitsConversionOptions
 /// <summary>Converts supported images and metadata between FITS and XISF.</summary>
 public static class FitsConverter
 {
+    /// <summary>Converts FITS with a report of preserved, transformed and omitted source content.</summary>
+    /// <param name="document">The source FITS document.</param>
+    /// <param name="options">Axis and loss policies, or safe defaults.</param>
+    /// <returns>The images and conversion findings.</returns>
+    public static ConversionResult<IReadOnlyList<XisfImageData>> ConvertToXisf(FitsDocument document, FitsConversionOptions? options = null)
+    {
+        ArgumentNullException.ThrowIfNull(document);
+        options = options?.Snapshot() ?? new();
+        ApiContracts.Defined(options.AxisInterpretation, nameof(options.AxisInterpretation));
+        ApiContracts.Defined(options.LossPolicy, nameof(options.LossPolicy));
+        var findings = new List<ConversionFinding>();
+        for (int i = 0; i < document.Hdus.Count; i++)
+        {
+            var hdu = document.Hdus[i];
+            if (hdu.Content is FitsImage image)
+            {
+                findings.Add(new("FITS_IMAGE", ConversionEffect.Preserved, $"HDU {i}: image samples and supported storage metadata retained."));
+                if (options.AxisInterpretation == FitsAxisInterpretation.RgbOrRgba && image.Dimensions.Count == 3 && image.Dimensions[2] is 3 or 4)
+                    findings.Add(new("FITS_COLOR_AXIS", ConversionEffect.Transformed, $"HDU {i}: third axis explicitly interpreted as color channels."));
+                if (image.BScale != 1 || image.Blank is not null || image.BitPix is 16 or 32 or 64 && image.BZero == 0)
+                    findings.Add(new("FITS_PHYSICAL", ConversionEffect.Transformed, $"HDU {i}: physical floating-point samples used; arbitrary scaling may round."));
+            }
+            else if (hdu.Content is FitsTable table)
+            {
+                findings.Add(new("FITS_TABLE", ConversionEffect.Transformed, $"HDU {i}: table attached to first output image."));
+                findings.Add(new("FITS_TABLE_STORAGE", ConversionEffect.Omitted, $"HDU {i}: original table storage, units, scaling and extension metadata are not recreated."));
+                if (table.Rows.Any(row => row.Any(cell => cell is Array))) findings.Add(new("FITS_ARRAY_CELL", ConversionEffect.Omitted, $"HDU {i}: array cells are flattened to text."));
+            }
+            else if (hdu.Data.Length != 0 || hdu.Type != FitsHduType.Primary)
+                findings.Add(new("FITS_EXTENSION", ConversionEffect.Omitted, $"HDU {i}: unsupported or empty extension omitted."));
+        }
+        var preview = new ConversionResult<IReadOnlyList<XisfImageData>>([], findings);
+        preview.Enforce(options.LossPolicy);
+        var report = new ConversionResult<IReadOnlyList<XisfImageData>>(ToXisfCore(document, options), findings);
+        report.Enforce(options.LossPolicy);
+        return report;
+    }
+
+    /// <summary>Converts editable XISF images to FITS with explicit metadata-loss findings.</summary>
+    /// <param name="images">The output images.</param>
+    /// <param name="lossPolicy">Whether metadata omissions are explicitly accepted.</param>
+    /// <returns>A FITS document and findings.</returns>
+    public static ConversionResult<FitsDocument> ConvertToFits(IEnumerable<XisfImageData> images, ConversionLossPolicy lossPolicy = ConversionLossPolicy.Reject)
+    {
+        ArgumentNullException.ThrowIfNull(images);
+        var list = images.ToArray();
+        var findings = new List<ConversionFinding>();
+        for (int i = 0; i < list.Length; i++)
+        {
+            var image = list[i];
+            AddImageFindings(findings, i, image.Properties.Keys, image.Tables.Count > 0,
+                image.IccProfile is not null || image.Thumbnail is not null || image.ColorFilterArray is not null || image.RgbWorkingSpace is not null || image.DisplayFunction is not null || image.Resolution is not null || image.PreservedElements.Count > 0,
+                image.Orientation is not (null or "0") || image.Offset != 0 || image.Uuid is not null || image.ImageType is not null,
+                image.ColorSpace, image.SampleFormat, image.LowerBound, image.UpperBound);
+        }
+        ApiContracts.Defined(lossPolicy, nameof(lossPolicy));
+        var preview = new ConversionResult<FitsDocument>(null!, findings);
+        preview.Enforce(lossPolicy);
+        var result = new ConversionResult<FitsDocument>(FromXisfCore(list), findings);
+        result.Enforce(lossPolicy);
+        return result;
+    }
+
+    /// <summary>Converts a complete XISF document, reporting document-level and image-level omissions.</summary>
+    /// <param name="document">The parsed XISF document.</param>
+    /// <param name="lossPolicy">Whether omissions are explicitly accepted.</param>
+    /// <returns>A FITS document with conversion findings.</returns>
+    public static ConversionResult<FitsDocument> ConvertToFits(XisfDocument document, ConversionLossPolicy lossPolicy = ConversionLossPolicy.Reject)
+    {
+        ArgumentNullException.ThrowIfNull(document);
+        ApiContracts.Defined(lossPolicy, nameof(lossPolicy));
+        var findings = new List<ConversionFinding>();
+        if (document.Properties.Count > 0 || document.Metadata.Count > 0 || document.Tables.Count > 0 || document.UnavailableObjects.Count > 0 || document.XmlCore.Root!.Elements().Any(e => e.Name.Namespace != document.XmlCore.Root.Name.Namespace))
+            findings.Add(new("XISF_DOCUMENT", ConversionEffect.Omitted, "Global properties, creation metadata, document tables and extensions are not represented in FITS."));
+        if (document.HasXmlSignature) findings.Add(new("XISF_SIGNATURE", ConversionEffect.Omitted, "The original XML signature cannot be retained across format conversion."));
+        return ConvertParsedImages(document.Images, lossPolicy, findings);
+    }
+
+    /// <summary>Converts an editable document, reporting image and document-level metadata omissions.</summary>
+    /// <param name="document">The complete editable content.</param>
+    /// <param name="lossPolicy">Whether omissions are explicitly accepted.</param>
+    /// <returns>A FITS document with conversion findings.</returns>
+    public static ConversionResult<FitsDocument> ConvertToFits(XisfDocumentData document, ConversionLossPolicy lossPolicy = ConversionLossPolicy.Reject)
+    {
+        ArgumentNullException.ThrowIfNull(document);
+        ApiContracts.Defined(lossPolicy, nameof(lossPolicy));
+        bool hasGlobalContent = document.Properties.Count > 0 || document.Metadata.Count > 0 || document.Tables.Count > 0 || document.Extensions.Count > 0 || document.PreservedElements.Count > 0;
+        var globalFindings = hasGlobalContent
+            ? new[] { new ConversionFinding("XISF_DOCUMENT", ConversionEffect.Omitted, "Global properties, creation metadata, document tables and extensions are not represented in FITS.") }
+            : [];
+        new ConversionResult<FitsDocument>(null!, globalFindings).Enforce(lossPolicy);
+        var converted = ConvertToFits(document.Images, lossPolicy);
+        return new(converted.Value, converted.Findings.Concat(globalFindings));
+    }
     private static readonly HashSet<string> StructuralKeywords = new(StringComparer.OrdinalIgnoreCase)
     {
         "SIMPLE", "XTENSION", "BITPIX", "NAXIS", "PCOUNT", "GCOUNT", "EXTEND", "BSCALE", "BZERO", "BLANK", "CHECKSUM", "DATASUM", "END"
@@ -26,9 +123,14 @@ public static class FitsConverter
     /// <returns>The converted image or images with known metadata.</returns>
     /// <exception cref="NotSupportedException">Signed 64-bit FITS storage cannot be represented exactly by the floating-point conversion path.</exception>
     public static IReadOnlyList<XisfImageData> ToXisf(FitsDocument document, FitsConversionOptions? options = null)
+        => ConvertToXisf(document, options).Value;
+
+    private static IReadOnlyList<XisfImageData> ToXisfCore(FitsDocument document, FitsConversionOptions? options)
     {
         ArgumentNullException.ThrowIfNull(document);
         options ??= new FitsConversionOptions();
+        ApiContracts.Defined(options.AxisInterpretation, nameof(options.AxisInterpretation));
+        ApiContracts.Defined(options.LossPolicy, nameof(options.LossPolicy));
         List<XisfImageData> result = [];
         FitsHeader? primaryMetadata = document.Hdus[0].Content is null ? document.Hdus[0].Header : null;
         foreach (FitsHdu hdu in document.Hdus)
@@ -57,7 +159,8 @@ public static class FitsConverter
         options ??= new FitsConversionOptions();
         int[] dimensions = image.Dimensions.ToArray();
         int channels = 1;
-        if (options.TreatThirdAxisAsColorChannels && dimensions.Length == 3 && dimensions[2] is 3 or 4)
+        ApiContracts.Defined(options.AxisInterpretation, nameof(options.AxisInterpretation));
+        if (options.AxisInterpretation == FitsAxisInterpretation.RgbOrRgba && dimensions.Length == 3 && dimensions[2] is 3 or 4)
         {
             channels = dimensions[2];
             dimensions = dimensions[..2];
@@ -98,8 +201,12 @@ public static class FitsConverter
 
     /// <summary>Converts XISF images to FITS with the first image as the primary HDU.</summary>
     /// <param name="images">The images in output order; at least one image is required.</param>
+    /// <param name="lossPolicy">Whether native metadata omissions are explicitly accepted.</param>
     /// <returns>A FITS document containing an HDU per image.</returns>
-    public static FitsDocument FromXisf(IEnumerable<XisfImageData> images)
+    public static FitsDocument FromXisf(IEnumerable<XisfImageData> images, ConversionLossPolicy lossPolicy = ConversionLossPolicy.Reject)
+        => ConvertToFits(images, lossPolicy).Value;
+
+    private static FitsDocument FromXisfCore(IEnumerable<XisfImageData> images)
     {
         ArgumentNullException.ThrowIfNull(images);
         XisfImageData[] list = images.ToArray();
@@ -111,15 +218,44 @@ public static class FitsConverter
 
     /// <summary>Converts XISF images to FITS with the first image as the primary HDU.</summary>
     /// <param name="images">The images in output order; at least one image is required.</param>
+    /// <param name="lossPolicy">Whether native metadata omissions are explicitly accepted.</param>
     /// <returns>A FITS document containing an HDU per image.</returns>
-    public static FitsDocument FromXisf(IEnumerable<XisfImage> images)
+    public static FitsDocument FromXisf(IEnumerable<XisfImage> images, ConversionLossPolicy lossPolicy = ConversionLossPolicy.Reject)
     {
         ArgumentNullException.ThrowIfNull(images);
-        XisfImage[] list = images.ToArray();
+        return ConvertParsedImages(images, lossPolicy, []).Value;
+    }
+
+    private static ConversionResult<FitsDocument> ConvertParsedImages(IEnumerable<XisfImage> images, ConversionLossPolicy lossPolicy, List<ConversionFinding> findings)
+    {
+        ApiContracts.Defined(lossPolicy, nameof(lossPolicy));
+        var list = images.ToArray();
         if (list.Length == 0) throw new ArgumentException("At least one XISF image is required.", nameof(images));
-        List<FitsHdu> hdus = [];
-        for (int index = 0; index < list.Length; index++) hdus.Add(CreateHdu(list[index], index == 0));
-        return new FitsDocument(hdus);
+        for (int i = 0; i < list.Length; i++)
+        {
+            var image = list[i];
+            AddImageFindings(findings, i, image.Properties.Keys, image.Tables.Count > 0,
+                image.XmlCore.Elements().Any(e => e.Name.LocalName == "ICCProfile") || image.Thumbnail is not null || image.ColorFilterArray is not null || image.RgbWorkingSpace is not null || image.DisplayFunction is not null || image.Resolution is not null || image.UnavailableObjects.Count > 0 || image.XmlCore.Elements().Any(e => e.Name.Namespace != image.XmlCore.Name.Namespace),
+                image.Orientation is not (null or "0") || image.Offset != 0 || image.Uuid is not null || image.ImageType is not null,
+                image.ColorSpace, image.SampleFormat, image.LowerBound, image.UpperBound);
+        }
+        new ConversionResult<FitsDocument>(null!, findings).Enforce(lossPolicy);
+        var hdus = new FitsHdu[list.Length];
+        for (int i = 0; i < list.Length; i++) hdus[i] = CreateHdu(list[i], i == 0);
+        return new(new FitsDocument(hdus), findings);
+    }
+
+    private static void AddImageFindings(List<ConversionFinding> findings, int index, IEnumerable<string> propertyIds, bool hasTables, bool hasAncillary, bool hasAttributes, string? colorSpace, XisfSampleFormat sampleFormat, double? lowerBound, double? upperBound)
+    {
+        findings.Add(new("XISF_IMAGE", ConversionEffect.Preserved, $"Image {index}: samples and supported FITS keywords retained."));
+        if (propertyIds.Any(k => k is not ("FITS:BITPIX" or "FITS:BSCALE" or "FITS:BZERO" or "FITS:BLANK")))
+            findings.Add(new("XISF_PROPERTIES", ConversionEffect.Omitted, $"Image {index}: properties other than FITS storage hints, including native astrometry, are not encoded as FITS properties."));
+        if (hasTables) findings.Add(new("XISF_TABLES", ConversionEffect.Omitted, $"Image {index}: XISF tables are omitted."));
+        if (hasAncillary) findings.Add(new("XISF_ANCILLARY", ConversionEffect.Omitted, $"Image {index}: ancillary metadata and opaque extensions are omitted."));
+        if (hasAttributes) findings.Add(new("XISF_ATTRIBUTES", ConversionEffect.Omitted, $"Image {index}: orientation, offset, UUID or classification attributes are omitted."));
+        if (colorSpace == "CIELab") findings.Add(new("XISF_COLOR_SPACE", ConversionEffect.Omitted, $"Image {index}: CIELab color interpretation is not represented by standard FITS image HDUs."));
+        if (sampleFormat is (XisfSampleFormat.Float32 or XisfSampleFormat.Float64) && (lowerBound is not (null or 0) || upperBound is not (null or 1)))
+            findings.Add(new("XISF_BOUNDS", ConversionEffect.Omitted, $"Image {index}: custom normalization bounds are not represented by standard FITS image HDUs."));
     }
 
     /// <summary>Loads FITS and writes its supported images and metadata as XISF.</summary>
@@ -127,15 +263,30 @@ public static class FitsConverter
     /// <param name="xisfPath">The XISF input or output path.</param>
     /// <param name="writerOptions">The output serialization settings, or null for defaults.</param>
     /// <param name="conversionOptions">The conversion settings, or null for defaults.</param>
-    public static void ConvertFitsToXisf(string fitsPath, string xisfPath, XisfWriterOptions? writerOptions = null, FitsConversionOptions? conversionOptions = null) =>
-        XisfWriter.Write(xisfPath, ToXisf(FitsReader.Load(fitsPath), conversionOptions), writerOptions);
+    /// <param name="readerOptions">Input limits and validation policy.</param>
+    /// <returns>The conversion result and findings after successful writing.</returns>
+    public static ConversionResult<IReadOnlyList<XisfImageData>> ConvertFitsToXisf(string fitsPath, string xisfPath, XisfWriterOptions? writerOptions = null,
+        FitsConversionOptions? conversionOptions = null, FitsReaderOptions? readerOptions = null)
+    {
+        var result = ConvertToXisf(FitsReader.Load(fitsPath, readerOptions), conversionOptions);
+        XisfWriter.Write(xisfPath, result.Value, writerOptions);
+        return result;
+    }
 
     /// <summary>Loads XISF and writes its images as FITS HDUs.</summary>
     /// <param name="xisfPath">The XISF input or output path.</param>
     /// <param name="fitsPath">The FITS input or output path.</param>
     /// <param name="writerOptions">The output serialization settings, or null for defaults.</param>
-    public static void ConvertXisfToFits(string xisfPath, string fitsPath, FitsWriterOptions? writerOptions = null) =>
-        FitsWriter.Write(fitsPath, FromXisf(XisfReader.Load(xisfPath).Images), writerOptions);
+    /// <param name="lossPolicy">Whether documented omissions are explicitly accepted.</param>
+    /// <param name="readerOptions">Input resource policy and limits.</param>
+    /// <returns>The conversion result and findings after successful writing.</returns>
+    public static ConversionResult<FitsDocument> ConvertXisfToFits(string xisfPath, string fitsPath, FitsWriterOptions? writerOptions = null,
+        ConversionLossPolicy lossPolicy = ConversionLossPolicy.Reject, XisfReaderOptions? readerOptions = null)
+    {
+        var result = ConvertToFits(XisfReader.Load(xisfPath, readerOptions), lossPolicy);
+        FitsWriter.Write(fitsPath, result.Value, writerOptions);
+        return result;
+    }
 
     private static FitsHdu CreateHdu(XisfImageData image, bool primary)
     {
@@ -345,7 +496,7 @@ public static class FitsConverter
 
     private static XisfTableData ToXisfTable(FitsTable table, FitsHeader header)
     {
-        string id = header.GetValue<string>("EXTNAME", "FITSTable")!;
+        string id = header.GetValueOrDefault<string>("EXTNAME", "FITSTable")!;
         XisfTableData result = new() { Id = SanitizeIdentifier(id), Caption = id };
         for (int index = 0; index < table.Columns.Count; index++)
         {

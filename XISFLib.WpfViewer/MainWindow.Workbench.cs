@@ -312,6 +312,7 @@ public partial class MainWindow
         await RunBusyAsync("Writing and validating astronomy image…", async () =>
         {
             string path = dialog.FileName;
+            IReadOnlyList<ConversionFinding> conversionFindings = [];
             if (preserveOriginal)
             {
                 await Task.Run(() => CopyFileUnlessSame(_sourceXisfPath!, path));
@@ -320,11 +321,20 @@ public partial class MainWindow
             {
                 ApplyImageEditor(_editableImage);
                 XisfWriterOptions options = CreateWriterOptions();
+                XisfDocumentData content = new();
+                content.Images.Add(_editableImage);
+                AddProperties(content.Metadata, _documentMetadata);
+                AddProperties(content.Properties, _documentProperties);
                 await Task.Run(() =>
                 {
-                    if (fitsOutput) FitsWriter.Write(path, FitsConverter.FromXisf([_editableImage]), new FitsWriterOptions { WriteChecksums = true });
-                    else if (distributed) XisfWriter.WriteDistributed(path, Path.ChangeExtension(path, ".xisb"), [_editableImage], options);
-                    else XisfWriter.Write(path, [_editableImage], options);
+                    if (fitsOutput)
+                    {
+                        var converted = FitsConverter.ConvertToFits([_editableImage], ConversionLossPolicy.Allow);
+                        conversionFindings = converted.Findings;
+                        FitsWriter.Write(path, converted.Value, new FitsWriterOptions { WriteChecksums = true });
+                    }
+                    else if (distributed) XisfWriter.WriteDistributed(path, Path.ChangeExtension(path, ".xisb"), content, options);
+                    else XisfWriter.Write(path, content, options);
                 });
             }
             LoadedFile loaded = await Task.Run(() => LoadFile(path));
@@ -345,6 +355,9 @@ public partial class MainWindow
                 ShowDiagnostics(_document.Validate());
             else
                 ShowDiagnostics(_fitsDocument!.Diagnostics);
+            if (conversionFindings.Any(f => f.Effect == ConversionEffect.Omitted))
+                DiagnosticsGrid.ItemsSource = _fitsDocument!.Diagnostics.Select(d => new { Severity = d.Severity.ToString(), d.Code, d.Message })
+                    .Concat(conversionFindings.Where(f => f.Effect == ConversionEffect.Omitted).Select(f => new { Severity = "Conversion", f.Code, f.Message })).ToArray();
             StatusText.Text = preserveOriginal
                 ? $"Saved a byte-identical copy and reloaded {Path.GetFileName(path)}. Editor changes were not applied."
                 : $"Saved, reloaded and validated {Path.GetFileName(path)}{(fitsOutput ? " as FITS" : "")}.";
@@ -398,8 +411,6 @@ public partial class MainWindow
             Shuffle = ShuffleCheckBox.IsChecked == true,
             CreatorApplication = CreatorTextBox.Text.Trim()
         };
-        AddProperties(options.Metadata, _documentMetadata);
-        AddProperties(options.Properties, _documentProperties);
         return options;
     }
 

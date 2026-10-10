@@ -8,6 +8,7 @@ The public API uses C# XML documentation comments. Building the library projects
 | --- | --- |
 | [Getting started](getting-started.md) | Build, reference, read, edit, write, and convert |
 | [API guide](api-guide.md) | Types, layouts, metadata, tables, validation, utilities, and Windows rendering |
+| [API contracts and migration](api-migration.md) | Safe editing, layout defaults, typed metadata, conversion reports, and API changes |
 | [Applications](applications.md) | WPF workbench, save modes and editor limits, batch converter, and example files |
 | [I/O and limitations](io-and-limitations.md) | Ownership, safe saving, resource policies, cancellation, precision, and memory |
 | [Astrometric solutions](astrometry.md) | Native projections, projective transforms, spline distortion and preservation |

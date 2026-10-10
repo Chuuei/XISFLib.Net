@@ -45,7 +45,7 @@ string fitsPath = Path.Combine(examples, "slow.fits");
 FitsDocument? fits = null;
 IReadOnlyList<XisfImageData>? converted = null;
 Measure("FITS parse", () => fits = FitsReader.Load(fitsPath));
-Measure("FITS to XISF model", () => converted = FitsConverter.ToXisf(fits!));
+Measure("FITS to XISF model", () => converted = FitsConverter.ToXisf(fits!, new() { AxisInterpretation = FitsAxisInterpretation.RgbOrRgba, LossPolicy = ConversionLossPolicy.Allow }));
 Measure("FITS converted BGRA", () => Consume(converted![0].ToBgra32Pixels(XisfStretchOptions.Auto)));
 GC.KeepAlive(converted);
 

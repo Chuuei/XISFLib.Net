@@ -100,22 +100,70 @@ public sealed class FitsHeader : Collection<FitsHeaderCard>
     /// <param name="defaultValue">The value returned when the keyword is absent or has a null value.</param>
     /// <typeparam name="T">The numeric sample or header-value type.</typeparam>
     /// <returns>The converted value or the supplied default.</returns>
-    public T? GetValue<T>(string keyword, T? defaultValue = default)
+    public T? GetValueOrDefault<T>(string keyword, T? defaultValue = default)
     {
         object? value = FindFirst(keyword)?.Value;
         if (value is null) return defaultValue;
-        if (value is T typed) return typed;
-        Type target = Nullable.GetUnderlyingType(typeof(T)) ?? typeof(T);
-        if (target.IsEnum) return (T)Enum.Parse(target, Convert.ToString(value, CultureInfo.InvariantCulture)!, true);
-        return (T)Convert.ChangeType(value, target, CultureInfo.InvariantCulture);
+        return ApiContracts.ConvertValue<T>(value);
     }
 
-    internal void Set(string keyword, object? value, string? comment = null)
+    /// <summary>Reads a required keyword, throwing when absent or when conversion fails.</summary>
+    /// <typeparam name="T">The requested CLR value type.</typeparam>
+    /// <param name="keyword">The case-insensitive keyword.</param>
+    /// <returns>The converted value.</returns>
+    public T GetRequiredValue<T>(string keyword)
     {
-        for (int i = Count - 1; i >= 0; i--)
-            if (this[i].Keyword.Equals(keyword, StringComparison.OrdinalIgnoreCase)) RemoveAt(i);
-        Add(new FitsHeaderCard(keyword, value, comment));
+        object? value = FindFirst(keyword)?.Value;
+        if (value is null) throw new KeyNotFoundException($"Required FITS keyword '{keyword}' is absent or has no value.");
+        try { return ApiContracts.ConvertValue<T>(value); }
+        catch (Exception e) when (e is FormatException or InvalidCastException or OverflowException or ArgumentException)
+        { throw new FormatException($"FITS keyword '{keyword}' cannot be read as {typeof(T).Name}.", e); }
     }
+
+    /// <summary>Returns false for an absent, null or incompatible keyword value.</summary>
+    /// <typeparam name="T">The requested CLR value type.</typeparam>
+    /// <param name="keyword">The case-insensitive keyword.</param>
+    /// <param name="value">The converted value when successful.</param>
+    /// <returns>Whether the conversion succeeded.</returns>
+    public bool TryGetValue<T>(string keyword, out T value)
+    {
+        value = default!;
+        object? raw = FindFirst(keyword)?.Value;
+        if (raw is null) return false;
+        try { value = ApiContracts.ConvertValue<T>(raw); return true; }
+        catch (Exception e) when (e is FormatException or InvalidCastException or OverflowException or ArgumentException) { return false; }
+    }
+
+    /// <summary>Replaces all matching cards with one typed value. Use Add to append commentary.</summary>
+    /// <param name="keyword">The keyword to replace.</param>
+    /// <param name="value">The CLR value; strings do not require FITS quoting.</param>
+    /// <param name="comment">The optional comment.</param>
+    public void Set(string keyword, object? value, string? comment = null)
+    {
+        var card = new FitsHeaderCard(keyword, value, comment);
+        ValidateCard?.Invoke(card);
+        for (int i = Count - 1; i >= 0; i--)
+            if (this[i].Keyword.Equals(card.Keyword, StringComparison.OrdinalIgnoreCase)) base.RemoveItem(i);
+        Add(card);
+    }
+
+    internal Action<FitsHeaderCard>? ValidateCard { get; set; }
+    internal Action<string>? ValidateRemoval { get; set; }
+    /// <inheritdoc />
+    protected override void InsertItem(int index, FitsHeaderCard item) { ArgumentNullException.ThrowIfNull(item); ValidateCard?.Invoke(item); base.InsertItem(index, item); }
+    /// <inheritdoc />
+    protected override void SetItem(int index, FitsHeaderCard item)
+    {
+        ArgumentNullException.ThrowIfNull(item);
+        ValidateCard?.Invoke(item);
+        if (!this[index].Keyword.Equals(item.Keyword, StringComparison.OrdinalIgnoreCase))
+            ValidateRemoval?.Invoke(this[index].Keyword);
+        base.SetItem(index, item);
+    }
+    /// <inheritdoc />
+    protected override void RemoveItem(int index) { ValidateRemoval?.Invoke(this[index].Keyword); base.RemoveItem(index); }
+    /// <inheritdoc />
+    protected override void ClearItems() { foreach (var card in this) ValidateRemoval?.Invoke(card.Keyword); base.ClearItems(); }
 }
 
 /// <summary>An ordered sequence of HDUs beginning with a primary HDU, and conformance diagnostics.</summary>
@@ -129,10 +177,10 @@ public sealed class FitsDocument
     {
         ArgumentNullException.ThrowIfNull(hdus);
         ArgumentNullException.ThrowIfNull(diagnostics);
-        Hdus = hdus.ToList();
+        Hdus = Array.AsReadOnly(hdus.ToArray());
         if (Hdus.Count == 0) throw new ArgumentException("A FITS document requires at least one HDU.", nameof(hdus));
         if (Hdus[0].Type != FitsHduType.Primary) throw new ArgumentException("The first FITS HDU must be a primary HDU.", nameof(hdus));
-        Diagnostics = diagnostics.ToList();
+        Diagnostics = Array.AsReadOnly(diagnostics.ToArray());
     }
 
     /// <summary>The ordered header/data units, beginning with the primary HDU.</summary>
@@ -167,8 +215,17 @@ public sealed class FitsHdu
         ArgumentNullException.ThrowIfNull(header);
         ArgumentNullException.ThrowIfNull(data);
         Type = type;
-        Header = header;
-        Data = takeOwnership ? data : data.ToArray();
+        Header = new FitsHeader(header);
+        DataBuffer = takeOwnership ? data : data.ToArray();
+        ApiContracts.Defined(type, nameof(type));
+        if (!takeOwnership && type is (FitsHduType.Primary or FitsHduType.Image) && (data.Length != 0 || Header.GetValueOrDefault<int>("NAXIS") > 0))
+        {
+            int axes = Header.GetRequiredValue<int>("NAXIS");
+            if (axes <= 0 || axes > 999) throw new ArgumentException("A nonempty image payload requires between 1 and 999 axes.", nameof(header));
+            int[] dimensions = Enumerable.Range(1, axes).Select(axis => Header.GetRequiredValue<int>($"NAXIS{axis}")).ToArray();
+            Content = new FitsImage(Header.GetRequiredValue<int>("BITPIX"), dimensions, DataBuffer,
+                Header.GetValueOrDefault<double>("BSCALE", 1), Header.GetValueOrDefault<double>("BZERO", 0), Header.GetValueOrDefault<long?>("BLANK"));
+        }
     }
 
     internal static FitsHdu FromOwnedData(FitsHduType type, FitsHeader header, byte[] data) => new(type, header, data, true);
@@ -178,9 +235,52 @@ public sealed class FitsHdu
     /// <summary>The ordered, mutable FITS header cards.</summary>
     public FitsHeader Header { get; }
     /// <summary>Raw FITS payload bytes excluding block padding.</summary>
-    public byte[] Data { get; internal set; }
+    public ReadOnlyMemory<byte> Data => Content is FitsImage image ? image.RawData : DataBuffer;
+    internal byte[] DataBuffer { get; private set; }
     /// <summary>The decoded image or table, or null for unsupported or empty content.</summary>
-    public object? Content { get; internal set; }
+    public object? Content
+    {
+        get => _content;
+        internal set
+        {
+            _content = value;
+            if (value is FitsImage image)
+            {
+                DataBuffer = image.RawData;
+                Header.ValidateCard = card => FitsImageStructure.ValidateCard(card, image, Type);
+                Header.ValidateRemoval = key => { if (FitsImageStructure.IsStructural(key)) throw new InvalidOperationException($"'{key}' is defined by image storage. Use ReplaceImage."); };
+            }
+        }
+    }
+    private object? _content;
+    /// <summary>The decoded image, or null for a non-image HDU.</summary>
+    public FitsImage? Image => Content as FitsImage;
+    /// <summary>The decoded table, or null for a non-table HDU.</summary>
+    public FitsTable? Table => Content as FitsTable;
+
+    /// <summary>Replaces an image and its structural cards together, preserving nonstructural metadata.</summary>
+    /// <param name="image">The replacement image. Its immutable pixel storage is shared.</param>
+    public void ReplaceImage(FitsImage image)
+    {
+        ArgumentNullException.ThrowIfNull(image);
+        if (Type is not (FitsHduType.Primary or FitsHduType.Image)) throw new InvalidOperationException("Only image HDUs can replace their image content.");
+        Header.ValidateCard = null;
+        Header.ValidateRemoval = null;
+        for (int i = Header.Count - 1; i >= 0; i--)
+            if (FitsImageStructure.IsStructural(Header[i].Keyword)) Header.RemoveAt(i);
+        Content = image;
+        ChecksumValid = DataChecksumValid = null;
+    }
+
+    /// <summary>Replaces opaque or table payload bytes and discards stale decoded content and checksum results.</summary>
+    /// <param name="data">The new raw payload, copied into owned storage.</param>
+    public void ReplaceRawData(ReadOnlyMemory<byte> data)
+    {
+        if (Content is FitsImage) throw new InvalidOperationException("Use ReplaceImage to update image pixels and geometry together.");
+        DataBuffer = data.ToArray();
+        Content = null;
+        ChecksumValid = DataChecksumValid = null;
+    }
     /// <summary>The HDU checksum result, or null when no CHECKSUM card is present.</summary>
     public bool? ChecksumValid { get; internal set; }
     /// <summary>The data checksum result, or null when no DATASUM card is present.</summary>
@@ -197,7 +297,7 @@ public sealed class FitsHdu
     public static FitsHdu CreateImage(FitsImage image, bool primary)
     {
         ArgumentNullException.ThrowIfNull(image);
-        FitsHdu hdu = new(primary ? FitsHduType.Primary : FitsHduType.Image, new FitsHeader(), image.RawData);
+        FitsHdu hdu = FromOwnedData(primary ? FitsHduType.Primary : FitsHduType.Image, new FitsHeader(), image.RawData);
         hdu.Content = image;
         return hdu;
     }
@@ -214,7 +314,7 @@ public sealed class FitsImage
         long expected = checked(samples * Math.Abs(bitPix) / 8);
         if (rawData.LongLength != expected) throw new ArgumentException($"Image data has {rawData.LongLength} bytes; expected {expected}.", nameof(rawData));
         BitPix = bitPix;
-        Dimensions = dimensions;
+        Dimensions = Array.AsReadOnly(dimensions);
         RawData = rawData;
         BScale = bScale;
         BZero = bZero;

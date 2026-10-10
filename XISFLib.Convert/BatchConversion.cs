@@ -85,7 +85,7 @@ public static class BatchConversion
 
     public static FitsDocument CreateDocument(XisfDocument source)
     {
-        List<FitsHdu> hdus = FitsConverter.FromXisf(source.Images).Hdus.ToList();
+        List<FitsHdu> hdus = FitsConverter.FromXisf(source.Images, ConversionLossPolicy.Allow).Hdus.ToList();
         for (int index = 0; index < source.Images.Count; index++)
         {
             FitsHeader header = hdus[index].Header;

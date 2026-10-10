@@ -69,24 +69,26 @@ public class XisfPropertyTypeTests
     public void WritesAndReadsAllSupportedArrayTypesIncludingInt128()
     {
         XisfWriterOptions options = new() { Compression = XisfCompression.None };
-        options.Properties["i128"] = Int128.MinValue + 1;
-        options.Properties["u128"] = UInt128.MaxValue - 1;
-        options.Properties["i8"] = new sbyte[] { -1, 2 };
-        options.Properties["u8"] = new byte[] { 1, 255 };
-        options.Properties["i16"] = new short[] { -2, 3 };
-        options.Properties["u16"] = new ushort[] { 2, 65535 };
-        options.Properties["i32"] = new[] { -3, 4 };
-        options.Properties["u32"] = new[] { 3u, uint.MaxValue };
-        options.Properties["i64"] = new[] { -4L, 5L };
-        options.Properties["u64"] = new[] { 4UL, ulong.MaxValue };
-        options.Properties["i128v"] = new[] { Int128.MinValue + 1, Int128.MaxValue };
-        options.Properties["u128m"] = new UInt128[,] { { 1, UInt128.MaxValue } };
-        options.Properties["f32"] = new[] { 1.25f, -2.5f };
-        options.Properties["f64"] = new[,] { { 1.25, -2.5 } };
-        options.Properties["complex"] = new[,] { { new Complex(1, -2), new Complex(3, -4) } };
+        XisfDocumentData content = new();
+        content.Properties["i128"] = Int128.MinValue + 1;
+        content.Properties["u128"] = UInt128.MaxValue - 1;
+        content.Properties["i8"] = new sbyte[] { -1, 2 };
+        content.Properties["u8"] = new byte[] { 1, 255 };
+        content.Properties["i16"] = new short[] { -2, 3 };
+        content.Properties["u16"] = new ushort[] { 2, 65535 };
+        content.Properties["i32"] = new[] { -3, 4 };
+        content.Properties["u32"] = new[] { 3u, uint.MaxValue };
+        content.Properties["i64"] = new[] { -4L, 5L };
+        content.Properties["u64"] = new[] { 4UL, ulong.MaxValue };
+        content.Properties["i128v"] = new[] { Int128.MinValue + 1, Int128.MaxValue };
+        content.Properties["u128m"] = new UInt128[,] { { 1, UInt128.MaxValue } };
+        content.Properties["f32"] = new[] { 1.25f, -2.5f };
+        content.Properties["f64"] = new[,] { { 1.25, -2.5 } };
+        content.Properties["complex"] = new[,] { { new Complex(1, -2), new Complex(3, -4) } };
 
         using MemoryStream output = new();
-        XisfWriter.Write(output, [XisfImageData.FromSamples(new byte[] { 1 }, [1], 1)], options);
+        content.Images.Add(XisfImageData.FromSamples(new byte[] { 1 }, [1], 1));
+        XisfWriter.Write(output, content, options);
         output.Position = 0;
         XisfDocument document = XisfReader.Load(output);
 

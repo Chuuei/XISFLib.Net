@@ -55,6 +55,92 @@ public sealed record XisfHistogram(
 /// <summary>Provides rectangular reads, channel extraction, sampled statistics, and full histograms.</summary>
 public static class XisfImageExtensions
 {
+    /// <summary>Reads owned editable samples with checked conversions, defaulting to planar order.</summary>
+    /// <typeparam name="T">The requested real numeric type.</typeparam>
+    /// <param name="image">The editable image.</param>
+    /// <param name="layout">Output channel order.</param>
+    /// <returns>A new sample array.</returns>
+    public static T[] GetSamples<T>(this XisfImageData image, XisfPixelLayout layout = XisfPixelLayout.Planar) where T : INumberBase<T>
+    {
+        ArgumentNullException.ThrowIfNull(image);
+        ApiContracts.Defined(layout, nameof(layout));
+        if (image.SampleFormat is XisfSampleFormat.Complex32 or XisfSampleFormat.Complex64) throw new InvalidOperationException("Use GetComplexSamples for complex images.");
+        int size = XisfImageData.BytesPerSample(image.SampleFormat);
+        T[] result = new T[image.RawData.Length / size];
+        if (layout == image.PixelStorage && XisfSampleBuffer.Matches<T>(image.SampleFormat))
+            XisfSampleBuffer.CopyToArray(image.RawData, result, size, image.IsBigEndian);
+        else
+        {
+            int pixels = result.Length / image.ChannelCount;
+            for (int channel = 0; channel < image.ChannelCount; channel++)
+            for (int pixel = 0; pixel < pixels; pixel++)
+            {
+                int source = image.PixelStorage == XisfPixelLayout.Planar ? channel * pixels + pixel : pixel * image.ChannelCount + channel;
+                int destination = layout == XisfPixelLayout.Planar ? channel * pixels + pixel : pixel * image.ChannelCount + channel;
+                result[destination] = ReadNumber<T>(image.RawData.Slice(source * size, size), image.SampleFormat, image.IsBigEndian);
+            }
+        }
+        return result;
+    }
+
+    /// <summary>Reads editable complex samples in the requested channel order.</summary>
+    /// <param name="image">The editable complex image.</param>
+    /// <param name="layout">Output order, defaulting to planar.</param>
+    /// <returns>Complex values with double-precision components.</returns>
+    public static Complex[] GetComplexSamples(this XisfImageData image, XisfPixelLayout layout = XisfPixelLayout.Planar)
+    {
+        ArgumentNullException.ThrowIfNull(image);
+        ApiContracts.Defined(layout, nameof(layout));
+        if (image.SampleFormat is not (XisfSampleFormat.Complex32 or XisfSampleFormat.Complex64)) throw new InvalidOperationException("The image does not contain complex samples.");
+        int size = image.SampleFormat == XisfSampleFormat.Complex32 ? 4 : 8;
+        var format = size == 4 ? XisfSampleFormat.Float32 : XisfSampleFormat.Float64;
+        var result = new Complex[image.RawData.Length / (2 * size)];
+        int pixels = result.Length / image.ChannelCount;
+        for (int channel = 0; channel < image.ChannelCount; channel++)
+        for (int pixel = 0; pixel < pixels; pixel++)
+        {
+            int source = image.PixelStorage == XisfPixelLayout.Planar ? channel * pixels + pixel : pixel * image.ChannelCount + channel;
+            int destination = layout == XisfPixelLayout.Planar ? channel * pixels + pixel : pixel * image.ChannelCount + channel;
+            var bytes = image.RawData.Slice(source * size * 2, size * 2);
+            result[destination] = new(ReadNumber<double>(bytes[..size], format, image.IsBigEndian), ReadNumber<double>(bytes[size..], format, image.IsBigEndian));
+        }
+        return result;
+    }
+
+    /// <summary>Returns owned-image samples normalized through declared bounds, without clamping.</summary>
+    /// <param name="image">The editable image.</param>
+    /// <param name="layout">Output channel order.</param>
+    /// <returns>Normalized double values.</returns>
+    public static double[] GetNormalizedSamples(this XisfImageData image, XisfPixelLayout layout = XisfPixelLayout.Planar)
+    {
+        double[] result = image.GetSamples<double>(layout);
+        double lower = image.LowerBound ?? 0, upper = image.UpperBound ?? IntegerMaximum(image.SampleFormat);
+        double range = upper - lower;
+        if (range == 0) Array.Clear(result);
+        else for (int i = 0; i < result.Length; i++) result[i] = (result[i] - lower) / range;
+        return result;
+    }
+
+    /// <summary>Reads parsed samples explicitly in planar channel order.</summary>
+    /// <typeparam name="T">The real numeric type.</typeparam>
+    /// <param name="image">The image.</param>
+    /// <returns>A new sample array.</returns>
+    public static T[] GetPlanarSamples<T>(this XisfImage image) where T : INumberBase<T> => image.GetSamples<T>(XisfPixelLayout.Planar);
+    /// <summary>Reads parsed samples explicitly in interleaved channel order.</summary>
+    /// <typeparam name="T">The real numeric type.</typeparam>
+    /// <param name="image">The image.</param>
+    /// <returns>A new sample array.</returns>
+    public static T[] GetInterleavedSamples<T>(this XisfImage image) where T : INumberBase<T> => image.GetSamples<T>(XisfPixelLayout.Interleaved);
+    /// <summary>Reads editable samples explicitly in planar channel order.</summary>
+    /// <typeparam name="T">The real numeric type.</typeparam>
+    /// <param name="image">The image.</param>
+    /// <returns>A new sample array.</returns>
+    public static T[] GetPlanarSamples<T>(this XisfImageData image) where T : INumberBase<T> => image.GetSamples<T>(XisfPixelLayout.Planar);
+    /// <summary>Reads editable samples explicitly in interleaved channel order.</summary>
+    /// <typeparam name="T">The real numeric type.</typeparam>
+    /// <param name="image">The image.</param>
+    /// <returns>A new sample array.</returns>
+    public static T[] GetInterleavedSamples<T>(this XisfImageData image) where T : INumberBase<T> => image.GetSamples<T>(XisfPixelLayout.Interleaved);
     /// <summary>Extracts a zero-based rectangle from a two-dimensional real image; loaded images still decode the full raw block.</summary>
     /// <param name="image">The source image.</param>
     /// <param name="x">The zero-based horizontal pixel coordinate.</param>
@@ -65,7 +151,7 @@ public static class XisfImageExtensions
     /// <typeparam name="T">The numeric sample or header-value type.</typeparam>
     /// <returns>A new array of region samples in the requested layout.</returns>
     public static T[] ReadRegion<T>(this XisfImage image, int x, int y, int width, int height,
-        XisfPixelLayout layout = XisfPixelLayout.Interleaved) where T : INumberBase<T>
+        XisfPixelLayout layout = XisfPixelLayout.Planar) where T : INumberBase<T>
     {
         ArgumentNullException.ThrowIfNull(image);
         return ReadRegionCore<T>(image.ReadRawData(), image.Dimensions, image.ChannelCount, image.SampleFormat,
@@ -82,7 +168,7 @@ public static class XisfImageExtensions
     /// <typeparam name="T">The numeric sample or header-value type.</typeparam>
     /// <returns>A new array of region samples in the requested layout.</returns>
     public static T[] ReadRegion<T>(this XisfImageData image, int x, int y, int width, int height,
-        XisfPixelLayout layout = XisfPixelLayout.Interleaved) where T : INumberBase<T>
+        XisfPixelLayout layout = XisfPixelLayout.Planar) where T : INumberBase<T>
     {
         ArgumentNullException.ThrowIfNull(image);
         return ReadRegionCore<T>(image.RawData, image.Dimensions, image.ChannelCount, image.SampleFormat,
@@ -170,6 +256,7 @@ public static class XisfImageExtensions
         XisfSampleFormat format, XisfPixelLayout storage, bool bigEndian, int x, int y, int width, int height,
         XisfPixelLayout output) where T : INumberBase<T>
     {
+        ApiContracts.Defined(output, nameof(output));
         ValidateRealTwoDimensional(dimensions, channels, format);
         ValidateRegion(dimensions, x, y, width, height);
         T[] result = new T[checked(width * height * channels)];

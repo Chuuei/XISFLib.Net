@@ -97,6 +97,8 @@ The synthetic cases run without example files. Real-image cases run when `Exampl
 
 ## Choosing efficient API paths
 
+The API redesign was also compared against an isolated build of the preceding commit using the same .NET runtime and examples. All four FITS files retained identical raw, converted and rendered hashes; `slow.xisf` retained identical materialized and rendered hashes. Measured additional allocations were at most 2,880 bytes per operation for model/settings ownership; no additional full-image buffers were introduced. Three warmed timing samples per case varied with I/O and workload, so these measurements do not establish a speed improvement. The complete 63-file XISF corpus also retained its 66 pixel hashes and diagnostic codes.
+
 - Request the stored numeric type and channel layout when possible. Converting types uses checked conversions; changing layout needs an additional array.
 - Reuse an owned `XisfImageData` when repeatedly rendering an unchanged loaded image. `ReadRawData` and typed reads decode afresh rather than retaining a hidden image-sized cache.
 - Use `ReadRawData` when serialized sample representations are needed directly. `GetNormalizedSamples` produces a double array and applies the declared bounds.
@@ -104,4 +106,4 @@ The synthetic cases run without example files. Real-image cases run when `Exampl
 
 These optimizations use exact arithmetic and order statistics. They do not approximate astronomical transforms, color conversions, or display statistics, and do not disable validation or checksum checks. File-backed zlib attachments with checksums retain a verification pass before decompression, as required by the specification.
 
-Correctness checks include bit-level floating-point and endian cases, exact UInt64 values, complex and binary128 storage, mutable color primaries, sorted-reference adaptive parameters, and all supported subblock codecs with shuffle tails. All 63 collected example files (66 images) decoded to the same SHA-256 hashes and produced the same validation diagnostics before and after these changes. Some example files have pre-existing specification diagnostics; see [specification coverage](specification-compliance.md) and the example manifest.
+Correctness checks include bit-level floating-point and endian cases, exact UInt64 values, complex and binary128 storage, owned color primaries and record copies, sorted-reference adaptive parameters, and all supported subblock codecs with shuffle tails. All 63 collected example files (66 images) decoded to the same SHA-256 hashes and produced the same validation diagnostics before and after these changes. Some example files have pre-existing specification diagnostics; see [specification coverage](specification-compliance.md) and the example manifest.

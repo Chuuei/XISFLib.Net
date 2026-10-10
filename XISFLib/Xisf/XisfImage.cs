@@ -9,12 +9,14 @@ namespace XISFLib;
 public sealed class XisfImage
 {
     private readonly XisfDataBlock _block;
+    internal XisfDataSource Source { get; }
 
     private XisfImage(XElement xml, XisfDataSource source, XisfReferenceResolver references, int[] dimensions, int channels, XisfSampleFormat sampleFormat)
     {
-        Xml = xml;
+        XmlCore = xml;
+        Source = source;
         _block = new XisfDataBlock(xml, source);
-        Dimensions = dimensions;
+        Dimensions = Array.AsReadOnly(dimensions);
         ChannelCount = channels;
         SampleFormat = sampleFormat;
         Id = (string?)xml.Attribute("id");
@@ -33,9 +35,9 @@ public sealed class XisfImage
             throw new XisfFormatException("Real floating-point images require lower and upper bounds.");
         LowerBound = bounds.Length == 2 ? bounds[0] : 0;
         UpperBound = bounds.Length == 2 ? bounds[1] : IntegerMaximum(sampleFormat);
-        Properties = XisfReader.ParseProperties(xml, source, references);
-        FitsKeywords = references.Children(xml, "FITSKeyword").Select(e => new XisfFitsKeyword(XisfReader.RequiredAttribute(e, "name"), (string?)e.Attribute("value") ?? "", (string?)e.Attribute("comment"))).ToList();
-        Tables = references.Children(xml, "Table").Select(e => XisfReader.ParseTable(e, source, references)).ToList();
+        Properties = new System.Collections.ObjectModel.ReadOnlyDictionary<string, XisfProperty>(XisfReader.ParseProperties(xml, source, references));
+        FitsKeywords = references.Children(xml, "FITSKeyword").Select(e => new XisfFitsKeyword(XisfReader.RequiredAttribute(e, "name"), (string?)e.Attribute("value") ?? "", (string?)e.Attribute("comment"))).ToList().AsReadOnly();
+        Tables = references.Children(xml, "Table").Select(e => XisfReader.ParseTable(e, source, references)).ToList().AsReadOnly();
         List<XisfUnavailableObject> unavailable = [];
         try { IccProfile = ReadOptionalBlock(xml, source, references, "ICCProfile"); }
         catch (XisfUnsupportedFeatureException exception)
@@ -45,7 +47,7 @@ public sealed class XisfImage
             try { Thumbnail = Parse(thumbnail, source, references); }
             catch (XisfUnsupportedFeatureException exception) { unavailable.Add(new(thumbnail, exception.Message)); }
         }
-        UnavailableObjects = unavailable;
+        UnavailableObjects = unavailable.AsReadOnly();
         ColorFilterArray = ParseColorFilterArray(xml, references);
         RgbWorkingSpace = ParseRgbWorkingSpace(xml, references);
         DisplayFunction = ParseDisplayFunction(xml, references);
@@ -89,7 +91,8 @@ public sealed class XisfImage
     /// <summary>The tables associated with this image or document.</summary>
     public IReadOnlyList<XisfTable> Tables { get; }
     /// <summary>The embedded ICC profile bytes, or null when absent.</summary>
-    public byte[]? IccProfile { get; }
+    public byte[]? IccProfile { get => _iccProfile?.ToArray(); private init => _iccProfile = value; }
+    private readonly byte[]? _iccProfile;
     /// <summary>Optional objects with unsupported representations; their original XML remains available.</summary>
     public IReadOnlyList<XisfUnavailableObject> UnavailableObjects { get; }
     /// <summary>The optional thumbnail image.</summary>
@@ -102,8 +105,9 @@ public sealed class XisfImage
     public XisfDisplayFunction? DisplayFunction { get; }
     /// <summary>The optional horizontal and vertical resolution metadata.</summary>
     public XisfResolution? Resolution { get; }
-    /// <summary>The mutable XML representation; edits do not automatically refresh parsed values.</summary>
-    public XElement Xml { get; }
+    /// <summary>A detached XML copy for inspection.</summary>
+    public XElement Xml => new(XmlCore);
+    internal XElement XmlCore { get; }
 
     internal static XisfImage Parse(XElement element, XisfDataSource source, XisfReferenceResolver references)
     {
@@ -144,6 +148,7 @@ public sealed class XisfImage
     /// <exception cref="OverflowException">A sample cannot be represented by the requested numeric type.</exception>
     public T[] GetSamples<T>(XisfPixelLayout layout = XisfPixelLayout.Planar) where T : INumberBase<T>
     {
+        ApiContracts.Defined(layout, nameof(layout));
         if (SampleFormat is XisfSampleFormat.Complex32 or XisfSampleFormat.Complex64)
             throw new InvalidOperationException("Use GetComplexSamples() for a complex image.");
         byte[] bytes = ReadRawData();
@@ -162,6 +167,7 @@ public sealed class XisfImage
     /// <returns>A new array of complex values in the requested layout.</returns>
     public Complex[] GetComplexSamples(XisfPixelLayout layout = XisfPixelLayout.Planar)
     {
+        ApiContracts.Defined(layout, nameof(layout));
         if (SampleFormat is not (XisfSampleFormat.Complex32 or XisfSampleFormat.Complex64))
             throw new InvalidOperationException("The image does not contain complex samples.");
         byte[] bytes = ReadRawData();

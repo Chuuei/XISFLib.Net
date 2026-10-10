@@ -72,7 +72,7 @@ public class PerformanceRegressionTests
     }
 
     [Fact]
-    public void CachedColorMatricesTrackChangesToBothPrimaryCoordinateLists()
+    public void ColorMatricesUseOwnedCoordinatesAndTrackRecordCopies()
     {
         double[] x = XisfRgbWorkingSpace.Srgb.ChromaticityCoordinates.ToArray();
         double[] y = XisfRgbWorkingSpace.Srgb.YChromaticityCoordinates.ToArray();
@@ -81,9 +81,10 @@ public class PerformanceRegressionTests
         x[0] -= 0.02;
         y[1] -= 0.03;
         var fresh = space with { ChromaticityCoordinates = x.ToArray(), YChromaticityCoordinates = y.ToArray() };
-        Assert.NotEqual(before, XisfColorSpace.RgbToXyz(0.8, 0.2, 0.4, space));
-        Assert.Equal(XisfColorSpace.RgbToXyz(0.8, 0.2, 0.4, fresh), XisfColorSpace.RgbToXyz(0.8, 0.2, 0.4, space));
-        Assert.Equal(XisfColorSpace.XyzToRgb(0.3, 0.2, 0.1, fresh), XisfColorSpace.XyzToRgb(0.3, 0.2, 0.1, space));
+        Assert.Equal(before, XisfColorSpace.RgbToXyz(0.8, 0.2, 0.4, space));
+        Assert.NotEqual(before, XisfColorSpace.RgbToXyz(0.8, 0.2, 0.4, fresh));
+        var repeated = fresh with { ChromaticityCoordinates = x, YChromaticityCoordinates = y };
+        Assert.Equal(XisfColorSpace.XyzToRgb(0.3, 0.2, 0.1, fresh), XisfColorSpace.XyzToRgb(0.3, 0.2, 0.1, repeated));
     }
 
     [Fact]
