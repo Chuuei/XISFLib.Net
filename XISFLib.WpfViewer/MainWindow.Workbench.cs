@@ -108,7 +108,7 @@ public partial class MainWindow
         OpenFileDialog dialog = new()
         {
             Title = "Import a standard 2D image",
-            Filter = "Supported images|*.png;*.jpg;*.jpeg;*.tif;*.tiff;*.bmp;*.gif;*.wdp;*.jxr|PNG (*.png)|*.png|JPEG (*.jpg;*.jpeg)|*.jpg;*.jpeg|TIFF (*.tif;*.tiff)|*.tif;*.tiff|All files (*.*)|*.*",
+            Filter = "Supported images|*.png;*.jpg;*.jpeg;*.tif;*.tiff;*.bmp;*.gif|PNG (*.png)|*.png|JPEG (*.jpg;*.jpeg)|*.jpg;*.jpeg|TIFF (*.tif;*.tiff)|*.tif;*.tiff|All files (*.*)|*.*",
             CheckFileExists = true
         };
         if (dialog.ShowDialog(this) != true)
@@ -154,6 +154,8 @@ public partial class MainWindow
     {
         using FileStream stream = new(path, FileMode.Open, FileAccess.Read, FileShare.Read);
         BitmapDecoder decoder = BitmapDecoder.Create(stream, BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.OnLoad);
+        if (decoder is not (PngBitmapDecoder or JpegBitmapDecoder or TiffBitmapDecoder or BmpBitmapDecoder or GifBitmapDecoder))
+            throw new NotSupportedException("Raster import supports PNG, JPEG, TIFF, BMP and GIF images.");
         BitmapFrame frame = decoder.Frames[0];
         FormatConvertedBitmap converted = new(frame, PixelFormats.Bgra32, null, 0);
         int stride = checked(converted.PixelWidth * 4);

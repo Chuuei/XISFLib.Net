@@ -10,6 +10,8 @@ The public API is still evolving. When changing it, update affected callers, sam
 
 There is no shell-extension project. The old shell extension was removed; do not reintroduce it into documentation, dependencies, solution entries, or packaging.
 
+Raster import in the viewers is limited to PNG, JPEG, TIFF, BMP, and GIF. Keep the Avalonia parity plan aligned with this scope.
+
 ## Project map
 
 | Location | Responsibility |
@@ -149,6 +151,8 @@ The `WinX64` publish profile produces exactly `artifacts/wpf/win-x64/XISFLib.Wpf
 CI validates both test suites, core packaging, dependency auditing, strict DocFX generation, and single-executable publication. Default-branch successful builds/manual runs deploy GitHub Pages; pull requests validate without deployment. Version tags beginning with `v` publish a GitHub release with the viewer executable; hyphenated tags are prereleases. Reruns replace the executable asset while preserving release notes. Do not broaden deployment triggers or write permissions unintentionally.
 
 ## Further reading
+
+- [Avalonia viewer migration plan](docs/plans/avalonia-viewer-migration.md): future project creation, shared-code extraction, ordered implementation phases and feature-parity checklist. This is a plan; the listed new projects do not exist until their implementation phases are completed. Update its progress/evidence as work proceeds.
 
 - [Contributing](CONTRIBUTING.md): development, packaging, documentation, CI.
 - [API guide](docs/api-guide.md) and [migration](docs/api-migration.md): recommended public usage.

@@ -10,7 +10,7 @@ Run on Windows with the .NET 10 SDK:
 dotnet run --project XISFLib.WpfViewer -c Release
 ```
 
-Open `.xisf`, `.xish`, `.fit`, `.fits`, or `.fts` files and select an image in multi-image documents. Raster import accepts PNG, JPEG, TIFF, BMP, GIF, and Windows-supported WDP/JXR images. Linear and automatic stretched displays affect the preview only. Use the mouse wheel to zoom and drag with the left button to pan.
+Open `.xisf`, `.xish`, `.fit`, `.fits`, or `.fts` files and select an image in multi-image documents. Raster import accepts PNG, JPEG, TIFF, BMP, and GIF images. Linear and automatic stretched displays affect the preview only. Use the mouse wheel to zoom and drag with the left button to pan.
 
 Loading and rendering run on worker threads. The first preview is presented before the metadata tree, validation and editor initialization finish. Additional XISF images are decoded when selected. See [performance](performance.md) for the measured loading stages and benchmark commands.
 
