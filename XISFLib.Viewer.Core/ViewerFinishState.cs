@@ -17,6 +17,7 @@ public sealed class ViewerFinishState : ObservableObject
     private double _progressValue;
     private string _progressText = "";
     private int _operation;
+    private bool _sharpenStars = true, _reduceStarSpikes = true;
 
     public ViewerFinishState(Func<XisfImageData?> image, Func<bool> isRasterImport, Func<string, Func<Task>, Task> run, Func<bool> canRun, Func<bool> canPublish)
     {
@@ -24,10 +25,11 @@ public sealed class ViewerFinishState : ObservableObject
         CreateCommand = new AsyncRelayCommand(token => run("Creating a finished image…", async () =>
         {
             var current = image()!; int revision = _revision; bool raster = isRasterImport();
+            var options = new FinishOptions(SharpenStars, ReduceStarSpikes);
             var progress = BeginOperation("Preparing finished image…");
             try
             {
-                var picture = await Task.Run(() => ViewerFinishService.Create(current, raster, token, progress), token);
+                var picture = await Task.Run(() => ViewerFinishService.Create(current, raster, token, progress, options), token);
                 token.ThrowIfCancellationRequested();
                 if (!canPublish() || revision != _revision || !ReferenceEquals(current, image())) return;
                 ProgressText = "Displaying finished preview…"; IsIndeterminate = true;
@@ -52,6 +54,8 @@ public sealed class ViewerFinishState : ObservableObject
     public bool HasPicture => _picture is not null;
     public bool CanSave => HasPicture && !IsProcessing && _canRun() && _canPublish();
     public string Summary { get => _summary; private set => SetProperty(ref _summary, value); }
+    public bool SharpenStars { get => _sharpenStars; set { if (SetProperty(ref _sharpenStars, value)) Refresh(); } }
+    public bool ReduceStarSpikes { get => _reduceStarSpikes; set { if (SetProperty(ref _reduceStarSpikes, value)) Refresh(); } }
     public bool IsProcessing
     {
         get => _processing;

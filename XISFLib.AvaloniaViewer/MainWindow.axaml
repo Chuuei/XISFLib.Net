@@ -346,6 +346,12 @@
           <StackPanel Spacing="8" Margin="0,0,0,16">
             <TextBlock Text="Make a picture to share" FontSize="22" FontWeight="SemiBold" />
             <TextBlock Text="One click trims empty edges, reduces uneven sky glow and brings out faint detail against a dark background. Review the result, then save your picture." TextWrapping="Wrap" Classes="muted" />
+            <StackPanel Orientation="Horizontal" Spacing="20" IsEnabled="{Binding CanInteract}">
+              <CheckBox x:Name="SharpenStarsCheckBox" Content="Sharpen stars" IsChecked="{Binding Finish.SharpenStars}"
+                        ToolTip.Tip="Gentle automatic deconvolution of isolated stars; saturated or poorly resolved stars are skipped." />
+              <CheckBox x:Name="ReduceStarSpikesCheckBox" Content="Reduce star spikes" IsChecked="{Binding Finish.ReduceStarSpikes}"
+                        ToolTip.Tip="Soften supported narrow rays around bright stars. Broad halos remain; turn off if nearby detail is affected." />
+            </StackPanel>
             <StackPanel Orientation="Horizontal" Spacing="8">
               <Button x:Name="CreateFinishedButton" Content="Create finished image" Classes="primary" Command="{Binding Finish.CreateCommand}" />
               <Button x:Name="CancelFinishedButton" Content="Cancel" Command="{Binding Finish.CancelCommand}" />

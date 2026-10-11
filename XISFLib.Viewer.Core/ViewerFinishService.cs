@@ -4,7 +4,7 @@ using ImageMagick;
 namespace XISFLib.Viewer;
 
 /// <summary>Creates an aesthetic, full-resolution sharing copy without modifying scientific samples.</summary>
-public static class ViewerFinishService
+public static partial class ViewerFinishService
 {
     /// <summary>Automatically trims blank edges, reduces reliable broad gradients in linear data and stretches onto a dark sky.</summary>
     /// <param name="source">Two-dimensional real Gray/RGB data, optionally with alpha. CFA mosaics require debayering first.</param>
@@ -21,7 +21,19 @@ public static class ViewerFinishService
     /// <param name="progress">Optional progress receiver. Marshal callbacks to the UI when required.</param>
     /// <returns>An owned, opaque sharing copy with source orientation/DPI.</returns>
     public static FinishedPicture Create(XisfImageData source, bool isRasterImport, CancellationToken cancellationToken, IProgress<FinishProgress>? progress)
+        => Create(source, isRasterImport, cancellationToken, progress, new());
+
+    /// <summary>Creates a sharing copy with optional automatic star restoration and spike attenuation.</summary>
+    /// <param name="source">Scientific Gray/RGB source; samples and metadata remain unchanged.</param>
+    /// <param name="isRasterImport">Whether to retain developed raster exposure and skip linear star restoration.</param>
+    /// <param name="cancellationToken">Cancellation between stages, tiles, stars and scan rows.</param>
+    /// <param name="progress">Optional worker-thread stage progress.</param>
+    /// <param name="options">Simple switches for star restoration; no manual PSF parameters are needed.</param>
+    /// <returns>An owned sharing preview/export artifact.</returns>
+    public static FinishedPicture Create(XisfImageData source, bool isRasterImport, CancellationToken cancellationToken,
+        IProgress<FinishProgress>? progress, FinishOptions options)
     {
+        ArgumentNullException.ThrowIfNull(options);
         var reporter = new StageProgress(progress);
         reporter.Begin("Inspecting image and trimming edges");
         ArgumentNullException.ThrowIfNull(source);
@@ -149,7 +161,6 @@ public static class ViewerFinishService
         };
         picture.ReadPixels(bgra, new PixelReadSettings((uint)croppedWidth, (uint)croppedHeight, StorageType.Char, "BGRA"));
         picture.ColorSpace = ColorSpace.sRGB;
-        ApplyOrientation(picture, source.Orientation ?? "0");
         cancellationToken.ThrowIfCancellationRequested();
         // Selective blur smooths only low-contrast neighborhoods; thresholded sharpening avoids boosting faint grain.
         if (croppedWidth >= 3 && croppedHeight >= 3)
@@ -166,8 +177,36 @@ public static class ViewerFinishService
         cancellationToken.ThrowIfCancellationRequested();
         picture.Depth = 8;
         reporter.Begin("Preparing finished preview");
-        using var output = picture.GetPixels();
-        var bytes = output.ToByteArray(PixelMapping.BGRA)!;
+        byte[] bytes;
+        using (var output = picture.GetPixels()) bytes = output.ToByteArray(PixelMapping.BGRA)!;
+        cancellationToken.ThrowIfCancellationRequested();
+        // Restore linear star signals, then add their display deltas to the cleaned image so smoothing does not undo restoration.
+        int restoredStars = 0, reducedSpikes = 0;
+        if (stretch && (options.SharpenStars || options.ReduceStarSpikes))
+        {
+            reporter.Begin("Finding stars for restoration", 0);
+            var stars = FindRestorationStars(reader, width, colors, left, top, croppedWidth, croppedHeight, cancellationToken, reporter);
+            if (options.SharpenStars)
+            {
+                reporter.Begin("Deconvolving isolated stars", 0);
+                restoredStars = RestoreStars(reader, width, colors, left, top, croppedWidth, croppedHeight, stars,
+                    offsets, gradients, function, bytes, cancellationToken, reporter);
+            }
+            if (options.ReduceStarSpikes)
+            {
+                reporter.Begin("Reducing star spikes", 0);
+                reducedSpikes = ReduceSpikes(reader, width, colors, left, top, croppedWidth, croppedHeight, stars,
+                    offsets, gradients, function, bytes, cancellationToken, reporter);
+            }
+        }
+        reporter.Begin("Preparing finished preview");
+        if (source.Orientation is not (null or "0"))
+        {
+            picture.ReadPixels(bytes, new PixelReadSettings((uint)croppedWidth, (uint)croppedHeight, StorageType.Char, "BGRA"));
+            ApplyOrientation(picture, source.Orientation);
+            using var oriented = picture.GetPixels();
+            bytes = oriented.ToByteArray(PixelMapping.BGRA)!;
+        }
         cancellationToken.ThrowIfCancellationRequested();
         var (dpiX, dpiY) = Dpi(source.Resolution);
         bool quarterTurn = source.Orientation?.StartsWith("90", StringComparison.Ordinal) == true || source.Orientation?.StartsWith("-90", StringComparison.Ordinal) == true;
@@ -175,8 +214,10 @@ public static class ViewerFinishService
         string crop = left == 0 && top == 0 && right == width && bottom == height ? "Full frame retained" : $"Edges trimmed: {width:N0} × {height:N0} → {croppedWidth:N0} × {croppedHeight:N0}";
         string exposure = stretch ? (rgb ? "Automatic stretch onto a dark sky and background color balance" : "Automatic stretch onto a dark sky") : "Existing exposure retained";
         string gradient = gradients.Any(g => g.IsActive) ? "; conservative gradient reduction" : "";
+        string restoration = restoredStars > 0 ? $"; gentle deconvolution of {restoredStars:N0} {(restoredStars == 1 ? "star" : "stars")}" : "";
+        if (reducedSpikes > 0) restoration += $"; spike attenuation around {reducedSpikes:N0} bright {(reducedSpikes == 1 ? "star" : "stars")}";
         return new(checked((int)picture.Width), checked((int)picture.Height), bytes, dpiX, dpiY,
-            $"{crop}. {exposure}{gradient}; gentle noise reduction and detail enhancement{(rgb ? ", subtle color boost" : "")}. Ready to save as an 8-bit sharing image.");
+            $"{crop}. {exposure}{gradient}{restoration}; gentle noise reduction and detail enhancement{(rgb ? ", subtle color boost" : "")}. Ready to save as an 8-bit sharing image.");
     }
 
     /// <summary>Publishes the reviewed opaque picture as PNG or high-quality JPEG, staging beside the destination.</summary>
@@ -423,6 +464,11 @@ public static class ViewerFinishService
             for (int c = 0; c < colors; c++) { double value = Read(pixel, c); if (double.IsFinite(value) && value > 0) return true; }
             return false;
         }
+        public double Alpha(int pixel, int colors)
+        {
+            double alpha = _channels > colors ? Read(pixel, colors) : 1;
+            return double.IsFinite(alpha) ? Math.Clamp(alpha, 0, 1) : 0;
+        }
         public bool HasContent(int pixel, int colors)
         {
             if (!IsVisible(pixel, colors)) return false;
@@ -466,3 +512,8 @@ public sealed record FinishedPicture(int Width, int Height, byte[] Pixels, doubl
 /// <param name="Stage">User-facing stage description.</param>
 /// <param name="Percentage">Completed stage percentage, or null when the stage cannot measure progress.</param>
 public sealed record FinishProgress(string Stage, double? Percentage);
+
+/// <summary>Novice sharing-image restoration switches, enabled by default. Scientific storage is never restored in place.</summary>
+/// <param name="SharpenStars">Apply damped local Richardson–Lucy restoration to isolated, resolved, unsaturated stars in linear data.</param>
+/// <param name="ReduceStarSpikes">Attenuate supported narrow opposite rays around bright stars, retaining cores and broad halos.</param>
+public sealed record FinishOptions(bool SharpenStars = true, bool ReduceStarSpikes = true);

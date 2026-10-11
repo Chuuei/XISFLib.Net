@@ -41,6 +41,9 @@ public class ViewerTests
                 var progressBar = window.FindControl<ProgressBar>("FinishProgressBar")!;
                 var progressText = window.FindControl<TextBlock>("FinishProgressText")!;
                 var cancel = window.FindControl<Button>("CancelFinishedButton")!;
+                var sharpen = window.FindControl<CheckBox>("SharpenStarsCheckBox")!;
+                var spikes = window.FindControl<CheckBox>("ReduceStarSpikesCheckBox")!;
+                Assert.True(sharpen.IsChecked); Assert.True(spikes.IsChecked);
                 int visibleOperations = 0;
                 vm.Finish.PropertyChanged += (_, e) =>
                 {
@@ -62,6 +65,10 @@ public class ViewerTests
                 var bitmap = Assert.IsType<WriteableBitmap>(preview.Source); Assert.Equal(new PixelSize(32, 32), bitmap.PixelSize);
                 await vm.SaveFinishedAsync(export); window.UpdateLayout();
                 Assert.Equal(2, visibleOperations); Assert.False(progressPanel.IsVisible);
+                sharpen.IsChecked = false; window.UpdateLayout();
+                Assert.False(vm.Finish.SharpenStars); Assert.Null(preview.Source); Assert.False(png.IsEffectivelyEnabled);
+                spikes.IsChecked = false;
+                Assert.False(vm.Finish.ReduceStarSpikes);
                 await vm.UnloadCommand.ExecuteAsync(null);
                 Assert.Null(preview.Source); Assert.False(png.IsEffectivelyEnabled);
             }
