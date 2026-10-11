@@ -17,8 +17,9 @@ public sealed class PropertyValueWindow : Window
         Title = "Property value"; Width = 850; Height = 600;
         var state = new PropertyValueEditorState(row, value);
         DataContext = state;
-        var root = new Grid { Margin = new Thickness(12), RowDefinitions = new("Auto,*,Auto") };
-        root.Children.Add(new TextBlock { Text = state.Identifier, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 0, 0, 8) });
+        var root = new Grid { Margin = new Thickness(24), RowDefinitions = new("Auto,*,Auto") };
+        root.Children.Add(new TextBlock { Text = state.Identifier, FontSize = 18, FontWeight = FontWeight.SemiBold,
+            TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 0, 0, 16) });
         var text = new TextBox { Name = "ValuePage", AcceptsReturn = true, AcceptsTab = true, IsReadOnly = row.IsReadOnly,
             MaxLength = state.MaximumPageLength, TextWrapping = TextWrapping.NoWrap };
         ScrollViewer.SetVerticalScrollBarVisibility(text, ScrollBarVisibility.Auto);
@@ -32,7 +33,12 @@ public sealed class PropertyValueWindow : Window
         var export = new Button { Content = "Export full text…" };
         var apply = new Button { Name = "AcceptValue", Content = "Accept edits", IsEnabled = !row.IsReadOnly };
         var cancel = new Button { Content = "Close / cancel" };
-        foreach (var control in new Control[] { previous, next, position, export, apply, cancel }) buttons.Children.Add(control);
+        apply.Classes.Add("primary");
+        foreach (var control in new Control[] { previous, next, position, export, apply, cancel })
+        {
+            if (control is Button) control.Margin = new Thickness(0, 4, 8, 0);
+            buttons.Children.Add(control);
+        }
         Content = root;
         text.Bind(TextBox.TextProperty, new Binding(nameof(state.PageText)) { Mode = BindingMode.TwoWay });
         position.Bind(TextBlock.TextProperty, new Binding(nameof(state.Position)));

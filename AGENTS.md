@@ -29,6 +29,7 @@ Raster import in the viewers is limited to PNG, JPEG, TIFF, BMP, and GIF. Keep t
 | `XISFLib.AvaloniaViewer.Tests/` | xUnit v3 headless tests with real Skia bitmap backend |
 | `Examples/` | Large independent/user-supplied fixtures, provenance, validation hashes, metadata inventory |
 | `docs/` | Authored Markdown guides; DocFX generates `api/` and `_site/` |
+| `assets/viewer/` | Shared transparent space artwork and multi-resolution ICO, linked into both desktop viewers as embedded resources and executable icons |
 | `.github/workflows/ci.yml` | Windows build/test/package, documentation, viewer publication, releases, Pages |
 
 Core source folders are `Xisf`, `Fits`, `Imaging`, `Astronomy`, and `Internal`. Public library types retain the single `XISFLib` namespace. Keep Windows/UI dependencies out of the core library.

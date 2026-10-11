@@ -382,6 +382,14 @@ Audit still open: run the Linux/macOS CI jobs and native dialog/overwrite/cancel
 
 ## References checked during planning
 
+### 2026-10-11: Desktop visual refresh
+
+Avalonia now uses a compact light slate theme with teal accents, a top file toolbar, a 286-pixel sidebar with grouped document/preview settings, and a full-width status footer. Buttons retain content-sized widths; numeric preview fields are compact, and metadata forms have bounded widths. The dark image canvas has a new empty state. The paged property dialog uses the same typography and button hierarchy. All six tabs and existing command/binding contracts remain available.
+
+Writer tables retain finite 200-pixel viewports inside a scrolling page so short windows do not collapse them. Property columns have minimum widths and document type/shape/format/comment columns have explicit desktop widths, allowing grid scrolling rather than compressing fields to unreadable sizes.
+
+Validation: Release Avalonia/test build passed with no warnings or errors; all 10 Avalonia tests passed. Windows native smoke probes loaded, calculated utilities, saved/reloaded XISF and FITS, and captured all six tabs at 1450 × 900 and 1050 × 650. Captures were visually inspected, including the compact Writer layout. Reports/captures are under ignored `artifacts/avalonia-redesign/`. Build validation used `-p:UsedAvaloniaProducts=` to skip the telemetry task, whose log directory is outside the workspace sandbox. Native dialog, DPI and other-OS verification gaps remain open.
+
 Large-metadata follow-up (October 2026): both property grids now bind bounded previews and expose a paged full-value editor/export. Large arrays defer formatting and unchanged arrays preserve their original typed value; Information tree text is also bounded. WPF uses finite, recycling grid viewports. Regressions cover large-string Apply/save, arrays, Unicode page boundaries, cancellation and actual frontend bindings. A Windows native Avalonia probe exercised all three `Examples/tim-ray` files and scrolling to spline serialization rows; results and captures are under `artifacts/large-metadata`. This addresses oversized text layout, while the broader cross-platform/DPI/expanded-tree evidence gaps above remain open.
 
 

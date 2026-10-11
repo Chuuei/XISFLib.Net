@@ -6,8 +6,11 @@
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+    <ApplicationIcon>../assets/viewer/space.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <AvaloniaResource Include="../assets/viewer/space.ico" Link="Assets/space.ico" />
+    <AvaloniaResource Include="../assets/viewer/space.png" Link="Assets/space.png" />
     <ProjectReference Include="../XISFLib.Viewer.Core/XISFLib.Viewer.Core.csproj" />
     <PackageReference Include="Avalonia.Desktop" Version="12.1.4" />
     <PackageReference Include="Avalonia.Themes.Fluent" Version="12.1.4" />
