@@ -1,10 +1,9 @@
 # Shared viewer icon
 
-`space.png` is the transparent source artwork for both desktop viewers. `space.ico`
-contains 32-bit PNG frames at 16, 24, 32, 48, 64, 128 and 256 pixels. Both projects
-embed the ICO as their Windows executable icon and window resource. Avalonia also
-embeds the PNG for its toolbar. Assets are linked from this directory so the two
-applications use the same artwork without runtime sidecar files.
+`space.png` is the transparent source artwork for the Avalonia desktop viewer. `space.ico`
+contains 32-bit PNG frames at 16, 24, 32, 48, 64, 128 and 256 pixels. The viewer project
+embed the ICO as their Windows executable icon and window resource. It also
+embeds the PNG for its toolbar. Assets are linked from this directory without runtime sidecar files.
 
 Created on 2026-10-11 with the built-in image generation tool. The ICO is a
 high-quality bicubic size/format conversion of the generated transparent PNG.

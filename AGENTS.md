@@ -10,7 +10,7 @@ The public API is still evolving. When changing it, update affected callers, sam
 
 There is no shell-extension project. The old shell extension was removed; do not reintroduce it into documentation, dependencies, solution entries, or packaging.
 
-Raster import in the viewers is limited to PNG, JPEG, TIFF, BMP, and GIF. Keep the Avalonia parity plan aligned with this scope.
+Raster import in the Avalonia viewer is limited to PNG, JPEG, TIFF, BMP, and GIF. Keep the Avalonia parity plan aligned with this scope.
 
 ## Project map
 
@@ -19,8 +19,7 @@ Raster import in the viewers is limited to PNG, JPEG, TIFF, BMP, and GIF. Keep t
 | `XISFLib/` | Platform-independent `net10.0` library: XISF/FITS models, codecs, validation, conversion, imaging utilities, astronomy |
 | `XISFLib.Windows/` | `net10.0-windows` WPF/Windows Forms bitmap adapters, frozen bitmap sources |
 | `XISFLib.Convert/` | Batch XISF-to-FITS console application; testable logic in `BatchConversion.cs` |
-| `XISFLib.WpfViewer/` | WPF views and native adapters; `MainWindow.xaml.cs` and `.Workbench.cs` bind shared workbench state |
-| `XISFLib.Benchmarks/` | Elapsed-time and allocation measurements, including the actual WPF load path |
+| `XISFLib.Benchmarks/` | Elapsed-time and allocation measurements, library processing; native viewer loads are measured in Avalonia |
 | `XISFLib.Tests/` | xUnit core, malformed-input, numeric, conversion, astronomy, metadata, and converter tests |
 | `XISFLib.Windows.Tests/` | xUnit rendering and Windows adapter tests |
 | `XISFLib.Viewer.Core/` | Shared workbench/session state, commands, editors, paging, viewport geometry, save/import and utilities |
@@ -29,7 +28,7 @@ Raster import in the viewers is limited to PNG, JPEG, TIFF, BMP, and GIF. Keep t
 | `XISFLib.AvaloniaViewer.Tests/` | xUnit v3 headless tests with real Skia bitmap backend |
 | `Examples/` | Large independent/user-supplied fixtures, provenance, validation hashes, metadata inventory |
 | `docs/` | Authored Markdown guides; DocFX generates `api/` and `_site/` |
-| `assets/viewer/` | Shared transparent space artwork and multi-resolution ICO, linked into both desktop viewers as embedded resources and executable icons |
+| `assets/viewer/` | Shared transparent space artwork and multi-resolution ICO, linked into the Avalonia desktop viewer as embedded resources and executable icons |
 | `.github/workflows/ci.yml` | Windows build/test/package, documentation, viewer publication, releases, Pages |
 
 Core source folders are `Xisf`, `Fits`, `Imaging`, `Astronomy`, and `Internal`. Public library types retain the single `XISFLib` namespace. Keep Windows/UI dependencies out of the core library.
@@ -66,9 +65,9 @@ Packaging and application commands:
 ```powershell
 dotnet pack XISFLib/XISFLib.csproj -c Release --no-build --output artifacts
 dotnet pack XISFLib.Windows/XISFLib.Windows.csproj -c Release --no-build --output artifacts
-dotnet run --project XISFLib.WpfViewer
+dotnet run --project XISFLib.AvaloniaViewer
 dotnet run --project XISFLib.Convert -- "D:\Astro\Captures" 4
-dotnet publish XISFLib.WpfViewer/XISFLib.WpfViewer.csproj -c Release -p:PublishProfile=WinX64
+dotnet publish XISFLib.AvaloniaViewer/XISFLib.AvaloniaViewer.csproj -c Release -p:PublishProfile=WinX64
 ```
 
 Normal builds/tests do not require DocFX. CI currently installs DocFX 2.81.0. Validate documentation changes with the warnings-as-errors command when available.
@@ -127,7 +126,7 @@ Typed metadata catalogs:
 
 See [typed metadata](docs/metadata-properties.md) for full access contracts and provenance. Keep custom string-based metadata access available.
 
-## Performance and WPF
+## Performance and display
 
 - Prefer matching numeric types/layouts, spans, bulk copies, SIMD with scalar fallbacks, and direct decoding/rendering into final buffers. Avoid boxing per sample and full normalized/reordered arrays just for display.
 - Do not introduce hidden image-sized caches or remove defensive public ownership to improve benchmarks. Repeated parsed reads decode/checksum again; reuse an owned editable image when appropriate.
@@ -138,7 +137,7 @@ See [typed metadata](docs/metadata-properties.md) for full access contracts and 
 ```powershell
 dotnet run --project XISFLib.Benchmarks -c Release -- --performance 7 artifacts/performance.json
 dotnet run --project XISFLib.Benchmarks -c Release -- --fits-performance 5 artifacts/fits-performance.json
-dotnet run --project XISFLib.Benchmarks -c Release -- --wpf-load 5 artifacts/wpf-load.json
+dotnet run --project XISFLib.AvaloniaViewer -c Release -- --benchmark 5 artifacts/avalonia-load.json Examples
 ```
 
 ## Tests and example files
@@ -153,25 +152,25 @@ Document public APIs with useful XML summaries and parameter/return contracts. I
 
 Do not edit or commit generated `docs/api`, `docs/_site`, `bin`, `obj`, or `artifacts`. Change C# XML comments or authored Markdown instead.
 
-The `WinX64` publish profile produces exactly `artifacts/wpf/win-x64/XISFLib.WpfViewer.exe`, self-contained with .NET. Native libraries self-extract at runtime. Trimming is disabled for WPF; symbols are embedded/excluded to keep publication to one executable.
+The Avalonia `WinX64` publish profile produces exactly `artifacts/avalonia/win-x64/XISFLib.AvaloniaViewer.exe`, self-contained with .NET. Native libraries self-extract at runtime. Trimming is disabled; symbols are embedded/excluded to keep publication to one executable.
 
-CI validates all four test suites, core packaging, dependency auditing, strict DocFX generation, and single-executable publication. Default-branch successful builds/manual runs deploy GitHub Pages; pull requests validate without deployment. Version tags beginning with `v` publish a GitHub release with the viewer executable; hyphenated tags are prereleases. Reruns replace the executable asset while preserving release notes. Do not broaden deployment triggers or write permissions unintentionally.
+CI validates all four test suites, core packaging, dependency auditing, strict DocFX generation, and single-executable publication. Default-branch successful builds/manual runs deploy GitHub Pages; pull requests validate without deployment. Version tags beginning with `v` publish a GitHub release with the Avalonia viewer ZIPs; hyphenated tags are prereleases. Reruns replace the executable asset while preserving release notes. Do not broaden deployment triggers or write permissions unintentionally.
 
 ## Further reading
 
-Viewer migration implementation is complete for the planned feature set. Both frontends bind the same WorkbenchViewModel and ViewerUtilityState: session ownership, busy/closure guards, editor drafts, load/selection/render/save orchestration, diagnostics and utility commands belong in Viewer.Core. PropertyValueEditorState shares bounded page navigation and staged edits; ViewerViewportState shares zoom/pan geometry. Keep dialogs, active-cell commits, pointer capture, transforms and bitmap ownership in the frontend. WPF freezes BitmapSource on a worker; Avalonia transfers/disposes native bitmaps on the UI thread. Avalonia exposes all six tabs and every WPF workbench operation. Native dialog/DPI/expanded-tree interaction certification and Linux/macOS runner results remain open in the parity audit; do not call these verified merely because the implementation builds.
+Avalonia is the sole desktop viewer; XISFLib.WpfViewer was removed. Keep it out of solution entries, dependencies, CI assets and current usage documentation. XISFLib.Windows remains a supported Windows bitmap adapter package. WorkbenchViewModel and ViewerUtilityState in Viewer.Core own sessions, busy/closure guards, editor drafts, load/selection/render/save orchestration, diagnostics and utility commands. PropertyValueEditorState handles bounded page navigation/staged edits; ViewerViewportState handles zoom/pan geometry. Native dialogs, active-cell commits, pointer capture, transforms and bitmap ownership belong in Avalonia. Transfer/dispose bitmaps on the UI thread. Native-dialog/DPI/expanded-tree certification and Linux/macOS runner results remain evidence gaps.
 
 Editor contracts: commit active cells before snapshots, parse document rows and every image/table field before mutation, retain unsupported/unavailable property objects/XML, and keep unrepresentable tables read-only. Apply edits persist per image; selection discards unapplied image rows/attributes/attachments. Document rows survive image selection and reset on load/unload. Creator settings persist. Timestamp formatting retains fractional seconds and offsets. Preserve RGB/display names and derive luminance through XisfColorSpace; metadata editing does not change sample storage or geometry.
 
-Large metadata: bind property cells to PropertyEditorRow.InlineValue, never the complete Value. MetadataText bounds previews to 256 payload characters; PropertyValueWindow presents 4,096-character pages with staged edits and full-text export. Page boundaries retain Unicode surrogate pairs. Preview text must never enter serialization. Arrays over 128 elements defer text formatting until inspection on a worker and retain their typed original if untouched. MetadataNode.DisplayValue bounds information-tree layout; large array nodes summarize element counts. Keep WPF grids in finite viewports with recycling virtualization and fixed row heights in both frontends. Large spline regressions must verify preservation and bounded UI text without machine-dependent timing assertions.
+Large metadata: bind property cells to PropertyEditorRow.InlineValue, never the complete Value. MetadataText bounds previews to 256 payload characters; PropertyValueWindow presents 4,096-character pages with staged edits and full-text export. Page boundaries retain Unicode surrogate pairs. Preview text must never enter serialization. Arrays over 128 elements defer text formatting until inspection on a worker and retain their typed original if untouched. MetadataNode.DisplayValue bounds information-tree layout; large array nodes summarize element counts. Keep Avalonia grids in finite viewports with fixed row heights and bounded values. Large spline regressions must verify preservation and bounded UI text without machine-dependent timing assertions.
 
 Save contracts: default byte-copy is available only for signature-verified monolithic XISF and skips all editor parsing. Copy publication is staged and uses OS-specific path comparison; replacing destination aliases preserves the source inode's bytes. Re-encoding and FITS write the selected image, not the whole container; distributed output uses a sibling .xisb and retains its two-file failure contract. Reload saved output and display conversion omissions alongside reader diagnostics. Keep all compression/checksum options and shuffle defaults. Single-file writer failure must preserve existing output.
 
-Raster imports now use Magick.NET-Q16-AnyCPU 15.0.0 in Viewer.Core (Apache-2.0, native notices embedded). Restrict signatures before decoder use, read frame zero, export UInt8 interleaved RGB/RGBA, detect actual transparency and retain decoded DPI. Thumbnail imports omit alpha, ID, ICC and resolution. Both viewers decode/read attachments on workers. Core XISFLib has no raster dependency. WIC differential tests cover PNG/JPEG/TIFF/BMP/GIF, high-bit TIFF and alpha; they do not prove every TIFF/color-profile variant. Keep embedded notices synchronized when dependencies change.
+Raster imports now use Magick.NET-Q16-AnyCPU 15.0.0 in Viewer.Core (Apache-2.0, native notices embedded). Restrict signatures before decoder use, read frame zero, export UInt8 interleaved RGB/RGBA, detect actual transparency and retain decoded DPI. Thumbnail imports omit alpha, ID, ICC and resolution. The viewer decodes/reads attachments on workers. Core XISFLib has no raster dependency. WIC differential tests cover PNG/JPEG/TIFF/BMP/GIF, high-bit TIFF and alpha; they do not prove every TIFF/color-profile variant. Keep embedded notices synchronized when dependencies change.
 
 Avalonia desktop/theme/headless remain 12.1.4, DataGrid 12.1.2, CommunityToolkit.Mvvm 8.4.2. Headless tests use xUnit v3 3.2.2, OutputType Exe and real Skia/HarfBuzz with UseHeadlessDrawing=false. Bitmap transfer belongs to the UI thread; dispose replaced/closed bitmaps and suppress obsolete results. Information construction and validation run after preview yield and retain lazy image materialization. Utility work is serialized with other commands and remains disabled while busy.
 
-CI retains the Windows solution/tests, WPF single-executable asset and Pages behavior. A separate Windows x64/Linux x64/macOS arm64 matrix tests portable projects, publishes one self-contained executable, runs a native --smoke-test probe and uploads named ZIPs. Releases depend on both job groups, keep the v-tag/prerelease rules and replace assets without replacing notes. Only the release job gets contents: write. Linux/macOS builds are unsigned and ZIP extraction may require chmod +x. Local Windows standalone publication is verified; other OS results are pending execution. Native dialog, DPI, expanded-tree interaction, cold-load and long-session native-memory checks remain explicit evidence gaps.
+CI retains Windows solution/tests, library packaging and Pages behavior. A separate Windows x64/Linux x64/macOS arm64 matrix checks out LFS fixtures, tests portable projects, publishes one self-contained Avalonia executable, runs a native --smoke-test probe and uploads named ZIPs. Releases depend on both job groups, attach Avalonia ZIPs only, keep v-tag/prerelease rules and replace assets without replacing notes. Only the release job gets contents: write. Linux/macOS builds are unsigned and ZIP extraction may require chmod +x. Local Windows standalone publication is verified; other OS results are pending execution. Native dialog, DPI, expanded-tree interaction, cold-load and long-session native-memory checks remain explicit evidence gaps.
 
 Native probe: dotnet run --project XISFLib.AvaloniaViewer -c Release -- --smoke-test artifacts/avalonia-smoke/report.json. Staged load benchmark: dotnet run --project XISFLib.AvaloniaViewer -c Release -- --benchmark 5 artifacts/avalonia-load.json Examples. Both modes exit when finished and never run during normal startup. Reports/screenshots stay under artifacts. Assignment timings and render-target captures are not physical screen-presentation measurements.
 

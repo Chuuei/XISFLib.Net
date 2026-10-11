@@ -26,21 +26,6 @@ jobs:
       - run: dotnet test .\XISFLib.AvaloniaViewer.Tests\XISFLib.AvaloniaViewer.Tests.csproj -c Release --no-build
       - run: dotnet pack .\XISFLib\XISFLib.csproj -c Release --no-build --output .\artifacts
       - run: dotnet list .\XISFLib.Net.slnx package --vulnerable --include-transitive
-      - name: Publish standalone WPF viewer
-        run: dotnet publish .\XISFLib.WpfViewer\XISFLib.WpfViewer.csproj -c Release -p:PublishProfile=WinX64
-      - name: Verify single executable
-        shell: pwsh
-        run: |
-          $files = @(Get-ChildItem .\artifacts\wpf\win-x64 -Recurse -File)
-          if ($files.Count -ne 1 -or $files[0].Name -ne 'XISFLib.WpfViewer.exe') {
-            throw 'The WPF publish output must contain exactly XISFLib.WpfViewer.exe.'
-          }
-      - name: Upload standalone WPF viewer
-        uses: actions/upload-artifact@v4
-        with:
-          name: wpf-viewer-win-x64
-          path: artifacts/wpf/win-x64/XISFLib.WpfViewer.exe
-          if-no-files-found: error
       - name: Install DocFX
         run: dotnet tool install --global docfx --version 2.81.0
       - name: Build documentation
@@ -129,11 +114,6 @@ jobs:
       group: release-${{ github.ref }}
       cancel-in-progress: false
     steps:
-      - name: Download standalone WPF viewer
-        uses: actions/download-artifact@v4
-        with:
-          name: wpf-viewer-win-x64
-          path: release
       - name: Download standalone Avalonia viewers
         uses: actions/download-artifact@v4
         with:
@@ -147,7 +127,7 @@ jobs:
           RELEASE_TAG: ${{ github.ref_name }}
         run: |
           set -euo pipefail
-          assets=(release/XISFLib.WpfViewer.exe release/XISFLib.AvaloniaViewer-*.zip)
+          assets=(release/XISFLib.AvaloniaViewer-*.zip)
           if gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
             gh release upload "$RELEASE_TAG" "${assets[@]}" --repo "$GITHUB_REPOSITORY" --clobber
           else

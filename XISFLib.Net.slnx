@@ -5,7 +5,6 @@
   <Project Path="XISFLib.AvaloniaViewer.Tests/XISFLib.AvaloniaViewer.Tests.csproj" />
   <Project Path="XISFLib.Convert/XISFLib.Convert.csproj" />
   <Project Path="XISFLib.Benchmarks/XISFLib.Benchmarks.csproj" />
-  <Project Path="XISFLib.WpfViewer/XISFLib.WpfViewer.csproj" />
   <Project Path="XISFLib.Windows.Tests/XISFLib.Windows.Tests.csproj" />
   <Project Path="XISFLib.Windows/XISFLib.Windows.csproj" />
   <Project Path="XISFLib.Tests/XISFLib.Tests.csproj" />

@@ -1,6 +1,6 @@
 # Performance
 
-The viewers bound metadata text layout independently of payload size. Property grids show 256-character previews and fixed-height rows; the full-value editor lays out one 4,096-character page. Large arrays defer formatting until inspection. This is particularly useful for the `Examples/tim-ray` spline serialization properties, whose strings reach approximately 192,000 characters.
+The viewer bounds metadata text layout independently of payload size. Property grids show 256-character previews and fixed-height rows; the full-value editor lays out one 4,096-character page. Large arrays defer formatting until inspection. This is particularly useful for the `Examples/tim-ray` spline serialization properties, whose strings reach approximately 192,000 characters.
 
 The Avalonia native load benchmark also measures opening the Image metadata tab and 20 scrolls between ordinary and large-value rows. Pass a folder without `slow.xisf` to benchmark every `.xisf` directly in that folder:
 
@@ -33,11 +33,11 @@ The following measurements compare the implementation before and after the Octob
 
 The real-image rendering measurement excludes file loading and decompression. The separate decode measurement includes reading its attached compressed block. Matching typed reads still allocate the decoded byte buffer and the returned typed array; public APIs return independently owned buffers.
 
-## WPF load-to-display improvements
+## Historical load-to-display measurements
 
-An additional WPF performance pass parallelizes pixel conversion for images with at least 262144 pixels. Workers process disjoint 65536-pixel ranges, with at most eight workers. Smaller images retain sequential conversion. The input span is pinned only for the synchronous conversion operation, avoiding an extra copy of the raw image. Stretch parameters are computed once before workers start; alpha, color conversion, byte order, rounding, display functions, and orientation retain the same behavior.
+Before the WPF sample was retired, an additional performance pass parallelized pixel conversion for images with at least 262144 pixels. Workers process disjoint 65536-pixel ranges, with at most eight workers. Smaller images retain sequential conversion. The input span is pinned only for the synchronous conversion operation, avoiding an extra copy of the raw image. Stretch parameters are computed once before workers start; alpha, color conversion, byte order, rounding, display functions, and orientation retain the same behavior.
 
-The viewer assigns its full-resolution frozen bitmap before building metadata trees, populating editors, or presenting validation diagnostics. It yields to WPF's dispatcher so the render queue can run, then prepares metadata and validation on a worker thread. All validation still completes, and editing stays disabled until loading finishes. Duplicate property-editor population was removed, the metadata tree uses recycling virtualization, and image-selection operations share the busy guard to avoid overlapping loads.
+The retired WPF viewer assigned its full-resolution frozen bitmap before building metadata trees, populating editors, or presenting validation diagnostics. It yielded to WPF's dispatcher so the render queue can run, then prepares metadata and validation on a worker thread. All validation still completes, and editing stays disabled until loading finishes. Duplicate property-editor population was removed, the metadata tree uses recycling virtualization, and image-selection operations share the busy guard to avoid overlapping loads.
 
 Measured on the same machine and runtime, with one warm-up and five iterations before and after this additional pass:
 
@@ -50,10 +50,10 @@ Measured on the same machine and runtime, with one warm-up and five iterations b
 | FITS load to bitmap assignment in the viewer | 390.75 | 81.86 |
 | FITS load until all tabs are ready | 390.76 | 101.32 |
 
-The load benchmark exercises the viewer's actual load-button handler, controls, bitmap creation, and dispatcher in an STA thread with a hidden window. It excludes process startup and does **not** measure physical screen presentation or GPU frame time. File caches are warm, and the bitmap-assignment observation uses a background dispatcher timer. Reproduce it with:
+The historical load benchmark exercised the WPF viewer's actual load-button handler, controls, bitmap creation, and dispatcher in an STA thread with a hidden window. It excludes process startup and does **not** measure physical screen presentation or GPU frame time. File caches are warm, and the bitmap-assignment observation uses a background dispatcher timer. The WPF sample and its load harness have been removed. Measure the current Avalonia load path with:
 
 ```powershell
-dotnet run --project XISFLib.Benchmarks -c Release -- --wpf-load 5 artifacts/wpf-load.json
+dotnet run --project XISFLib.AvaloniaViewer -c Release -- --benchmark 5 artifacts/avalonia-load.json Examples
 ```
 
 Zlib decompression still accounts for most of the XISF loading time. These improvements use the .NET parallel task library and WPF dispatcher; no extra runtime package is required. Regression tests compare large parallel RGB, gray, and Lab renders with sequential row renders, including alpha, endian orders, storage layouts, non-finite samples, and stored display functions.
@@ -92,7 +92,7 @@ To measure parsing, conversion, rendering, encoding, scaling, and checksum paths
 dotnet run --project XISFLib.Benchmarks -c Release -- --fits-performance 5 artifacts/fits-performance.json
 ```
 
-The `--wpf-load` benchmark now includes every `.fits` example as well as `slow.xisf`. All four FITS examples produced identical raw and converted hashes, linear/adaptive pixel hashes, headers, diagnostics, and checksummed serialized file hashes against an isolated pre-change implementation. They have no FITS conformance diagnostics. Results are recorded in `Examples/fits-validation.json`. Regression coverage includes all nine supported .NET sample types, UInt64 values above double precision, scalar/SIMD checksum agreement, split words, trailing bytes, all supported BITPIX scaling paths, undefined samples, ASCII padding, and fixed-capacity output streams.
+The historical WPF load benchmark included every `.fits` example as well as `slow.xisf`; the current Avalonia `--benchmark` mode covers these inputs. All four FITS examples produced identical raw and converted hashes, linear/adaptive pixel hashes, headers, diagnostics, and checksummed serialized file hashes against an isolated pre-change implementation. They have no FITS conformance diagnostics. Results are recorded in `Examples/fits-validation.json`. Regression coverage includes all nine supported .NET sample types, UInt64 values above double precision, scalar/SIMD checksum agreement, split words, trailing bytes, all supported BITPIX scaling paths, undefined samples, ASCII padding, and fixed-capacity output streams.
 
 ## Run the benchmarks
 

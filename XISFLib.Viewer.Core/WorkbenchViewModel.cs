@@ -5,7 +5,7 @@ using CommunityToolkit.Mvvm.Input;
 
 namespace XISFLib.Viewer;
 
-/// <summary>Shared desktop workbench state and orchestration for both WPF and Avalonia.</summary>
+/// <summary>Desktop workbench state and orchestration independent of native Avalonia controls.</summary>
 public sealed class WorkbenchViewModel : ObservableObject
 {
     private readonly Func<XisfBgra32Image?, Task> _present;

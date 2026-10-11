@@ -1,6 +1,6 @@
 # Avalonia viewer implementation plan
 
-Status: **planned WPF user functionality implemented; full parity certification remains open**. The ordered phase checklist was reconciled with the current source on 2026-10-11. Earlier implementation checkboxes had not been updated consistently. Completed implementation and outstanding verification now appear separately. Both viewers now bind the same WorkbenchViewModel and ViewerUtilityState, including session ownership, editor drafts and command orchestration. Automated Windows evidence is recorded below; Linux/macOS CI execution, native-dialog/DPI interaction and long-session/cold-load measurements are not claimed complete.
+Status: **Avalonia is the sole desktop viewer; the WPF sample was retired on 2026-10-11.** This document preserves the migration baseline, implementation history and evidence. WPF project paths and commands below are historical, not current run instructions. Use [applications](../applications.md) and [getting started](../getting-started.md) for the current viewer. Outstanding native-dialog/DPI, Linux/macOS, cold-load and long-session verification remains explicit.
 
 Prepared on 2026-10-10 against repository HEAD `a7d788c1a6995b0b753a7b578d67d48e0ec21666` and the current WPF sources. Re-inventory functionality if the WPF application changes before implementation.
 
@@ -408,3 +408,9 @@ WPF now binds the same WorkbenchViewModel and ViewerUtilityState as Avalonia. Re
 PropertyValueEditorState centralizes bounded page navigation, staged edits and full-text reconstruction. ViewerViewportState centralizes pointer-anchored zoom, bounds and captured-pan geometry. Tests cover staged export/acceptance, unchanged typed-array preservation and viewport geometry. WPF regressions now exercise shared state through real bindings and the save entry point, including active-cell commits, invalid drafts, byte-copy bypass and failed-load recovery. The hidden WPF benchmark initializes bindings before setting the path and invoking the actual load handler.
 
 Checks: all 291 tests passed (182 core, 36 Windows, 63 shared, 10 Avalonia). The WPF load probe successfully loaded slow.xisf and all four FITS examples; evidence is artifacts/consolidation/wpf-load.json. The standalone Windows Avalonia smoke probe passed, including saves/utilities and all six tab captures; evidence is artifacts/consolidation/avalonia-smoke.json. These checks do not certify native dialogs, DPI, physical screen timing or other operating systems.
+
+### 2026-10-11: Retire the WPF sample
+
+Removed XISFLib.WpfViewer from source and the solution, its frontend-only regression suite, and its load benchmark. Scientific Windows bitmap adapters and their tests remain in XISFLib.Windows. Avalonia and Viewer.Core retain editor, session, save, utility, paging and viewport behavior and regression coverage. The native Avalonia --benchmark probe replaces the removed WPF load harness.
+
+CI publishes/releases only Avalonia ZIPs for Windows x64, Linux x64 and macOS arm64. Windows solution testing, library packaging, dependency auditing, Pages deployment, version-tag/prerelease rules and release-note preservation remain unchanged. Current documentation and agent instructions describe Avalonia as the sole viewer; preceding WPF comparisons are historical evidence.

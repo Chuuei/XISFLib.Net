@@ -1,6 +1,6 @@
 namespace XISFLib.Viewer;
 
-/// <summary>The portable file-loading and lazy image-materialization behavior shared by both viewers.</summary>
+/// <summary>Portable file loading and lazy image materialization for the desktop viewer.</summary>
 public sealed class ViewerSession
 {
     private readonly XisfImageData?[] _images;

@@ -84,25 +84,23 @@ Use `FitsConverter.ConvertFitsToXisf` or `ConvertXisfToFits` for the correspondi
 ## Run the applications
 
 ```powershell
-dotnet run --project XISFLib.WpfViewer -c Release
 dotnet run --project XISFLib.AvaloniaViewer -c Release
 dotnet run --project XISFLib.Convert -- "D:\Images" 4
 dotnet run --project XISFLib.Benchmarks -c Release -- "D:\Images\Examples"
 ```
 
-Both viewers load, render, inspect, edit, validate, and save files. Byte-identical copy preserves the original monolithic file; re-encoding applies editor changes and writes the selected image.
+The Avalonia viewer loads, renders, inspects, edits, validates, and saves files on Windows, Linux and macOS. Byte-identical copy preserves the original monolithic file; re-encoding applies editor changes and writes the selected image.
 
 To publish the viewer as a standalone executable for Windows x64:
 
 ```powershell
-dotnet publish XISFLib.WpfViewer/XISFLib.WpfViewer.csproj -c Release -p:PublishProfile=WinX64
 dotnet publish XISFLib.AvaloniaViewer/XISFLib.AvaloniaViewer.csproj -c Release -p:PublishProfile=WinX64
 ```
 
-Outputs are `artifacts/wpf/win-x64/XISFLib.WpfViewer.exe` and `artifacts/avalonia/win-x64/XISFLib.AvaloniaViewer.exe`. Each includes .NET and application dependencies; no .NET installation is required on the destination computer. Native libraries are extracted by .NET at startup. Ordinary `dotnet build` remains a development build; use `dotnet publish` to produce a bundled executable.
+The output is `artifacts/avalonia/win-x64/XISFLib.AvaloniaViewer.exe`. It includes .NET and application dependencies; no .NET installation is required on the destination computer. Native libraries are extracted by .NET at startup. Ordinary `dotnet build` remains a development build; use `dotnet publish` to produce a bundled executable.
 
-CI retains `wpf-viewer-win-x64` and adds `avalonia-viewer-win-x64`, `avalonia-viewer-linux-x64` and `avalonia-viewer-osx-arm64` ZIP artifacts. Pushing a `v*` tag, such as `v1.0.0`, creates a release with generated notes and all viewer assets after the Windows and portable jobs pass. Hyphenated tags create prereleases; reruns replace assets while retaining notes. See [application deployment](applications.md#avalonia-viewer) for native prerequisites and platform verification limits.
+CI publishes `avalonia-viewer-win-x64`, `avalonia-viewer-linux-x64` and `avalonia-viewer-osx-arm64` ZIP artifacts. Pushing a `v*` tag, such as `v1.0.0`, creates a release with generated notes and these viewer assets after the Windows and portable jobs pass. Hyphenated tags create prereleases; reruns replace assets while retaining notes. See [application deployment](applications.md#avalonia-viewer) for native prerequisites and platform verification limits.
 
 The batch converter processes `.xisf` files directly inside the specified folder, with optional concurrency (default eight). It creates `.fits` files, refuses existing outputs, and returns exit code zero on success, one for conversion/enumeration failures, and two for invalid arguments.
 
-The benchmark project measures elapsed time and allocation for the supplied `slow.xisf` and `slow.fits` examples. It also has `--performance`, `--fits-performance`, and `--wpf-load` modes for synthetic operations, FITS processing, and end-to-end viewer loading. See the [performance guide](performance.md) for commands and measurement limits, and the [application guide](applications.md) for viewer and converter behavior.
+The benchmark project measures elapsed time and allocation for the supplied `slow.xisf` and `slow.fits` examples. Its `--performance` and `--fits-performance` modes cover synthetic operations and FITS processing. The Avalonia viewer provides `--benchmark` for staged native loading. See the [performance guide](performance.md) for commands and measurement limits, and the [application guide](applications.md) for viewer and converter behavior.
