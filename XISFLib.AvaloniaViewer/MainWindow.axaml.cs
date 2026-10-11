@@ -13,6 +13,7 @@ public partial class MainWindow : Window
 {
     private readonly WorkbenchViewModel _viewModel;
     private WriteableBitmap? _bitmap;
+    private WriteableBitmap? _finishedBitmap;
     private bool _closed;
     private readonly ViewerViewportState _viewport = new();
     private ScaleTransform ImageScale => (ScaleTransform)((TransformGroup)ImageView.RenderTransform!).Children[0];
@@ -22,9 +23,46 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
         _viewModel = new(PresentAsync, async () => await Dispatcher.UIThread.InvokeAsync(() => { }, DispatcherPriority.Background));
+        _viewModel.Finish.Present = PresentFinished;
         DataContext = _viewModel;
-        Closed += (_, _) => { _closed = true; _viewModel.Close(); ImageView.Source = null; _bitmap?.Dispose(); _bitmap = null; };
+        Closed += (_, _) =>
+        {
+            _closed = true; _viewModel.Close();
+            ImageView.Source = null; _bitmap?.Dispose(); _bitmap = null;
+            FinishedImageView.Source = null; _finishedBitmap?.Dispose(); _finishedBitmap = null;
+        };
     }
+
+    private void PresentFinished(FinishedPicture? picture)
+    {
+        if (_closed) return;
+        var bitmap = picture is null ? null : AvaloniaBitmapAdapter.Create(picture);
+        var old = _finishedBitmap; _finishedBitmap = bitmap; FinishedImageView.Source = bitmap; old?.Dispose();
+    }
+
+    private async void Finish_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        WorkbenchTabs.SelectedItem = FinishTab;
+        if (_viewModel.Finish.CreateCommand.CanExecute(null)) await _viewModel.Finish.CreateCommand.ExecuteAsync(null);
+    }
+
+    private async void SaveFinished_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e) => await DialogActionAsync(async () =>
+    {
+        if (!_viewModel.Finish.CanSave) return;
+        bool jpeg = sender is Button { Tag: "jpeg" };
+        string extension = jpeg ? "jpg" : "png";
+        var file = await StorageProvider.SaveFilePickerAsync(new()
+        {
+            Title = jpeg ? "Save finished JPEG" : "Save finished PNG", DefaultExtension = extension,
+            SuggestedFileName = Path.GetFileNameWithoutExtension(_viewModel.FilePath) + "-finished." + extension,
+            ShowOverwritePrompt = true,
+            FileTypeChoices = [new(jpeg ? "JPEG image" : "PNG image") { Patterns = jpeg ? ["*.jpg", "*.jpeg"] : ["*.png"] }]
+        });
+        if (file is null) return;
+        var path = file.TryGetLocalPath() ?? throw new NotSupportedException("Saving requires a local file path.");
+        if (string.IsNullOrEmpty(Path.GetExtension(path))) path += "." + extension;
+        await _viewModel.SaveFinishedAsync(path);
+    });
 
     private Task PresentAsync(XisfBgra32Image? pixels)
     {

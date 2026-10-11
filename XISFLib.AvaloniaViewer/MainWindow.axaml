@@ -45,6 +45,7 @@
                 <TextBlock Text="Preview adjustments leave scientific samples unchanged." Classes="muted" FontSize="11" TextWrapping="Wrap" />
               </StackPanel>
             </Border>
+            <Button Content="Finish &amp; share" Classes="primary" Click="Finish_Click" IsEnabled="{Binding CanEditMetadata}" ToolTip.Tip="Automatically prepare a picture to save as PNG or JPEG" />
             <StackPanel Margin="8,0" Spacing="5"><TextBlock Text="CANVAS NAVIGATION" Classes="eyebrow" /><TextBlock Text="Scroll to zoom · Drag to pan" Classes="muted" FontSize="12" /></StackPanel>
           </StackPanel>
         </ScrollViewer>
@@ -295,6 +296,83 @@
             </DataGrid.Columns>
           </DataGrid>
         </Grid></ScrollViewer>
+      </TabItem>
+      <TabItem Header="Statistics">
+        <ScrollViewer>
+          <StackPanel Margin="24" Spacing="14">
+            <TextBlock Text="Image quality" FontSize="22" FontWeight="SemiBold" />
+            <TextBlock Text="Measure stars, background, noise and clipping in the selected image. Compare exposures using the same channel and detection threshold." TextWrapping="Wrap" Classes="muted" />
+            <WrapPanel>
+              <StackPanel Orientation="Horizontal" Spacing="8" IsEnabled="{Binding CanEditMetadata}">
+                <TextBlock Text="Channel (zero-based)" VerticalAlignment="Center" />
+                <ComboBox ItemsSource="{Binding Quality.Channels}" SelectedItem="{Binding Quality.Channel}" Width="80" />
+                <TextBlock Text="Detection threshold (σ)" VerticalAlignment="Center" />
+                <TextBox Text="{Binding Quality.DetectionThreshold}" Width="70" />
+              </StackPanel>
+              <Button x:Name="AnalyzeQualityButton" Content="Analyze image" Classes="primary" Command="{Binding Quality.AnalyzeCommand}" Margin="12,0,0,0" />
+              <Button Content="Cancel analysis" Command="{Binding Quality.CancelCommand}" IsEnabled="{Binding Quality.AnalyzeCommand.IsRunning}" Margin="8,0,0,0" />
+            </WrapPanel>
+            <TextBlock Text="{Binding Quality.Notes}" TextWrapping="Wrap" />
+            <DataGrid x:Name="QualityMetricsGrid" ItemsSource="{Binding Quality.Entries}" IsReadOnly="True" AutoGenerateColumns="False" RowHeight="36" Height="470">
+              <DataGrid.Columns>
+                <DataGridTextColumn Header="Metric" Binding="{ReflectionBinding Name}" Width="235" />
+                <DataGridTextColumn Header="Value" Binding="{ReflectionBinding Value}" Width="230" />
+                <DataGridTemplateColumn Header="Meaning / method" Width="*" MinWidth="260">
+                  <DataGridTemplateColumn.CellTemplate>
+                    <DataTemplate x:DataType="viewer:QualityEntry"><TextBlock Text="{Binding Explanation}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" ToolTip.Tip="{Binding Explanation}" /></DataTemplate>
+                  </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+              </DataGrid.Columns>
+            </DataGrid>
+            <TextBlock Text="Channel statistics (stored units, up to 65,536 systematic samples per channel)" Classes="section" TextWrapping="Wrap" />
+            <DataGrid x:Name="QualityChannelsGrid" ItemsSource="{Binding Quality.Statistics}" IsReadOnly="True" AutoGenerateColumns="False" RowHeight="28" Height="170">
+              <DataGrid.Columns>
+                <DataGridTextColumn Header="Channel" Binding="{ReflectionBinding Channel}" />
+                <DataGridTextColumn Header="Samples" Binding="{ReflectionBinding SampleCount}" />
+                <DataGridTextColumn Header="Non-finite" Binding="{ReflectionBinding NonFiniteCount}" />
+                <DataGridTextColumn Header="Minimum" Binding="{ReflectionBinding Minimum}" />
+                <DataGridTextColumn Header="Maximum" Binding="{ReflectionBinding Maximum}" />
+                <DataGridTextColumn Header="Mean" Binding="{ReflectionBinding Mean}" />
+                <DataGridTextColumn Header="Std. dev." Binding="{ReflectionBinding StandardDeviation}" />
+                <DataGridTextColumn Header="Median" Binding="{ReflectionBinding Median}" />
+                <DataGridTextColumn Header="MAD" Binding="{ReflectionBinding MedianAbsoluteDeviation}" />
+              </DataGrid.Columns>
+            </DataGrid>
+          </StackPanel>
+        </ScrollViewer>
+      </TabItem>
+      <TabItem x:Name="FinishTab" Header="Finish &amp; share">
+        <Grid Margin="24" RowDefinitions="Auto,Auto,*,Auto">
+          <StackPanel Spacing="8" Margin="0,0,0,16">
+            <TextBlock Text="Make a picture to share" FontSize="22" FontWeight="SemiBold" />
+            <TextBlock Text="One click trims empty edges, reduces uneven sky glow and brings out faint detail against a dark background. Review the result, then save your picture." TextWrapping="Wrap" Classes="muted" />
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <Button x:Name="CreateFinishedButton" Content="Create finished image" Classes="primary" Command="{Binding Finish.CreateCommand}" />
+              <Button x:Name="CancelFinishedButton" Content="Cancel" Command="{Binding Finish.CancelCommand}" />
+            </StackPanel>
+          </StackPanel>
+          <StackPanel Grid.Row="1" Spacing="8" Margin="0,0,0,12">
+            <TextBlock Text="{Binding Finish.Summary}" TextWrapping="Wrap" />
+            <StackPanel x:Name="FinishProgressPanel" Spacing="6" IsVisible="{Binding Finish.IsProcessing}">
+              <TextBlock x:Name="FinishProgressText" Text="{Binding Finish.ProgressText}" TextWrapping="Wrap" />
+              <ProgressBar x:Name="FinishProgressBar" Minimum="0" Maximum="100" Value="{Binding Finish.ProgressValue}"
+                           IsIndeterminate="{Binding Finish.IsIndeterminate}" Height="6" />
+            </StackPanel>
+          </StackPanel>
+          <Border Grid.Row="2" Background="#111923" CornerRadius="8" ClipToBounds="True" Padding="12">
+            <Grid>
+              <TextBlock Text="Your finished picture will appear here" Foreground="#94A3B8" IsVisible="{Binding !Finish.HasPicture}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+              <Image x:Name="FinishedImageView" Stretch="Uniform" RenderOptions.BitmapInterpolationMode="HighQuality" />
+            </Grid>
+          </Border>
+          <Grid Grid.Row="3" ColumnDefinitions="*,Auto" Margin="0,16,0,0">
+            <TextBlock Text="Your original stays intact. PNG keeps every finished pixel; JPEG makes a smaller file for sharing." TextWrapping="Wrap" Classes="muted" VerticalAlignment="Center" Margin="0,0,16,0" />
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+              <Button x:Name="SaveFinishedPngButton" Content="Save PNG…" Click="SaveFinished_Click" Tag="png" IsEnabled="{Binding Finish.CanSave}" />
+              <Button x:Name="SaveFinishedJpegButton" Content="Save JPEG…" Click="SaveFinished_Click" Tag="jpeg" IsEnabled="{Binding Finish.CanSave}" />
+            </StackPanel>
+          </Grid>
+        </Grid>
       </TabItem>
       <TabItem Header="Diagnostics">
         <DockPanel Margin="24">

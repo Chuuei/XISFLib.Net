@@ -21,6 +21,94 @@ public static class TestAppBuilder
 public class ViewerTests
 {
     [AvaloniaFact]
+    public async Task FinishTabHasASeparateReviewedPreviewAndSaveAvailabilityFollowsItsLifecycle()
+    {
+        string path = Path.Combine(Path.GetTempPath(), Guid.NewGuid() + ".xisf"), export = path + ".png";
+        try
+        {
+            XisfWriter.Write(path, [XisfImageData.FromSamples(Enumerable.Range(0, 1024).Select(i => (ushort)(1000 + i * 4)).ToArray(), [32, 32], 1)]);
+            var window = new MainWindow(); window.Show();
+            try
+            {
+                var vm = Assert.IsType<WorkbenchViewModel>(window.DataContext);
+                vm.FilePath = path; await vm.LoadCommand.ExecuteAsync(null);
+                var source = window.FindControl<Image>("ImageView")!.Source;
+                var tabs = window.FindControl<TabControl>("WorkbenchTabs")!;
+                tabs.SelectedItem = window.FindControl<TabItem>("FinishTab"); window.UpdateLayout();
+                var create = window.FindControl<Button>("CreateFinishedButton")!;
+                var png = window.FindControl<Button>("SaveFinishedPngButton")!;
+                var progressPanel = window.FindControl<StackPanel>("FinishProgressPanel")!;
+                var progressBar = window.FindControl<ProgressBar>("FinishProgressBar")!;
+                var progressText = window.FindControl<TextBlock>("FinishProgressText")!;
+                var cancel = window.FindControl<Button>("CancelFinishedButton")!;
+                int visibleOperations = 0;
+                vm.Finish.PropertyChanged += (_, e) =>
+                {
+                    if (e.PropertyName != nameof(ViewerFinishState.IsProcessing) || !vm.Finish.IsProcessing) return;
+                    window.UpdateLayout();
+                    Assert.True(progressPanel.IsVisible); Assert.True(progressBar.IsIndeterminate);
+                    Assert.Equal(vm.Finish.ProgressText, progressText.Text);
+                    visibleOperations++;
+                };
+                Assert.False(progressPanel.IsVisible);
+                Assert.Same(vm.Finish.CreateCommand, create.Command); Assert.False(png.IsEffectivelyEnabled);
+                create.Command!.Execute(null); await vm.Finish.CreateCommand.ExecutionTask!;
+                window.UpdateLayout();
+                Assert.True(png.IsEffectivelyEnabled);
+                Assert.False(progressPanel.IsVisible); Assert.False(cancel.IsEffectivelyEnabled);
+                var preview = window.FindControl<Image>("FinishedImageView")!;
+                Assert.NotNull(preview.Source); Assert.Same(source, window.FindControl<Image>("ImageView")!.Source);
+                Assert.NotSame(source, preview.Source);
+                var bitmap = Assert.IsType<WriteableBitmap>(preview.Source); Assert.Equal(new PixelSize(32, 32), bitmap.PixelSize);
+                await vm.SaveFinishedAsync(export); window.UpdateLayout();
+                Assert.Equal(2, visibleOperations); Assert.False(progressPanel.IsVisible);
+                await vm.UnloadCommand.ExecuteAsync(null);
+                Assert.Null(preview.Source); Assert.False(png.IsEffectivelyEnabled);
+            }
+            finally { window.Close(); }
+        }
+        finally { File.Delete(path); File.Delete(export); }
+    }
+
+    [AvaloniaFact]
+    public async Task StatisticsTabBindsQualityCommandAndResultsAndHasFiniteViewports()
+    {
+        string path = Path.Combine(Path.GetTempPath(), Guid.NewGuid() + ".xisf");
+        try
+        {
+            var image = XisfImageData.FromSamples(new ushort[] { 100, 200, 300, 400, 500, 600 }, [2, 1], 3, XisfPixelLayout.Interleaved);
+            image.ColorSpace = "RGB";
+            XisfWriter.Write(path, [image]);
+            var window = new MainWindow(); window.Show();
+            try
+            {
+                var vm = Assert.IsType<WorkbenchViewModel>(window.DataContext);
+                vm.FilePath = path; await vm.LoadCommand.ExecuteAsync(null);
+                Assert.Equal(1, vm.Quality.Channel);
+                var tabs = window.FindControl<TabControl>("WorkbenchTabs")!;
+                tabs.SelectedItem = tabs.Items.OfType<TabItem>().Single(t => Equals(t.Header, "Statistics"));
+                window.UpdateLayout();
+                var button = window.FindControl<Button>("AnalyzeQualityButton")!;
+                Assert.Same(vm.Quality.AnalyzeCommand, button.Command);
+                button.Command!.Execute(null);
+                await vm.Quality.AnalyzeCommand.ExecutionTask!;
+                window.UpdateLayout();
+                Assert.NotEmpty(vm.Quality.Entries);
+                var metrics = window.FindControl<DataGrid>("QualityMetricsGrid")!;
+                Assert.Same(vm.Quality.Entries, metrics.ItemsSource);
+                Assert.Equal(470, metrics.Height);
+                Assert.Same(vm.Quality.Statistics, window.FindControl<DataGrid>("QualityChannelsGrid")!.ItemsSource);
+                Assert.Equal(3, vm.Quality.Statistics.Count);
+                Assert.Contains(metrics.GetVisualDescendants().OfType<TextBlock>(), t => t.Text == "Analyzed channel");
+                await vm.UnloadCommand.ExecuteAsync(null);
+                Assert.Empty(vm.Quality.Entries); Assert.False(button.IsEffectivelyEnabled);
+            }
+            finally { window.Close(); }
+        }
+        finally { File.Delete(path); }
+    }
+
+    [AvaloniaFact]
     public void ClosingPagedEditorDiscardsEditsAndUnchangedAcceptPreservesOriginalArray()
     {
         var owner = new MainWindow(); owner.Show();

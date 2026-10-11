@@ -43,6 +43,19 @@ public sealed class WorkbenchViewModel : ObservableObject
         ApplyMetadataCommand = new AsyncRelayCommand(ApplyMetadataAsync, () => CanInteract && SelectedImage is not null);
         ApplyDocumentCommand = new AsyncRelayCommand(ApplyDocumentAsync, () => CanEditMetadata);
         Utilities = new(() => SelectedImage, (status, action) => RunAsync(status, _ => action()), () => CanEditMetadata) { CanPublish = () => !_closed };
+        Quality = new(() => SelectedImage, (status, action) => RunAsync(status, async generation =>
+        {
+            await action();
+            if (IsCurrent(generation)) Status = "Image quality analysis complete.";
+        }), () => CanEditMetadata, () => !_closed);
+        Finish = new(() => SelectedImage, () => _session is { Xisf: null, Fits: null },
+            (status, action) => RunAsync(status, async generation =>
+            {
+                await action();
+                if (IsCurrent(generation)) Status = status.StartsWith("Saving", StringComparison.Ordinal)
+                    ? "Finished image saved. The original image is unchanged."
+                    : "Finished image ready. Save it as PNG or JPEG.";
+            }), () => CanEditMetadata, () => !_closed);
     }
 
     public string FilePath { get => _filePath; set => SetProperty(ref _filePath, value); }
@@ -71,6 +84,8 @@ public sealed class WorkbenchViewModel : ObservableObject
             ApplyDocumentCommand.NotifyCanExecuteChanged();
             OnPropertyChanged(nameof(CanEditMetadata));
             Utilities.NotifyCommands();
+            Quality.AnalyzeCommand.NotifyCanExecuteChanged();
+            Finish.NotifyCommands();
         }
     }
     public bool CanInteract => !IsBusy && !_closed;
@@ -88,6 +103,8 @@ public sealed class WorkbenchViewModel : ObservableObject
     public TableEditorFields TableEditor { get => _tableEditor; private set => SetProperty(ref _tableEditor, value); }
     public DocumentEditorState DocumentEditor { get; } = new();
     public ViewerUtilityState Utilities { get; }
+    public ViewerQualityState Quality { get; }
+    public ViewerFinishState Finish { get; }
     public IReadOnlyList<XisfCompression> CompressionChoices { get; } = Enum.GetValues<XisfCompression>();
     public IReadOnlyList<XisfChecksum> ChecksumChoices { get; } = Enum.GetValues<XisfChecksum>();
     public XisfCompression Compression { get; set; } = XisfCompression.Zlib;
@@ -110,7 +127,9 @@ public sealed class WorkbenchViewModel : ObservableObject
     public bool ResetViewportOnPresentation { get; private set; }
     public ViewerLoadTiming? LastLoadTiming { get; private set; }
 
-    public void Close() { _closed = true; _generation++; }
+    public void Close() { _closed = true; _generation++; Quality.AnalyzeCommand.Cancel(); Finish.Refresh(); }
+
+    public Task SaveFinishedAsync(string path) => Finish.SaveAsync(path, _session?.SourcePath);
 
     private Task LoadAsync() => RunAsync("Loading astronomy image…", async generation =>
     {
@@ -130,6 +149,7 @@ public sealed class WorkbenchViewModel : ObservableObject
         if (!IsCurrent(generation)) return;
         _presentedIndex = 0;
         _session = session;
+        Finish.Refresh();
         CanCopyOriginal = session.CanCopyOriginal; PreserveOriginal = CanCopyOriginal;
         ImageLabels.Clear();
         for (int i = 0; i < session.Images.Count; i++) ImageLabels.Add(session.GetImageLabel(i));
@@ -174,6 +194,8 @@ public sealed class WorkbenchViewModel : ObservableObject
             if (_presentedIndex >= 0) ImageLabels[_presentedIndex] = $"{_presentedIndex + 1}: {image.Id ?? "unnamed image"}";
             SetDetails(image);
             Utilities.Refresh();
+            Quality.Refresh();
+            Finish.Refresh();
             var rendered = await Task.Run(() => XisfDisplayRenderer.Render(image, stretch));
             if (!IsCurrent(generation)) return;
             ResetViewportOnPresentation = true;
@@ -236,6 +258,7 @@ public sealed class WorkbenchViewModel : ObservableObject
             document = DocumentEditorState.Parse(DocumentEditor.Metadata, DocumentEditor.Properties, DocumentEditor.CreatorApplication);
             options = new() { Compression = Compression, Checksum = Checksum, Shuffle = Shuffle, CreatorApplication = document.CreatorApplication };
             ApplyImageDraft(image);
+            Finish.Refresh(); Quality.Refresh();
         }
         var findings = await Task.Run(() => ViewerFileService.Save(path, image, document, options, distributed, copySource));
         var session = await Task.Run(() => ViewerSession.Load(path));
@@ -263,6 +286,8 @@ public sealed class WorkbenchViewModel : ObservableObject
         _iccProfile = image?.IccProfile; _thumbnail = image?.Thumbnail;
         OnPropertyChanged(nameof(IccProfileDescription)); OnPropertyChanged(nameof(ThumbnailDescription));
         Utilities.Refresh();
+        Quality.Refresh();
+        Finish.Refresh();
         ImageProperties.Clear(); FitsKeywords.Clear();
         if (image is not null)
         {
@@ -335,6 +360,7 @@ public sealed class WorkbenchViewModel : ObservableObject
         int generation = ++_generation;
         IsBusy = true; Status = status;
         try { await action(generation); }
+        catch (OperationCanceledException) { if (IsCurrent(generation)) Status = "Operation cancelled."; }
         catch (Exception exception) { if (IsCurrent(generation)) Status = exception.Message; }
         finally { IsBusy = false; }
     }
