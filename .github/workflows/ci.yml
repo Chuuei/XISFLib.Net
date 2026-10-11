@@ -56,9 +56,70 @@ jobs:
           name: nuget-packages
           path: artifacts\*.*nupkg
 
+  portable-viewer:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            rid: win-x64
+          - os: ubuntu-latest
+            rid: linux-x64
+          - os: macos-latest
+            rid: osx-arm64
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - name: Install Linux desktop prerequisites
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y xvfb libfontconfig1 libx11-6 libice6 libsm6 libxrender1 libxi6 libglib2.0-0 libfreetype6 libgomp1
+      - run: dotnet test XISFLib.Tests/XISFLib.Tests.csproj -c Release
+      - run: dotnet test XISFLib.Viewer.Core.Tests/XISFLib.Viewer.Core.Tests.csproj -c Release
+      - run: dotnet test XISFLib.AvaloniaViewer.Tests/XISFLib.AvaloniaViewer.Tests.csproj -c Release
+      - name: Publish standalone Avalonia viewer
+        run: dotnet publish XISFLib.AvaloniaViewer/XISFLib.AvaloniaViewer.csproj -c Release -r ${{ matrix.rid }} --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:PublishTrimmed=false -p:DebugType=embedded -p:PublishDocumentationFile=false -p:PublishReferencesDocumentationFiles=false -o artifacts/avalonia/${{ matrix.rid }}
+      - name: Verify standalone executable
+        shell: pwsh
+        run: |
+          $files = @(Get-ChildItem artifacts/avalonia/${{ matrix.rid }} -Recurse -File)
+          $expected = if ($IsWindows) { 'XISFLib.AvaloniaViewer.exe' } else { 'XISFLib.AvaloniaViewer' }
+          if ($files.Count -ne 1 -or $files[0].Name -ne $expected) { throw 'Avalonia output must contain exactly one executable.' }
+      - name: Windows native publication smoke
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $process = Start-Process -FilePath artifacts/avalonia/win-x64/XISFLib.AvaloniaViewer.exe -ArgumentList '--smoke-test', 'artifacts/avalonia-smoke/report.json' -WindowStyle Hidden -PassThru
+          if (-not $process.WaitForExit(60000)) { $process.Kill(); throw 'Native viewer smoke timed out.' }
+          if ($process.ExitCode -ne 0) { throw 'Native viewer smoke failed.' }
+      - name: Linux native publication smoke
+        if: runner.os == 'Linux'
+        run: timeout 60s xvfb-run -a artifacts/avalonia/linux-x64/XISFLib.AvaloniaViewer --smoke-test artifacts/avalonia-smoke/report.json
+      - name: macOS native publication smoke
+        if: runner.os == 'macOS'
+        run: artifacts/avalonia/osx-arm64/XISFLib.AvaloniaViewer --smoke-test artifacts/avalonia-smoke/report.json
+        timeout-minutes: 2
+      - name: Upload publication evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: avalonia-smoke-${{ matrix.rid }}
+          path: artifacts/avalonia-smoke
+          if-no-files-found: warn
+      - name: Archive standalone viewer
+        shell: pwsh
+        run: Compress-Archive -Path artifacts/avalonia/${{ matrix.rid }}/* -DestinationPath artifacts/XISFLib.AvaloniaViewer-${{ matrix.rid }}.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: avalonia-viewer-${{ matrix.rid }}
+          path: artifacts/XISFLib.AvaloniaViewer-${{ matrix.rid }}.zip
+          if-no-files-found: error
+
   release:
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
-    needs: build-test-pack
+    needs: [build-test-pack, portable-viewer]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -71,22 +132,28 @@ jobs:
         with:
           name: wpf-viewer-win-x64
           path: release
-      - name: Create release and upload executable
+      - name: Download standalone Avalonia viewers
+        uses: actions/download-artifact@v4
+        with:
+          pattern: avalonia-viewer-*
+          merge-multiple: true
+          path: release
+      - name: Create release and upload viewers
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
           RELEASE_TAG: ${{ github.ref_name }}
         run: |
           set -euo pipefail
-          asset="release/XISFLib.WpfViewer.exe"
+          assets=(release/XISFLib.WpfViewer.exe release/XISFLib.AvaloniaViewer-*.zip)
           if gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
-            gh release upload "$RELEASE_TAG" "$asset" --repo "$GITHUB_REPOSITORY" --clobber
+            gh release upload "$RELEASE_TAG" "${assets[@]}" --repo "$GITHUB_REPOSITORY" --clobber
           else
             flags=()
             if [[ "$RELEASE_TAG" == *-* ]]; then
               flags+=(--prerelease)
             fi
-            gh release create "$RELEASE_TAG" "$asset" --repo "$GITHUB_REPOSITORY" \
+            gh release create "$RELEASE_TAG" "${assets[@]}" --repo "$GITHUB_REPOSITORY" \
               --verify-tag --generate-notes --title "$RELEASE_TAG" "${flags[@]}"
           fi
 

@@ -6,10 +6,10 @@
 | --- | --- |
 | `XISFLib` | Platform-independent XISF/FITS models, I/O, conversion, validation, image utilities, astronomy metadata, and WCS |
 | `XISFLib.Windows` | Windows Forms/WPF adapters over portable rendering |
-| `XISFLib.Viewer.Core` | Shared session loading, lazy selection and initial async workbench state |
-| `XISFLib.AvaloniaViewer` | Portable desktop frontend under development |
-| `XISFLib.Viewer.Core.Tests` | Session, operation-state and failure-recovery tests |
-| `XISFLib.AvaloniaViewer.Tests` | Headless loading and real Skia framebuffer transfer tests |
+| `XISFLib.Viewer.Core` | Shared sessions, editor parsing, save operations, raster decoding and utility state |
+| `XISFLib.AvaloniaViewer` | Portable desktop workbench and native publication/load probes |
+| `XISFLib.Viewer.Core.Tests` | Session, editor, save, import, utility and failure-recovery tests |
+| `XISFLib.AvaloniaViewer.Tests` | Headless binding/input/active-cell tests and real Skia bitmap transfer |
 | `XISFLib.Convert` | Command-line batch XISF-to-FITS conversion and metadata mapping |
 | `XISFLib.WpfViewer` | Interactive library workbench and reference application |
 | `XISFLib.Benchmarks` | Timing/allocation measurements using example images |
@@ -40,9 +40,21 @@ Source files are grouped under `Xisf`, `Fits`, `Imaging`, `Astronomy` and `Inter
 
 ## Applications and utilities
 
+`ImageEditorFields` provides the shared text snapshot for image attributes, resolution, CFA, RGB working space and display functions. Parsing produces an `ImageAttributeEdit` before mutation, validates the supported writer rules, derives RGB luminance through the core color API and preserves working-space/display-function names. Both frontends use it. Applying edits changes metadata only; pixel buffers and geometry remain untouched. Avalonia refreshes its preview after Apply and replaces the text snapshot with formatted committed values.
+
+`ViewerEditorCodec` shares property/FITS row conversion, typed text parsing and first-table parsing. Unsupported properties retain their original objects/XML through read-only rows. New unsupported text types and duplicate IDs are rejected. Both frontends commit active grid cells before taking parsed snapshots. Both stage document rows and image fields before save mutation; byte-copy mode skips editors entirely.
+
+`DocumentEditorState` stages document metadata/properties and creator settings into a `DocumentEditorSnapshot`; failed parsing retains the previous applied snapshot. Both frontends use its parser. `CreateContent` includes the selected working image only, without materializing other images; output creation metadata remains governed by writer policy. `TableEditorFields` shares first-table text snapshots and preserves unsupported or unrepresentable tables unchanged. Editable table replacement retains the original comment, and callers retain all subsequent tables.
+
 Core `XisfDisplayRenderer` returns an owned straight-alpha BGRA32 frame without Windows dependencies. Windows and Avalonia adapters transfer that frame into bitmap storage. `XisfStretchOptions` now lives in core; the Windows assembly forwards its previous type identity. Scientific samples remain unchanged.
 
-`ViewerSession` shares XISF/FITS loading and lazy XISF materialization. Access is serialized by the application worker. Avalonia's `WorkbenchViewModel` manages initial commands, busy/status state and obsolete-result suppression after closure. Bitmap presentation and dispatcher yielding are frontend callbacks; bitmap lifetimes belong to the frontend. WPF currently adopts the shared loader and renderer; its editors, saves and utilities still require extraction from existing code-behind.
+`ViewerSession` shares XISF/FITS loading and lazy XISF materialization. Access is serialized by the application worker. `ViewerMetadataBuilder` supplies the same ordered information tree to both frontends, including XISF XML and ordered FITS cards. Avalonia's `WorkbenchViewModel` builds this tree and validates on a worker after preview presentation; immutable node data is published together. It manages commands, busy/status state and obsolete-result suppression after closure. Bitmap presentation and dispatcher yielding are frontend callbacks; bitmap lifetimes belong to the frontend. WPF adopts shared loading, rendering, information, editor parsing, saves, raster decoding and utility calculation services while retaining its own view event handlers.
+
+`ViewerFileService` selects byte-copy, monolithic/distributed selected-image XISF and checksummed FITS output. Copy mode verifies monolithic eligibility by signature, stages publication and uses OS-specific path comparison. It replaces destination aliases rather than streaming into them, preserving source bytes. It returns conversion findings for frontend diagnostics; session reload/presentation follows successful output. Distributed output retains the library's two-file failure contract.
+
+`ViewerRasterDecoder` restricts signatures to five raster formats and uses Magick.NET-Q16-AnyCPU 15.0.0 only in the application layer. It imports frame zero into UInt8 interleaved RGB/RGBA and creates thumbnails without alpha. Both frontends invoke it on workers; the scientific core has no raster-decoder dependency. `ViewerUtilityService` shares overview, statistics, histogram and sample formatting; `ViewerUtilityState` binds Avalonia controls and suppresses obsolete worker results. Native WCS calculations remain core APIs.
+
+The explicit Avalonia `--smoke-test` command starts a real desktop backend, exercises saves/utilities and captures all tabs. `--benchmark` records staged native load timings and allocations. Neither mode runs during ordinary startup. CI runs portable project tests and publication probes separately from the Windows solution build, retaining WPF and Pages workflows.
 
 Writer implementation is divided into property serialization (`XisfWriter.Properties.cs`), block encoding (`XisfWriter.Blocks.cs`), attachment layout (`XisfWriter.Layout.cs`), signing (`XisfWriter.Signing.cs`) and async entry points (`XisfWriter.Async.cs`). FITS card and table parsing live in `FitsReader.Cards.cs` and `FitsReader.Tables.cs`; checksums live in `FitsChecksum.cs`. `ApiContracts` centralizes enum/value validation and `XisfNumericTypes` supplies shared sample/property mappings.
 

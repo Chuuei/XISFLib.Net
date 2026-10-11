@@ -67,6 +67,143 @@ public partial class MainWindow : Window
             await vm.SelectImageCommand.ExecuteAsync(null);
     }
 
+    private void Properties_BeginningEdit(object? sender, DataGridBeginningEditEventArgs e)
+    {
+        if (e.Row.DataContext is PropertyEditorRow row && (row.IsReadOnly || (Equals(e.Column.Header, "Value") && row.RequiresValueDialog))) e.Cancel = true;
+    }
+
+    private async void OpenPropertyValue_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        if (sender is Control { DataContext: PropertyEditorRow row }) await OpenPropertyValueAsync(row);
+    }
+    private async void PropertyValue_DoubleTapped(object? sender, Avalonia.Input.TappedEventArgs e)
+    {
+        if (sender is DataGrid { SelectedItem: PropertyEditorRow { RequiresValueDialog: true } row } grid && Equals(grid.CurrentColumn?.Header, "Value"))
+            await OpenPropertyValueAsync(row);
+    }
+    private async Task OpenPropertyValueAsync(PropertyEditorRow row)
+    {
+        if (_viewModel.CanEditMetadata && CommitMetadataGrids() && CommitDocumentGrids())
+            await PropertyValueWindow.OpenAsync(this, row);
+    }
+
+    private static FilePickerFileType RasterType => new("Raster images") { Patterns = ["*.png", "*.jpg", "*.jpeg", "*.tif", "*.tiff", "*.bmp", "*.gif"] };
+    private async Task<string?> PickLocalAsync(string title, FilePickerFileType type)
+    {
+        var files = await StorageProvider.OpenFilePickerAsync(new() { Title = title, AllowMultiple = false, FileTypeFilter = [type, FilePickerFileTypes.All] });
+        if (files.Count == 0) return null;
+        return files[0].TryGetLocalPath() ?? throw new NotSupportedException("This operation requires a local file path.");
+    }
+    private async Task DialogActionAsync(Func<Task> action)
+    {
+        try { await action(); }
+        catch (Exception exception)
+        {
+            var dialog = new Window { Title = "Operation failed", Width = 500, Height = 200,
+                Content = new TextBlock { Text = exception.Message, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(20) } };
+            if (!_closed) await dialog.ShowDialog(this);
+        }
+    }
+    private async void Import_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e) => await DialogActionAsync(async () =>
+    {
+        if (!_viewModel.CanInteract) return;
+        var path = await PickLocalAsync("Import a standard 2D image", RasterType);
+        if (path is not null) await _viewModel.ImportAsync(path);
+    });
+    private async void Icc_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e) => await DialogActionAsync(async () =>
+    {
+        if (!_viewModel.CanEditMetadata) return;
+        var path = await PickLocalAsync("Select an ICC profile", new("ICC profiles") { Patterns = ["*.icc", "*.icm"] });
+        if (path is not null) await _viewModel.AttachIccAsync(path);
+    });
+    private async void Thumbnail_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e) => await DialogActionAsync(async () =>
+    {
+        if (!_viewModel.CanEditMetadata) return;
+        var path = await PickLocalAsync("Select a thumbnail image", RasterType);
+        if (path is not null) await _viewModel.AttachThumbnailAsync(path);
+    });
+    private async void Save_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e) => await DialogActionAsync(async () =>
+    {
+        if (!_viewModel.CanEditMetadata) return;
+        var file = await StorageProvider.SaveFilePickerAsync(new()
+        {
+            Title = "Save astronomy image", DefaultExtension = _viewModel.Distributed ? "xish" : "xisf", ShowOverwritePrompt = true,
+            FileTypeChoices = _viewModel.Distributed ? [new("Distributed XISF") { Patterns = ["*.xish"] }]
+                : [new("XISF") { Patterns = ["*.xisf"] }, new("FITS") { Patterns = ["*.fits"] }]
+        });
+        if (file is null) return;
+        var path = file.TryGetLocalPath() ?? throw new NotSupportedException("Saving requires a local path for attachment and atomic-write semantics.");
+        if (string.IsNullOrEmpty(Path.GetExtension(path))) path += _viewModel.Distributed ? ".xish" : ".xisf";
+        await SaveToPathAsync(path);
+    });
+    public Task SaveToPathAsync(string path)
+    {
+        if (!_viewModel.CanEditMetadata) return Task.CompletedTask;
+        bool copy = !ViewerSession.IsFitsPath(path) && !_viewModel.Distributed && _viewModel.CanCopyOriginal && _viewModel.PreserveOriginal;
+        if (!copy && (!CommitMetadataGrids() || !CommitDocumentGrids())) throw new FormatException("Complete or correct the active grid edit first.");
+        return _viewModel.SaveAsync(path);
+    }
+    private async void Display_LostFocus(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        if (_viewModel.AutoStretch && _viewModel.ApplyCommand.CanExecute(null)) await _viewModel.ApplyCommand.ExecuteAsync(null);
+    }
+    private async void DisplayToggle_Changed(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        await Dispatcher.UIThread.InvokeAsync(() => { }, DispatcherPriority.Background);
+        if (DataContext is WorkbenchViewModel vm && vm.ApplyCommand.CanExecute(null)) await vm.ApplyCommand.ExecuteAsync(null);
+    }
+    private void Display_KeyDown(object? sender, KeyEventArgs e)
+    {
+        if (e.Key != Key.Enter) return;
+        e.Handled = true; ApplyDisplayButton.Focus();
+    }
+    private async void Notices_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        var assembly = typeof(MainWindow).Assembly;
+        var notices = ViewerNotices.Read() + string.Join(Environment.NewLine, assembly.GetManifestResourceNames().Where(n => n.Contains(".Notices.")).Select(name =>
+        {
+            using var stream = assembly.GetManifestResourceStream(name)!; using var reader = new StreamReader(stream); return reader.ReadToEnd();
+        }));
+        var dialog = new Window { Title = "Third-party notices", Width = 850, Height = 600,
+            Content = new TextBox { Text = notices, IsReadOnly = true, AcceptsReturn = true, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(12) } };
+        await dialog.ShowDialog(this);
+    }
+
+    private bool CommitMetadataGrids() =>
+        ImagePropertiesGrid.CommitEdit(DataGridEditingUnit.Cell, true) && ImagePropertiesGrid.CommitEdit(DataGridEditingUnit.Row, true) &&
+        FitsKeywordsGrid.CommitEdit(DataGridEditingUnit.Cell, true) && FitsKeywordsGrid.CommitEdit(DataGridEditingUnit.Row, true);
+
+    private void AddProperty_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    { if (_viewModel.CanEditMetadata && CommitMetadataGrids()) _viewModel.ImageProperties.Add(new()); }
+    private void RemoveProperty_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    { if (_viewModel.CanEditMetadata && CommitMetadataGrids() && ImagePropertiesGrid.SelectedItem is PropertyEditorRow row) _viewModel.ImageProperties.Remove(row); }
+    private void AddKeyword_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    { if (_viewModel.CanEditMetadata && CommitMetadataGrids()) _viewModel.FitsKeywords.Add(new()); }
+    private void RemoveKeyword_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    { if (_viewModel.CanEditMetadata && CommitMetadataGrids() && FitsKeywordsGrid.SelectedItem is FitsKeywordEditorRow row) _viewModel.FitsKeywords.Remove(row); }
+    private async void ApplyMetadata_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        if (_viewModel.ApplyMetadataCommand.CanExecute(null) && CommitMetadataGrids())
+            await _viewModel.ApplyMetadataCommand.ExecuteAsync(null);
+    }
+
+    private bool CommitDocumentGrids() =>
+        DocumentMetadataGrid.CommitEdit(DataGridEditingUnit.Cell, true) && DocumentMetadataGrid.CommitEdit(DataGridEditingUnit.Row, true) &&
+        DocumentPropertiesGrid.CommitEdit(DataGridEditingUnit.Cell, true) && DocumentPropertiesGrid.CommitEdit(DataGridEditingUnit.Row, true);
+    private void AddDocumentMetadata_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    { if (_viewModel.CanEditMetadata && CommitDocumentGrids()) _viewModel.DocumentEditor.Metadata.Add(new()); }
+    private void RemoveDocumentMetadata_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    { if (_viewModel.CanEditMetadata && CommitDocumentGrids() && DocumentMetadataGrid.SelectedItem is PropertyEditorRow row) _viewModel.DocumentEditor.Metadata.Remove(row); }
+    private void AddDocumentProperty_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    { if (_viewModel.CanEditMetadata && CommitDocumentGrids()) _viewModel.DocumentEditor.Properties.Add(new()); }
+    private void RemoveDocumentProperty_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    { if (_viewModel.CanEditMetadata && CommitDocumentGrids() && DocumentPropertiesGrid.SelectedItem is PropertyEditorRow row) _viewModel.DocumentEditor.Properties.Remove(row); }
+    private async void ApplyDocument_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        if (_viewModel.ApplyDocumentCommand.CanExecute(null) && CommitDocumentGrids())
+            await _viewModel.ApplyDocumentCommand.ExecuteAsync(null);
+    }
+
     private void ResetViewport()
     {
         _zoom = 1; ImageScale.ScaleX = ImageScale.ScaleY = 1;

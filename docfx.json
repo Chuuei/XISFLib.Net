@@ -10,7 +10,7 @@
   "build": {
     "content": [
       {
-        "files": ["index.md", "README.md", "CONTRIBUTING.md", "toc.yml", "docs/*.md", "docs/toc.yml", "docs/api/**.yml"]
+        "files": ["index.md", "README.md", "CONTRIBUTING.md", "toc.yml", "docs/*.md", "docs/plans/*.md", "docs/toc.yml", "docs/api/**.yml"]
       }
     ],
     "dest": "docs/_site",

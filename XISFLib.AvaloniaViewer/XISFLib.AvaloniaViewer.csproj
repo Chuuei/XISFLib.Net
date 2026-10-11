@@ -12,5 +12,11 @@
     <PackageReference Include="Avalonia.Desktop" Version="12.1.4" />
     <PackageReference Include="Avalonia.Themes.Fluent" Version="12.1.4" />
     <PackageReference Include="Avalonia.Controls.DataGrid" Version="12.1.2" />
+    <EmbeddedResource Include="Notices/*.txt" />
   </ItemGroup>
+  <Target Name="ExcludeViewerPublishSymbols" AfterTargets="ComputeResolvedFilesToPublishList">
+    <ItemGroup>
+      <ResolvedFileToPublish Remove="@(ResolvedFileToPublish)" Condition="'%(ResolvedFileToPublish.Extension)' == '.pdb'" />
+    </ItemGroup>
+  </Target>
 </Project>

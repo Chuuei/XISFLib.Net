@@ -20,6 +20,8 @@
   href: architecture.md
 - name: Performance
   href: performance.md
+- name: Viewer migration audit
+  href: plans/avalonia-viewer-migration.md
 - name: Contributing
   href: ../CONTRIBUTING.md
 - name: API reference

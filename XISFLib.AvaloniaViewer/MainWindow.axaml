@@ -17,7 +17,7 @@
             </Grid>
             <Button Content="Load XISF or FITS" Command="{Binding LoadCommand}" HorizontalAlignment="Stretch" />
             <Button Content="Unload image" Command="{Binding UnloadCommand}" HorizontalAlignment="Stretch" />
-            <Button Content="Import PNG, JPEG, TIFF, BMP or GIF…" IsEnabled="False" />
+            <Button x:Name="ImportButton" Content="Import PNG, JPEG, TIFF, BMP or GIF…" Click="Import_Click" IsEnabled="{Binding CanInteract}" />
             <TextBlock Text="Image in document" FontWeight="SemiBold" />
             <ComboBox ItemsSource="{Binding ImageLabels}" SelectedIndex="{Binding SelectedImageIndex}"
                       SelectionChanged="ImageSelection_Changed" IsEnabled="{Binding CanInteract}" />
@@ -25,19 +25,20 @@
             <Separator />
             <TextBlock Text="Display configuration" FontWeight="SemiBold" />
             <StackPanel Spacing="8" IsEnabled="{Binding CanInteract}">
-              <CheckBox Content="Automatic screen stretch" IsChecked="{Binding AutoStretch}" />
-              <CheckBox Content="Link RGB channels" IsChecked="{Binding LinkChannels}" />
+              <CheckBox Content="Automatic screen stretch" IsChecked="{Binding AutoStretch}" IsCheckedChanged="DisplayToggle_Changed" />
+              <CheckBox Content="Link RGB channels" IsChecked="{Binding LinkChannels}" IsCheckedChanged="DisplayToggle_Changed" />
               <TextBlock Text="Target background (0–1)" />
-              <TextBox Text="{Binding TargetBackground}" />
+              <TextBox Text="{Binding TargetBackground}" KeyDown="Display_KeyDown" LostFocus="Display_LostFocus" />
               <TextBlock Text="Shadows clipping (≤ 0)" />
-              <TextBox Text="{Binding ShadowsClipping}" />
+              <TextBox Text="{Binding ShadowsClipping}" KeyDown="Display_KeyDown" LostFocus="Display_LostFocus" />
             </StackPanel>
-            <Button Content="Apply display settings" Command="{Binding ApplyCommand}" />
+            <Button x:Name="ApplyDisplayButton" Content="Apply display settings" Command="{Binding ApplyCommand}" />
+            <Button Content="Third-party notices…" Click="Notices_Click" />
           </StackPanel>
         </ScrollViewer>
       </DockPanel>
     </Border>
-    <TabControl Grid.Column="1">
+    <TabControl x:Name="WorkbenchTabs" Grid.Column="1">
       <TabItem Header="Image">
         <Border Background="#181818" ClipToBounds="True" Padding="16">
           <Grid x:Name="ImageViewport" Background="Transparent" ClipToBounds="True"
@@ -53,18 +54,239 @@
           </Grid>
         </Border>
       </TabItem>
-      <TabItem Header="Information" IsEnabled="False" />
-      <TabItem Header="Utilities" IsEnabled="False" />
-      <TabItem Header="Image metadata" IsEnabled="False" />
-      <TabItem Header="Writer" IsEnabled="False" />
+      <TabItem Header="Information">
+        <Grid>
+        <TextBlock Text="Load an XISF or FITS file to view its metadata." IsVisible="{Binding !HasMetadata}"
+                   HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#606060" />
+        <TreeView x:Name="MetadataTree" Margin="12" ItemsSource="{Binding Metadata}" IsVisible="{Binding HasMetadata}">
+          <TreeView.Styles>
+            <Style Selector="TreeViewItem" x:DataType="viewer:MetadataNode">
+              <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=OneWay}" />
+            </Style>
+          </TreeView.Styles>
+          <TreeView.ItemTemplate>
+            <TreeDataTemplate x:DataType="viewer:MetadataNode" ItemsSource="{Binding Children}">
+              <StackPanel Orientation="Horizontal" Spacing="8">
+                <TextBlock Text="{Binding Name}" FontWeight="SemiBold" />
+                <TextBlock Text="{Binding DisplayValue}" Foreground="#606060" TextWrapping="NoWrap" />
+              </StackPanel>
+            </TreeDataTemplate>
+          </TreeView.ItemTemplate>
+        </TreeView>
+        </Grid>
+      </TabItem>
+      <TabItem Header="Utilities">
+        <ScrollViewer>
+          <StackPanel Margin="12" Spacing="8" IsEnabled="{Binding CanEditMetadata}">
+            <TextBlock Text="Astronomy metadata" FontSize="18" />
+            <DataGrid x:Name="AstronomyGrid" ItemsSource="{Binding Utilities.Overview}" IsReadOnly="True" AutoGenerateColumns="False" Height="210">
+              <DataGrid.Columns><DataGridTextColumn Header="Field" Binding="{ReflectionBinding Name}" Width="220" /><DataGridTextColumn Header="Value" Binding="{ReflectionBinding Value}" Width="*" /></DataGrid.Columns>
+            </DataGrid>
+            <TextBlock Text="Channel statistics" FontSize="18" />
+            <WrapPanel>
+              <TextBlock Text="Maximum samples per channel" Margin="0,6,8,0" />
+              <TextBox Text="{Binding Utilities.SampleLimit}" Width="110" />
+              <CheckBox Content="Normalize through image bounds" IsChecked="{Binding Utilities.Normalize}" Margin="8,0" />
+              <Button x:Name="StatisticsButton" Content="Calculate statistics" Command="{Binding Utilities.StatisticsCommand}" />
+            </WrapPanel>
+            <DataGrid x:Name="StatisticsGrid" ItemsSource="{Binding Utilities.Statistics}" IsReadOnly="True" AutoGenerateColumns="False" Height="180">
+              <DataGrid.Columns>
+                <DataGridTextColumn Header="Channel" Binding="{ReflectionBinding Channel}" /><DataGridTextColumn Header="Samples" Binding="{ReflectionBinding SampleCount}" />
+                <DataGridTextColumn Header="Finite" Binding="{ReflectionBinding FiniteCount}" /><DataGridTextColumn Header="Non-finite" Binding="{ReflectionBinding NonFiniteCount}" />
+                <DataGridTextColumn Header="Minimum" Binding="{ReflectionBinding Minimum}" /><DataGridTextColumn Header="Maximum" Binding="{ReflectionBinding Maximum}" />
+                <DataGridTextColumn Header="Mean" Binding="{ReflectionBinding Mean}" /><DataGridTextColumn Header="Std. dev." Binding="{ReflectionBinding StandardDeviation}" />
+                <DataGridTextColumn Header="Median" Binding="{ReflectionBinding Median}" /><DataGridTextColumn Header="MAD" Binding="{ReflectionBinding MedianAbsoluteDeviation}" />
+              </DataGrid.Columns>
+            </DataGrid>
+            <TextBlock Text="Histogram" FontSize="18" />
+            <WrapPanel>
+              <TextBlock Text="Channel" Margin="0,6,8,0" /><ComboBox ItemsSource="{Binding Utilities.Channels}" SelectedItem="{Binding Utilities.Channel}" Width="70" />
+              <TextBlock Text="Bins" Margin="12,6,8,0" /><TextBox Text="{Binding Utilities.Bins}" Width="85" />
+              <Button Content="Calculate histogram" Command="{Binding Utilities.HistogramCommand}" Margin="8,0" />
+            </WrapPanel>
+            <TextBlock Text="{Binding Utilities.HistogramSummary}" TextWrapping="Wrap" />
+            <DataGrid ItemsSource="{Binding Utilities.Histogram}" IsReadOnly="True" AutoGenerateColumns="False" Height="240">
+              <DataGrid.Columns><DataGridTextColumn Header="Bin" Binding="{ReflectionBinding Index}" /><DataGridTextColumn Header="Lower edge" Binding="{ReflectionBinding LowerEdge}" Width="*" /><DataGridTextColumn Header="Upper edge" Binding="{ReflectionBinding UpperEdge}" Width="*" /><DataGridTextColumn Header="Count" Binding="{ReflectionBinding Count}" Width="*" /></DataGrid.Columns>
+            </DataGrid>
+            <TextBlock Text="Region and channel access" FontSize="18" />
+            <WrapPanel>
+              <TextBlock Text="X" Margin="0,6,8,0" /><TextBox Text="{Binding Utilities.RegionX}" Width="65" />
+              <TextBlock Text="Y" Margin="8,6,8,0" /><TextBox Text="{Binding Utilities.RegionY}" Width="65" />
+              <TextBlock Text="Width" Margin="8,6,8,0" /><TextBox Text="{Binding Utilities.RegionWidth}" Width="65" />
+              <TextBlock Text="Height" Margin="8,6,8,0" /><TextBox Text="{Binding Utilities.RegionHeight}" Width="65" />
+              <Button Content="Read interleaved region" Command="{Binding Utilities.RegionCommand}" Margin="8,0" />
+              <Button Content="Read selected channel" Command="{Binding Utilities.ChannelCommand}" />
+            </WrapPanel>
+            <TextBox Text="{Binding Utilities.Samples, Mode=OneWay}" IsReadOnly="True" TextWrapping="Wrap" MinHeight="60" />
+            <TextBlock Text="FITS celestial WCS (zero-based pixels)" FontSize="18" />
+            <TextBlock Text="{Binding Utilities.WcsSummary}" TextWrapping="Wrap" />
+            <WrapPanel>
+              <TextBlock Text="Pixel X" Margin="0,6,8,0" /><TextBox Text="{Binding Utilities.PixelX}" Width="110" />
+              <TextBlock Text="Pixel Y" Margin="8,6,8,0" /><TextBox Text="{Binding Utilities.PixelY}" Width="110" />
+              <Button Content="Pixel → sky" Command="{Binding Utilities.PixelToSkyCommand}" Margin="8,0" />
+              <TextBlock Text="{Binding Utilities.PixelResult}" Margin="8,6,0,0" />
+            </WrapPanel>
+            <WrapPanel>
+              <TextBlock Text="RA (degrees)" Margin="0,6,8,0" /><TextBox Text="{Binding Utilities.RightAscension}" Width="110" />
+              <TextBlock Text="Dec (degrees)" Margin="8,6,8,0" /><TextBox Text="{Binding Utilities.Declination}" Width="110" />
+              <Button Content="Sky → pixel" Command="{Binding Utilities.SkyToPixelCommand}" Margin="8,0" />
+              <TextBlock Text="{Binding Utilities.SkyResult}" Margin="8,6,0,0" />
+            </WrapPanel>
+          </StackPanel>
+        </ScrollViewer>
+      </TabItem>
+      <TabItem Header="Image metadata">
+        <ScrollViewer>
+        <StackPanel Margin="12" Spacing="10" IsEnabled="{Binding CanEditMetadata}">
+          <Expander Header="Image attributes and resolution" HorizontalAlignment="Stretch">
+            <Grid ColumnDefinitions="Auto,*,Auto,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto" Margin="8">
+              <TextBlock Text="Identifier" Margin="8" /><TextBox x:Name="ImageIdEditor" Grid.Column="1" Text="{Binding ImageEditor.Id}" />
+              <TextBlock Grid.Column="2" Text="Image type" Margin="8" /><TextBox Grid.Column="3" Text="{Binding ImageEditor.ImageType}" PlaceholderText="Light, Dark, Flat, Bias…" />
+              <TextBlock Grid.Row="1" Text="Color space" Margin="8" /><TextBox Grid.Row="1" Grid.Column="1" Text="{Binding ImageEditor.ColorSpace}" PlaceholderText="Gray, RGB or CIELab" />
+              <TextBlock Grid.Row="1" Grid.Column="2" Text="Orientation" Margin="8" /><TextBox x:Name="OrientationEditor" Grid.Row="1" Grid.Column="3" Text="{Binding ImageEditor.Orientation}" PlaceholderText="0, flip, 90, 90;flip…" />
+              <TextBlock Grid.Row="2" Text="Offset" Margin="8" /><TextBox Grid.Row="2" Grid.Column="1" Text="{Binding ImageEditor.Offset}" />
+              <TextBlock Grid.Row="2" Grid.Column="2" Text="UUID (version 4)" Margin="8" /><TextBox Grid.Row="2" Grid.Column="3" Text="{Binding ImageEditor.Uuid}" />
+              <TextBlock Grid.Row="3" Text="Horizontal resolution" Margin="8" /><TextBox Grid.Row="3" Grid.Column="1" Text="{Binding ImageEditor.ResolutionX}" />
+              <TextBlock Grid.Row="3" Grid.Column="2" Text="Vertical resolution" Margin="8" /><TextBox Grid.Row="3" Grid.Column="3" Text="{Binding ImageEditor.ResolutionY}" />
+              <TextBlock Grid.Row="4" Text="Resolution unit" Margin="8" /><TextBox Grid.Row="4" Grid.Column="1" Text="{Binding ImageEditor.ResolutionUnit}" PlaceholderText="inch or cm" />
+            </Grid>
+          </Expander>
+          <Expander Header="CFA, RGB working space and display function" HorizontalAlignment="Stretch">
+            <StackPanel Margin="8" Spacing="8">
+              <Grid ColumnDefinitions="Auto,*,Auto,*" RowDefinitions="Auto,Auto">
+                <TextBlock Text="CFA pattern" Margin="8" /><TextBox Grid.Column="1" Text="{Binding ImageEditor.CfaPattern}" PlaceholderText="Blank removes CFA" />
+                <TextBlock Grid.Column="2" Text="CFA name" Margin="8" /><TextBox Grid.Column="3" Text="{Binding ImageEditor.CfaName}" />
+                <TextBlock Grid.Row="1" Text="CFA width" Margin="8" /><TextBox x:Name="CfaWidthEditor" Grid.Row="1" Grid.Column="1" Text="{Binding ImageEditor.CfaWidth}" />
+                <TextBlock Grid.Row="1" Grid.Column="2" Text="CFA height" Margin="8" /><TextBox Grid.Row="1" Grid.Column="3" Text="{Binding ImageEditor.CfaHeight}" />
+              </Grid>
+              <TextBlock Text="RGB gamma (blank removes working space)" />
+              <TextBox Text="{Binding ImageEditor.Gamma}" />
+              <CheckBox Content="sRGB transfer function" IsChecked="{Binding ImageEditor.IsSrgb}" />
+              <TextBlock Text="Primary x chromaticities: three comma-separated values" /><TextBox Text="{Binding ImageEditor.ChromaticityX}" />
+              <TextBlock Text="Primary y chromaticities: three comma-separated values" /><TextBox Text="{Binding ImageEditor.ChromaticityY}" />
+              <TextBlock Text="Luminance coefficients (recomputed from primaries on Apply)" /><TextBox Text="{Binding ImageEditor.Luminance}" />
+              <TextBlock Text="Display function: m; s; h; l; r, each with four comma-separated values. Blank removes it." TextWrapping="Wrap" />
+              <TextBox Text="{Binding ImageEditor.DisplayFunction}" AcceptsReturn="True" MinHeight="55" />
+            </StackPanel>
+          </Expander>
+          <Expander Header="First image table" HorizontalAlignment="Stretch">
+            <StackPanel Margin="8" Spacing="8">
+              <TextBlock Text="{Binding TableEditor.Notice}" TextWrapping="Wrap" />
+              <StackPanel Spacing="8" IsEnabled="{Binding TableEditor.CanEdit}">
+                <TextBlock Text="Identifier" /><TextBox x:Name="TableIdEditor" Text="{Binding TableEditor.Id}" />
+                <TextBlock Text="Caption" /><TextBox Text="{Binding TableEditor.Caption}" />
+                <TextBlock Text="Fields: id|type|header|format, one per line" />
+                <TextBox x:Name="TableFieldsEditor" Text="{Binding TableEditor.Fields}" AcceptsReturn="True" Height="90" />
+                <TextBlock Text="Rows: one per line, | separated cells" />
+                <TextBox x:Name="TableRowsEditor" Text="{Binding TableEditor.Rows}" AcceptsReturn="True" Height="110" />
+              </StackPanel>
+            </StackPanel>
+          </Expander>
+          <StackPanel Orientation="Horizontal" Spacing="8">
+            <Button Content="Attach ICC profile…" Click="Icc_Click" />
+            <TextBlock Text="{Binding IccProfileDescription}" VerticalAlignment="Center" />
+            <Button Content="Set thumbnail…" Click="Thumbnail_Click" />
+            <TextBlock Text="{Binding ThumbnailDescription}" VerticalAlignment="Center" />
+          </StackPanel>
+        <Grid Height="620" RowDefinitions="Auto,Auto,*,Auto,*">
+          <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,0,0,8">
+            <TextBlock Text="Image properties" VerticalAlignment="Center" FontWeight="SemiBold" />
+            <Button Content="Add property" Click="AddProperty_Click" />
+            <Button Content="Remove selected" Click="RemoveProperty_Click" />
+            <Button x:Name="ApplyMetadataButton" Content="Apply metadata edits" Click="ApplyMetadata_Click" />
+          </StackPanel>
+          <StackPanel Grid.Row="1" Margin="0,0,0,8">
+            <TextBlock TextWrapping="Wrap" Text="Apply changes the working image. Switching images discards unapplied edits. Open a value to inspect or edit it in pages. Unsupported types remain read-only." />
+            <TextBlock Text="{ReflectionBinding #ImagePropertiesGrid.SelectedItem.IdentifierPreview}" TextWrapping="Wrap" FontWeight="SemiBold" MinHeight="24" />
+          </StackPanel>
+          <DataGrid x:Name="ImagePropertiesGrid" RowHeight="28" DoubleTapped="PropertyValue_DoubleTapped" Grid.Row="2" ItemsSource="{Binding ImageProperties}" AutoGenerateColumns="False" BeginningEdit="Properties_BeginningEdit">
+            <DataGrid.Columns>
+              <DataGridTextColumn Header="ID" Binding="{ReflectionBinding Id}" Width="2*" />
+              <DataGridTextColumn Header="Type" Binding="{ReflectionBinding Type}" Width="*" />
+              <DataGridTextColumn Header="Value" Binding="{ReflectionBinding InlineValue}" Width="3*" /><DataGridTemplateColumn Header="Inspect" Width="85"><DataGridTemplateColumn.CellTemplate><DataTemplate><Button Content="Open…" Click="OpenPropertyValue_Click" Padding="4,0" MinHeight="0" Height="24" Margin="0,1" /></DataTemplate></DataGridTemplateColumn.CellTemplate></DataGridTemplateColumn>
+            </DataGrid.Columns>
+          </DataGrid>
+          <StackPanel Grid.Row="3" Orientation="Horizontal" Spacing="8" Margin="0,12,0,8">
+            <TextBlock Text="FITS keywords" VerticalAlignment="Center" FontWeight="SemiBold" />
+            <Button Content="Add keyword" Click="AddKeyword_Click" />
+            <Button Content="Remove selected" Click="RemoveKeyword_Click" />
+          </StackPanel>
+          <DataGrid x:Name="FitsKeywordsGrid" Grid.Row="4" ItemsSource="{Binding FitsKeywords}" AutoGenerateColumns="False">
+            <DataGrid.Columns>
+              <DataGridTextColumn Header="Name" Binding="{ReflectionBinding Name}" Width="*" />
+              <DataGridTextColumn Header="Value (FITS text)" Binding="{ReflectionBinding Value}" Width="2*" />
+              <DataGridTextColumn Header="Comment" Binding="{ReflectionBinding Comment}" Width="2*" />
+            </DataGrid.Columns>
+          </DataGrid>
+        </Grid>
+        </StackPanel>
+        </ScrollViewer>
+      </TabItem>
+      <TabItem Header="Writer">
+        <Grid Margin="12" RowDefinitions="Auto,Auto,Auto,*,Auto,*" IsEnabled="{Binding CanEditMetadata}">
+          <StackPanel Spacing="8" Margin="0,0,0,8">
+            <TextBlock Text="Re-encoding writes the selected image. Byte-identical copy preserves the whole source and ignores editor changes." TextWrapping="Wrap" />
+            <WrapPanel>
+              <TextBlock Text="Compression" Margin="0,6,8,0" />
+              <ComboBox ItemsSource="{Binding CompressionChoices}" SelectedItem="{Binding Compression}" Width="140" />
+              <TextBlock Text="Checksum" Margin="12,6,8,0" />
+              <ComboBox ItemsSource="{Binding ChecksumChoices}" SelectedItem="{Binding Checksum}" Width="140" />
+              <CheckBox Content="Shuffle" IsChecked="{Binding Shuffle}" Margin="12,0" />
+              <CheckBox Content="Distributed XISF" IsChecked="{Binding Distributed}" Margin="12,0" />
+            </WrapPanel>
+            <CheckBox Content="Byte-identical copy (ignore editor changes)" IsChecked="{Binding PreserveOriginal}" IsEnabled="{Binding CanCopyOriginal}" />
+            <Button x:Name="SaveButton" Content="Save astronomy image…" Click="Save_Click" />
+          </StackPanel>
+          <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="8" Margin="0,0,0,12">
+            <TextBlock Text="Creator application" VerticalAlignment="Center" />
+            <TextBox Text="{Binding DocumentEditor.CreatorApplication}" Width="300" />
+            <Button x:Name="ApplyDocumentButton" Content="Apply document edits" Click="ApplyDocument_Click" />
+          </StackPanel>
+          <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="8" Margin="0,0,0,8">
+            <TextBlock Text="Document metadata" VerticalAlignment="Center" FontWeight="SemiBold" />
+            <Button Content="Add" Click="AddDocumentMetadata_Click" />
+            <Button Content="Remove selected" Click="RemoveDocumentMetadata_Click" />
+          </StackPanel>
+          <DataGrid x:Name="DocumentMetadataGrid" RowHeight="28" DoubleTapped="PropertyValue_DoubleTapped" Grid.Row="3" ItemsSource="{Binding DocumentEditor.Metadata}" AutoGenerateColumns="False" BeginningEdit="Properties_BeginningEdit">
+            <DataGrid.Columns>
+              <DataGridTextColumn Header="ID" Binding="{ReflectionBinding Id}" Width="2*" />
+              <DataGridTextColumn Header="Type" Binding="{ReflectionBinding Type}" Width="*" />
+              <DataGridTextColumn Header="Value" Binding="{ReflectionBinding InlineValue}" Width="3*" /><DataGridTemplateColumn Header="Inspect" Width="85"><DataGridTemplateColumn.CellTemplate><DataTemplate><Button Content="Open…" Click="OpenPropertyValue_Click" Padding="4,0" MinHeight="0" Height="24" Margin="0,1" /></DataTemplate></DataGridTemplateColumn.CellTemplate></DataGridTemplateColumn>
+              <DataGridTextColumn Header="Rows" Binding="{ReflectionBinding Rows}" Width="70" />
+              <DataGridTextColumn Header="Columns" Binding="{ReflectionBinding Columns}" Width="70" />
+              <DataGridTextColumn Header="Format" Binding="{ReflectionBinding Format}" Width="*" />
+              <DataGridTextColumn Header="Comment" Binding="{ReflectionBinding Comment}" Width="*" />
+            </DataGrid.Columns>
+          </DataGrid>
+          <StackPanel Grid.Row="4" Orientation="Horizontal" Spacing="8" Margin="0,12,0,8">
+            <TextBlock Text="Document properties" VerticalAlignment="Center" FontWeight="SemiBold" />
+            <Button Content="Add" Click="AddDocumentProperty_Click" />
+            <Button Content="Remove selected" Click="RemoveDocumentProperty_Click" />
+          </StackPanel>
+          <DataGrid x:Name="DocumentPropertiesGrid" RowHeight="28" DoubleTapped="PropertyValue_DoubleTapped" Grid.Row="5" ItemsSource="{Binding DocumentEditor.Properties}" AutoGenerateColumns="False" BeginningEdit="Properties_BeginningEdit">
+            <DataGrid.Columns>
+              <DataGridTextColumn Header="ID" Binding="{ReflectionBinding Id}" Width="2*" />
+              <DataGridTextColumn Header="Type" Binding="{ReflectionBinding Type}" Width="*" />
+              <DataGridTextColumn Header="Value" Binding="{ReflectionBinding InlineValue}" Width="3*" /><DataGridTemplateColumn Header="Inspect" Width="85"><DataGridTemplateColumn.CellTemplate><DataTemplate><Button Content="Open…" Click="OpenPropertyValue_Click" Padding="4,0" MinHeight="0" Height="24" Margin="0,1" /></DataTemplate></DataGridTemplateColumn.CellTemplate></DataGridTemplateColumn>
+              <DataGridTextColumn Header="Rows" Binding="{ReflectionBinding Rows}" Width="70" />
+              <DataGridTextColumn Header="Columns" Binding="{ReflectionBinding Columns}" Width="70" />
+              <DataGridTextColumn Header="Format" Binding="{ReflectionBinding Format}" Width="*" />
+              <DataGridTextColumn Header="Comment" Binding="{ReflectionBinding Comment}" Width="*" />
+            </DataGrid.Columns>
+          </DataGrid>
+        </Grid>
+      </TabItem>
       <TabItem Header="Diagnostics">
-        <DataGrid Margin="12" ItemsSource="{Binding Diagnostics}" IsReadOnly="True" AutoGenerateColumns="False">
+        <DockPanel Margin="12">
+        <Button DockPanel.Dock="Top" Content="Validate document" Command="{Binding ValidateCommand}" Margin="0,0,0,8" />
+        <DataGrid ItemsSource="{Binding Diagnostics}" IsReadOnly="True" AutoGenerateColumns="False">
           <DataGrid.Columns>
             <DataGridTextColumn Header="Severity" Binding="{ReflectionBinding Severity}" Width="Auto" />
             <DataGridTextColumn Header="Code" Binding="{ReflectionBinding Code}" Width="Auto" />
             <DataGridTextColumn Header="Message" Binding="{ReflectionBinding Message}" Width="*" />
           </DataGrid.Columns>
         </DataGrid>
+        </DockPanel>
       </TabItem>
     </TabControl>
   </Grid>

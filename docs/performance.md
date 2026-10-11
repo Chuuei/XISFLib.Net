@@ -1,5 +1,15 @@
 # Performance
 
+The viewers bound metadata text layout independently of payload size. Property grids show 256-character previews and fixed-height rows; the full-value editor lays out one 4,096-character page. Large arrays defer formatting until inspection. This is particularly useful for the `Examples/tim-ray` spline serialization properties, whose strings reach approximately 192,000 characters.
+
+The Avalonia native load benchmark also measures opening the Image metadata tab and 20 scrolls between ordinary and large-value rows. Pass a folder without `slow.xisf` to benchmark every `.xisf` directly in that folder:
+
+```powershell
+dotnet run --project XISFLib.AvaloniaViewer -c Release -- --benchmark 2 artifacts/large-metadata/avalonia.json Examples/tim-ray
+```
+
+The report includes metadata layout/scroll timings and the longest displayed grid text; first-iteration render-target captures accompany it. These are warm-cache native-layout measurements, not physical screen timings or guarantees on other machines. On the October 2026 Windows development run, all three tim-ray files were exercised, including large spline rows; UI previews stayed below 300 characters. Tests verify full-value preservation, deferred arrays, page boundaries and the actual frontend bindings separately from timings.
+
 The library uses bulk copies for matching numeric representations, vectorized byte-order reversal, direct decompression into the final subblock buffer, and cached RGB working-space matrices. Adaptive display functions use exact median selection instead of sorting every sample twice. These paths retain checked numeric conversions, floating-point bit patterns, complex component order, checksum verification before decompression, and declared decompression limits.
 
 Matrix caches use weak references to working spaces and detect changes to both primary-coordinate lists. Inverse matrices are computed only when needed. Rendering computes orientation once per image and allocates its adaptive sample buffers once per channel.
@@ -94,6 +104,18 @@ dotnet run --project XISFLib.Benchmarks -c Release -- --performance 7 artifacts/
 ```
 
 The synthetic cases run without example files. Real-image cases run when `Examples/slow.xisf` is present. Run comparisons on the same hardware, runtime, build configuration, and input files, with other heavy workloads stopped. The existing whole-file XISF/FITS benchmark remains available by running the project without `--performance`. Timing thresholds are excluded from correctness tests.
+
+## Avalonia native load measurements
+
+The Avalonia viewer has a separate staged-load command. From the repository root:
+
+```powershell
+dotnet run --project XISFLib.AvaloniaViewer -c Release -- --benchmark 5 artifacts/avalonia-load.json Examples
+```
+
+It starts the actual desktop backend, warms each input, records repeated loads of `slow.xisf` and the FITS examples, then exits. Results separate parse, first-image materialization (FITS conversion), rendering, bitmap transfer/assignment and all-tabs-ready time. Managed allocations cover all process threads; native allocation and physical screen presentation are not measured. Repeated measured loads unload between iterations. This is a warm-cache benchmark; it does not flush OS caches or establish cold-start performance. Avoid timing assertions in tests.
+
+Migration checks on one Windows machine used three warm iterations in each native Avalonia and WPF harness. Both loaded the five inputs successfully; ignored reports are `artifacts/avalonia-baseline/avalonia-load-complete.json` and `wpf-load-complete.json`. The short runs establish functional and staged measurement evidence, not a universal speed claim. Long-session native memory, cold I/O and real high-DPI presentation remain separate verification tasks.
 
 ## Choosing efficient API paths
 

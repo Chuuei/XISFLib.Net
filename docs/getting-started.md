@@ -85,21 +85,23 @@ Use `FitsConverter.ConvertFitsToXisf` or `ConvertXisfToFits` for the correspondi
 
 ```powershell
 dotnet run --project XISFLib.WpfViewer -c Release
+dotnet run --project XISFLib.AvaloniaViewer -c Release
 dotnet run --project XISFLib.Convert -- "D:\Images" 4
 dotnet run --project XISFLib.Benchmarks -c Release -- "D:\Images\Examples"
 ```
 
-The viewer loads, renders, inspects, edits, validates, and saves files. Its byte-identical copy mode preserves the original monolithic file; re-encoding applies editor changes.
+Both viewers load, render, inspect, edit, validate, and save files. Byte-identical copy preserves the original monolithic file; re-encoding applies editor changes and writes the selected image.
 
 To publish the viewer as a standalone executable for Windows x64:
 
 ```powershell
 dotnet publish XISFLib.WpfViewer/XISFLib.WpfViewer.csproj -c Release -p:PublishProfile=WinX64
+dotnet publish XISFLib.AvaloniaViewer/XISFLib.AvaloniaViewer.csproj -c Release -p:PublishProfile=WinX64
 ```
 
-The output is `artifacts/wpf/win-x64/XISFLib.WpfViewer.exe`. It includes the .NET framework and application dependencies; no .NET installation is required on the destination computer. Native libraries are extracted by .NET at startup. Ordinary `dotnet build` remains a development build; use `dotnet publish` to produce the bundled executable.
+Outputs are `artifacts/wpf/win-x64/XISFLib.WpfViewer.exe` and `artifacts/avalonia/win-x64/XISFLib.AvaloniaViewer.exe`. Each includes .NET and application dependencies; no .NET installation is required on the destination computer. Native libraries are extracted by .NET at startup. Ordinary `dotnet build` remains a development build; use `dotnet publish` to produce a bundled executable.
 
-CI uploads this executable as the `wpf-viewer-win-x64` artifact. Pushing a `v*` tag, such as `v1.0.0`, creates a GitHub release with generated notes and the executable attached after all CI checks pass. Tags containing a hyphen, such as `v1.0.0-rc.1`, create prereleases. Rerunning the tag workflow replaces the executable asset in the existing release.
+CI retains `wpf-viewer-win-x64` and adds `avalonia-viewer-win-x64`, `avalonia-viewer-linux-x64` and `avalonia-viewer-osx-arm64` ZIP artifacts. Pushing a `v*` tag, such as `v1.0.0`, creates a release with generated notes and all viewer assets after the Windows and portable jobs pass. Hyphenated tags create prereleases; reruns replace assets while retaining notes. See [application deployment](applications.md#avalonia-viewer) for native prerequisites and platform verification limits.
 
 The batch converter processes `.xisf` files directly inside the specified folder, with optional concurrency (default eight). It creates `.fits` files, refuses existing outputs, and returns exit code zero on success, one for conversion/enumeration failures, and two for invalid arguments.
 

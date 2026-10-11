@@ -13,6 +13,7 @@ public class ViewerSessionTests
             var session = ViewerSession.Load(path);
             Assert.True(session.CanCopyOriginal);
             Assert.NotNull(session.Images[0]);
+            ViewerMetadataBuilder.BuildMetadata(session.Xisf!, path);
             Assert.Null(session.Images[1]);
             Assert.Equal("2: second", session.GetImageLabel(1));
             Assert.Equal(new byte[] { 3 }, session.GetImage(1).GetSamples<byte>());

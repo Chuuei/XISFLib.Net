@@ -23,6 +23,7 @@
   <ItemGroup>
     <ProjectReference Include="..\XISFLib.Windows\XISFLib.Windows.csproj" />
     <ProjectReference Include="..\XISFLib\XISFLib.csproj" />
+    <ProjectReference Include="..\XISFLib.WpfViewer\XISFLib.WpfViewer.csproj" />
   </ItemGroup>
 
 </Project>

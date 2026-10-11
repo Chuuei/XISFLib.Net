@@ -6,6 +6,7 @@ using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Microsoft.Win32;
+using XISFLib.Viewer;
 
 namespace XISFLib.WpfViewer;
 
@@ -20,6 +21,7 @@ public partial class MainWindow
     private XisfImageData? _thumbnail;
     private int _editorImageIndex = -1;
     private string? _sourceXisfPath;
+    private TableEditorFields _tableEditor = new();
 
     private void InitializeWorkbench()
     {
@@ -37,6 +39,34 @@ public partial class MainWindow
         DocumentMetadataGrid.ItemsSource = _documentMetadata;
         DocumentPropertiesGrid.ItemsSource = _documentProperties;
         FitsKeywordsGrid.ItemsSource = _fitsKeywords;
+        foreach (var grid in new[] { ImagePropertiesGrid, DocumentMetadataGrid, DocumentPropertiesGrid })
+        {
+            grid.BeginningEdit += (_, e) =>
+            {
+                if (e.Row.Item is PropertyEditorRow row && (row.IsReadOnly || (Equals(e.Column.Header, "Value") && row.RequiresValueDialog))) e.Cancel = true;
+            };
+            grid.MouseDoubleClick += async (_, _) =>
+            {
+                if (Equals(grid.CurrentColumn?.Header, "Value") && grid.SelectedItem is PropertyEditorRow { RequiresValueDialog: true } row)
+                    await OpenPropertyValueAsync(row);
+            };
+        }
+    }
+
+    private async void OpenPropertyValue_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is FrameworkElement { DataContext: PropertyEditorRow row }) await OpenPropertyValueAsync(row);
+    }
+
+    private async Task OpenPropertyValueAsync(PropertyEditorRow row)
+    {
+        if (_isBusy) return;
+        try
+        {
+            CommitEditorGrids();
+            await PropertyValueWindow.OpenAsync(this, row);
+        }
+        catch (Exception error) { ShowError(error.Message); }
     }
 
     private void UnloadButton_Click(object sender, RoutedEventArgs e)
@@ -103,7 +133,7 @@ public partial class MainWindow
         PopulateTable(null);
     }
 
-    private void ImportButton_Click(object sender, RoutedEventArgs e)
+    private async void ImportButton_Click(object sender, RoutedEventArgs e)
     {
         OpenFileDialog dialog = new()
         {
@@ -114,9 +144,9 @@ public partial class MainWindow
         if (dialog.ShowDialog(this) != true)
             return;
 
-        try
+        await RunBusyAsync("Importing raster image…", async () =>
         {
-            (XisfImageData image, BitmapSource preview) = ImportRasterImage(dialog.FileName, false);
+            (XisfImageData image, BitmapSource preview) = await Task.Run(() => ImportRasterImage(dialog.FileName, false));
             _document = null;
             _fitsDocument = null;
             _editableImages = [image];
@@ -143,42 +173,13 @@ public partial class MainWindow
             DiagnosticsGrid.Visibility = Visibility.Collapsed;
             EmptyDiagnosticsText.Visibility = Visibility.Visible;
             StatusText.Text = $"Imported {Path.GetFileName(dialog.FileName)}. Configure metadata and save it as XISF.";
-        }
-        catch (Exception ex)
-        {
-            ShowError(ex.Message);
-        }
+        });
     }
 
     private static (XisfImageData Image, BitmapSource Preview) ImportRasterImage(string path, bool thumbnail)
     {
-        using FileStream stream = new(path, FileMode.Open, FileAccess.Read, FileShare.Read);
-        BitmapDecoder decoder = BitmapDecoder.Create(stream, BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.OnLoad);
-        if (decoder is not (PngBitmapDecoder or JpegBitmapDecoder or TiffBitmapDecoder or BmpBitmapDecoder or GifBitmapDecoder))
-            throw new NotSupportedException("Raster import supports PNG, JPEG, TIFF, BMP and GIF images.");
-        BitmapFrame frame = decoder.Frames[0];
-        FormatConvertedBitmap converted = new(frame, PixelFormats.Bgra32, null, 0);
-        int stride = checked(converted.PixelWidth * 4);
-        byte[] bgra = new byte[checked(stride * converted.PixelHeight)];
-        converted.CopyPixels(bgra, stride, 0);
-        bool hasAlpha = !thumbnail && Enumerable.Range(0, converted.PixelWidth * converted.PixelHeight).Any(i => bgra[i * 4 + 3] != byte.MaxValue);
-        int channels = hasAlpha ? 4 : 3;
-        byte[] samples = new byte[checked(converted.PixelWidth * converted.PixelHeight * channels)];
-        for (int source = 0, target = 0; source < bgra.Length; source += 4)
-        {
-            samples[target++] = bgra[source + 2];
-            samples[target++] = bgra[source + 1];
-            samples[target++] = bgra[source];
-            if (hasAlpha) samples[target++] = bgra[source + 3];
-        }
-        XisfImageData image = XisfImageData.FromSamples(samples, [converted.PixelWidth, converted.PixelHeight], channels, XisfPixelLayout.Interleaved);
-        image.ColorSpace = "RGB";
-        image.Id = CreateIdentifier(Path.GetFileNameWithoutExtension(path));
-        if (frame.DpiX > 0 && frame.DpiY > 0)
-            image.Resolution = new XisfResolution(frame.DpiX, frame.DpiY, "inch");
-        BitmapSource preview = frame;
-        preview.Freeze();
-        return (image, preview);
+        var image = ViewerRasterDecoder.Load(path, thumbnail);
+        return (image, image.ToBitmapSource());
     }
 
     private async Task LoadImageEditorAsync(int index)
@@ -213,9 +214,7 @@ public partial class MainWindow
         ResolutionXTextBox.Text = image.Resolution?.Horizontal.ToString("R", CultureInfo.InvariantCulture) ?? "";
         ResolutionYTextBox.Text = image.Resolution?.Vertical.ToString("R", CultureInfo.InvariantCulture) ?? "";
         ResolutionUnitComboBox.SelectedItem = image.Resolution?.Unit ?? "inch";
-        Replace(_imageProperties, image.Properties.Select(pair => pair.Value is XisfPropertyData property
-            ? ToEditorRow(pair.Key, property)
-            : new PropertyEditorRow { Id = pair.Key, Type = PropertyTypeName(pair.Value), Value = FormatEditorValue(pair.Value) }));
+        Replace(_imageProperties, image.Properties.Select(pair => ViewerEditorCodec.ToEditorRow(pair.Key, pair.Value)));
         Replace(_fitsKeywords, image.FitsKeywords.Select(keyword => new FitsKeywordEditorRow { Name = keyword.Name, Value = keyword.Value, Comment = keyword.Comment ?? "" }));
         CfaPatternTextBox.Text = image.ColorFilterArray?.Pattern ?? "";
         CfaNameTextBox.Text = image.ColorFilterArray?.Name ?? "";
@@ -236,10 +235,11 @@ public partial class MainWindow
 
     private void PopulateTable(XisfTableData? table)
     {
-        TableIdTextBox.Text = table?.Id ?? "";
-        TableCaptionTextBox.Text = table?.Caption ?? "";
-        TableFieldsTextBox.Text = table is null ? "" : string.Join(Environment.NewLine, table.Fields.Select(f => $"{f.Id}|{f.Type}|{f.Header}|{f.Format}"));
-        TableRowsTextBox.Text = table is null ? "" : string.Join(Environment.NewLine, table.Rows.Select(row => string.Join('|', row.Select(FormatEditorValue))));
+        _tableEditor = TableEditorFields.FromTable(table);
+        TableIdTextBox.Text = _tableEditor.Id; TableCaptionTextBox.Text = _tableEditor.Caption;
+        TableFieldsTextBox.Text = _tableEditor.Fields; TableRowsTextBox.Text = _tableEditor.Rows;
+        foreach (var box in new[] { TableIdTextBox, TableCaptionTextBox, TableFieldsTextBox, TableRowsTextBox })
+        { box.IsReadOnly = _tableEditor.IsReadOnly; box.ToolTip = _tableEditor.Notice; }
     }
 
     private void PopulateLoadedDocumentEditors(XisfDocument document)
@@ -248,23 +248,8 @@ public partial class MainWindow
         Replace(_documentProperties, document.Properties.Select(ToEditorRow));
     }
 
-    private static PropertyEditorRow ToEditorRow(KeyValuePair<string, XisfProperty> pair) =>
-        ToEditorRow(pair.Key, new XisfPropertyData(pair.Value.Type, pair.Value.Value, pair.Value.Format, pair.Value.Comment));
-
-    private static PropertyEditorRow ToEditorRow(string id, XisfPropertyData property)
-    {
-        Array? array = property.Value as Array;
-        return new PropertyEditorRow
-        {
-            Id = id,
-            Type = property.Type,
-            Value = FormatEditorValue(property.Value),
-            Format = property.Format,
-            Comment = property.Comment,
-            Rows = array?.Rank == 2 ? array.GetLength(0) : null,
-            Columns = array?.Rank == 2 ? array.GetLength(1) : null
-        };
-    }
+    private static PropertyEditorRow ToEditorRow(KeyValuePair<string, XisfProperty> pair) => ViewerEditorCodec.ToEditorRow(pair);
+    private static PropertyEditorRow ToEditorRow(string id, XisfPropertyData property) => ViewerEditorCodec.ToEditorRow(id, property);
 
     private void ClearDocumentEditors()
     {
@@ -278,23 +263,26 @@ public partial class MainWindow
         foreach (T value in values) target.Add(value);
     }
 
-    private void IccProfileButton_Click(object sender, RoutedEventArgs e)
+    private async void IccProfileButton_Click(object sender, RoutedEventArgs e)
     {
         OpenFileDialog dialog = new() { Title = "Select an ICC profile", Filter = "ICC profiles (*.icc;*.icm)|*.icc;*.icm|All files (*.*)|*.*" };
         if (dialog.ShowDialog(this) != true) return;
-        _iccProfile = File.ReadAllBytes(dialog.FileName);
-        IccProfileText.Text = $"{Path.GetFileName(dialog.FileName)} ({_iccProfile.Length:N0} bytes)";
+        await RunBusyAsync("Reading ICC profile…", async () =>
+        {
+            _iccProfile = await Task.Run(() => File.ReadAllBytes(dialog.FileName));
+            IccProfileText.Text = $"{Path.GetFileName(dialog.FileName)} ({_iccProfile.Length:N0} bytes)";
+        });
     }
 
-    private void ThumbnailButton_Click(object sender, RoutedEventArgs e)
+    private async void ThumbnailButton_Click(object sender, RoutedEventArgs e)
     {
         OpenFileDialog dialog = new() { Title = "Select a thumbnail image", Filter = "Supported images|*.png;*.jpg;*.jpeg;*.tif;*.tiff;*.bmp;*.gif|All files (*.*)|*.*" };
         if (dialog.ShowDialog(this) != true) return;
-        (_thumbnail, _) = ImportRasterImage(dialog.FileName, true);
-        _thumbnail.Id = null;
-        _thumbnail.IccProfile = null;
-        _thumbnail.Resolution = null;
-        ThumbnailText.Text = $"{Path.GetFileName(dialog.FileName)} ({_thumbnail.Dimensions[0]} × {_thumbnail.Dimensions[1]})";
+        await RunBusyAsync("Reading thumbnail…", async () =>
+        {
+            _thumbnail = await Task.Run(() => ViewerRasterDecoder.Load(dialog.FileName, true));
+            ThumbnailText.Text = $"{Path.GetFileName(dialog.FileName)} ({_thumbnail.Dimensions[0]} × {_thumbnail.Dimensions[1]})";
+        });
     }
 
     private async void SaveButton_Click(object sender, RoutedEventArgs e)
@@ -321,23 +309,11 @@ public partial class MainWindow
             }
             else
             {
-                ApplyImageEditor(_editableImage);
                 XisfWriterOptions options = CreateWriterOptions();
-                XisfDocumentData content = new();
-                content.Images.Add(_editableImage);
-                AddProperties(content.Metadata, _documentMetadata);
-                AddProperties(content.Properties, _documentProperties);
-                await Task.Run(() =>
-                {
-                    if (fitsOutput)
-                    {
-                        var converted = FitsConverter.ConvertToFits([_editableImage], ConversionLossPolicy.Allow);
-                        conversionFindings = converted.Findings;
-                        FitsWriter.Write(path, converted.Value, new FitsWriterOptions { WriteChecksums = true });
-                    }
-                    else if (distributed) XisfWriter.WriteDistributed(path, Path.ChangeExtension(path, ".xisb"), content, options);
-                    else XisfWriter.Write(path, content, options);
-                });
+                CommitEditorGrids();
+                var document = DocumentEditorState.Parse(_documentMetadata, _documentProperties, options.CreatorApplication);
+                ApplyImageEditor(_editableImage);
+                conversionFindings = await Task.Run(() => ViewerFileService.Save(path, _editableImage, document, options, distributed, null));
             }
             LoadedFile loaded = await Task.Run(() => LoadFile(path));
             _document = loaded.Xisf;
@@ -369,35 +345,34 @@ public partial class MainWindow
 
     private static void CopyFileUnlessSame(string sourcePath, string destinationPath)
     {
-        string source = Path.GetFullPath(sourcePath);
-        string destination = Path.GetFullPath(destinationPath);
-        if (!string.Equals(source, destination, StringComparison.OrdinalIgnoreCase))
-            File.Copy(source, destination, true);
+        ViewerFileService.CopyOriginal(sourcePath, destinationPath);
     }
 
     private void ApplyImageEditor(XisfImageData image)
     {
-        image.Id = EmptyToNull(ImageIdTextBox.Text);
-        image.ImageType = EmptyToNull(ImageTypeComboBox.Text);
-        image.ColorSpace = EmptyToNull(ColorSpaceComboBox.Text);
-        image.Orientation = OrientationComboBox.SelectedItem as string ?? "0";
-        image.Offset = ParseOptionalDouble(OffsetTextBox.Text) ?? 0;
-        image.Uuid = string.IsNullOrWhiteSpace(UuidTextBox.Text) ? null : Guid.Parse(UuidTextBox.Text);
-        double? resolutionX = ParseOptionalDouble(ResolutionXTextBox.Text);
-        double? resolutionY = ParseOptionalDouble(ResolutionYTextBox.Text);
-        image.Resolution = resolutionX is null && resolutionY is null ? null : new XisfResolution(resolutionX ?? throw new FormatException("Both resolution values are required."), resolutionY ?? throw new FormatException("Both resolution values are required."), ResolutionUnitComboBox.SelectedItem as string ?? "inch");
+        CommitEditorGrids();
+        // Parse all fields before mutating the live image.
+        var properties = ViewerEditorCodec.ParseProperties(_imageProperties);
+        var keywords = ViewerEditorCodec.ParseFitsKeywords(_fitsKeywords);
+        var attributes = new ImageEditorFields
+        {
+            Id = ImageIdTextBox.Text, ImageType = ImageTypeComboBox.Text, ColorSpace = ColorSpaceComboBox.Text,
+            Orientation = OrientationComboBox.SelectedItem as string ?? "0", Offset = OffsetTextBox.Text, Uuid = UuidTextBox.Text,
+            ResolutionX = ResolutionXTextBox.Text, ResolutionY = ResolutionYTextBox.Text, ResolutionUnit = ResolutionUnitComboBox.SelectedItem as string ?? "inch",
+            CfaPattern = CfaPatternTextBox.Text, CfaWidth = CfaWidthTextBox.Text, CfaHeight = CfaHeightTextBox.Text, CfaName = CfaNameTextBox.Text,
+            Gamma = RgbGammaTextBox.Text, IsSrgb = RgbSrgbCheckBox.IsChecked == true, ChromaticityX = RgbChromaticitiesTextBox.Text,
+            ChromaticityY = RgbYChromaticitiesTextBox.Text, Luminance = RgbLuminanceTextBox.Text, DisplayFunction = DisplayFunctionTextBox.Text
+        }.Parse(image);
+        var table = CreateTable();
+        attributes.Apply(image);
         image.Properties.Clear();
-        AddProperties(image.Properties, _imageProperties);
+        foreach (var pair in properties) image.Properties.Add(pair.Key, pair.Value);
         image.FitsKeywords.Clear();
-        foreach (FitsKeywordEditorRow row in _fitsKeywords.Where(row => !string.IsNullOrWhiteSpace(row.Name))) image.FitsKeywords.Add(new XisfFitsKeyword(row.Name.Trim(), row.Value, EmptyToNull(row.Comment)));
-        image.ColorFilterArray = string.IsNullOrWhiteSpace(CfaPatternTextBox.Text) ? null : new XisfColorFilterArray(CfaPatternTextBox.Text.Trim(), int.Parse(CfaWidthTextBox.Text, CultureInfo.InvariantCulture), int.Parse(CfaHeightTextBox.Text, CultureInfo.InvariantCulture), EmptyToNull(CfaNameTextBox.Text));
-        double? gamma = ParseOptionalDouble(RgbGammaTextBox.Text);
-        image.RgbWorkingSpace = gamma is null ? null : new XisfRgbWorkingSpace(gamma.Value, RgbSrgbCheckBox.IsChecked == true, ParseNumbers(RgbChromaticitiesTextBox.Text, 3), ParseNumbers(RgbLuminanceTextBox.Text, 3)) { YChromaticityCoordinates = ParseNumbers(RgbYChromaticitiesTextBox.Text, 3), Name = image.RgbWorkingSpace?.Name };
-        if (image.RgbWorkingSpace is { } workingSpace) { image.RgbWorkingSpace = workingSpace with { LuminanceCoefficients = XisfColorSpace.DeriveLuminanceCoefficients(workingSpace) }; RgbLuminanceTextBox.Text = FormatNumbers(image.RgbWorkingSpace.LuminanceCoefficients); }
-        image.DisplayFunction = ParseDisplayFunction(DisplayFunctionTextBox.Text);
+        foreach (var keyword in keywords) image.FitsKeywords.Add(keyword);
+        if (attributes.WorkingSpace is { } workingSpace) RgbLuminanceTextBox.Text = FormatNumbers(workingSpace.LuminanceCoefficients);
         image.IccProfile = _iccProfile;
         image.Thumbnail = _thumbnail;
-        if (CreateTable() is { } table)
+        if (table is not null)
         {
             if (image.Tables.Count == 0) image.Tables.Add(table);
             else image.Tables[0] = table;
@@ -418,30 +393,21 @@ public partial class MainWindow
 
     private static void AddProperties(IDictionary<string, object?> destination, IEnumerable<PropertyEditorRow> rows)
     {
-        foreach (PropertyEditorRow row in rows.Where(row => !string.IsNullOrWhiteSpace(row.Id)))
-        {
-            string type = string.IsNullOrWhiteSpace(row.Type) ? "String" : row.Type.Trim();
-            destination[row.Id.Trim()] = new XisfPropertyData(type, ParseProperty(type, row.Value, row.Rows, row.Columns), row.Format, row.Comment);
-        }
+        foreach (var pair in ViewerEditorCodec.ParseProperties(rows)) destination[pair.Key] = pair.Value;
+    }
+
+    private void CommitEditorGrids()
+    {
+        foreach (var grid in new[] { ImagePropertiesGrid, DocumentMetadataGrid, DocumentPropertiesGrid, FitsKeywordsGrid })
+            if (!grid.CommitEdit(System.Windows.Controls.DataGridEditingUnit.Cell, true) || !grid.CommitEdit(System.Windows.Controls.DataGridEditingUnit.Row, true))
+                throw new FormatException("Complete or correct the active grid edit first.");
     }
 
     private XisfTableData? CreateTable()
     {
-        if (string.IsNullOrWhiteSpace(TableIdTextBox.Text)) return null;
-        XisfTableData table = new() { Id = TableIdTextBox.Text.Trim(), Caption = EmptyToNull(TableCaptionTextBox.Text) };
-        foreach (string line in Lines(TableFieldsTextBox.Text))
-        {
-            string[] values = line.Split('|');
-            if (values.Length < 2) throw new FormatException("Each table field requires at least id|type.");
-            table.Fields.Add(new XisfTableFieldData(values[0].Trim(), values[1].Trim(), values.Length > 2 ? EmptyToNull(values[2]) : null, values.Length > 3 ? EmptyToNull(values[3]) : null));
-        }
-        foreach (string line in Lines(TableRowsTextBox.Text))
-        {
-            string[] values = line.Split('|');
-            if (values.Length != table.Fields.Count) throw new FormatException("Each table row must have one cell per field.");
-            table.Rows.Add(values.Select((value, index) => ParseProperty(table.Fields[index].Type, value.Trim())).ToArray());
-        }
-        return table;
+        _tableEditor.Id = TableIdTextBox.Text; _tableEditor.Caption = TableCaptionTextBox.Text;
+        _tableEditor.Fields = TableFieldsTextBox.Text; _tableEditor.Rows = TableRowsTextBox.Text;
+        return _tableEditor.Parse();
     }
 
     private void ValidateButton_Click(object sender, RoutedEventArgs e)
@@ -461,6 +427,12 @@ public partial class MainWindow
         }
         ShowError("Load or save an XISF or FITS document first.");
     }
+    private void NoticesButton_Click(object sender, RoutedEventArgs e)
+    {
+        new Window { Owner = this, Title = "Third-party notices", Width = 850, Height = 600,
+            Content = new System.Windows.Controls.TextBox { Text = ViewerNotices.Read(), IsReadOnly = true, AcceptsReturn = true,
+                TextWrapping = TextWrapping.Wrap, VerticalScrollBarVisibility = System.Windows.Controls.ScrollBarVisibility.Auto, Margin = new Thickness(12) } }.ShowDialog();
+    }
 
     private void ShowDiagnostics(IReadOnlyList<XisfDiagnostic> diagnostics)
     {
@@ -476,67 +448,8 @@ public partial class MainWindow
         EmptyDiagnosticsText.Visibility = Visibility.Collapsed;
     }
 
-    private static object? ParseProperty(string? type, string value, int? rows = null, int? columns = null)
-    {
-        string normalized = string.IsNullOrWhiteSpace(type) ? "String" : type.Trim();
-        string key = normalized.ToLowerInvariant();
-        string[] values = value.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
-        if (key == "bytearray") return values.Select(v => byte.Parse(v, CultureInfo.InvariantCulture)).ToArray();
-        key = key switch
-        {
-            "ivector" => "i32vector", "uivector" => "ui32vector", "vector" => "f64vector",
-            "bytematrix" => "ui8matrix", "imatrix" => "i32matrix", "uimatrix" => "ui32matrix", "matrix" => "f64matrix",
-            _ => key
-        };
-        if (key.EndsWith("vector") || key.EndsWith("matrix"))
-        {
-            bool matrix = key.EndsWith("matrix");
-            string scalar = key[..^6];
-            Array parsed = scalar switch
-            {
-                "i8" => values.Select(v => sbyte.Parse(v, CultureInfo.InvariantCulture)).ToArray(), "ui8" => values.Select(v => byte.Parse(v, CultureInfo.InvariantCulture)).ToArray(),
-                "i16" => values.Select(v => short.Parse(v, CultureInfo.InvariantCulture)).ToArray(), "ui16" => values.Select(v => ushort.Parse(v, CultureInfo.InvariantCulture)).ToArray(),
-                "i32" => values.Select(v => int.Parse(v, CultureInfo.InvariantCulture)).ToArray(), "ui32" => values.Select(v => uint.Parse(v, CultureInfo.InvariantCulture)).ToArray(),
-                "i64" => values.Select(v => long.Parse(v, CultureInfo.InvariantCulture)).ToArray(), "ui64" => values.Select(v => ulong.Parse(v, CultureInfo.InvariantCulture)).ToArray(),
-                "i128" => values.Select(v => Int128.Parse(v, CultureInfo.InvariantCulture)).ToArray(), "ui128" => values.Select(v => UInt128.Parse(v, CultureInfo.InvariantCulture)).ToArray(),
-                "f32" => values.Select(v => float.Parse(v, CultureInfo.InvariantCulture)).ToArray(),
-                _ => values.Select(v => double.Parse(v, CultureInfo.InvariantCulture)).ToArray()
-            };
-            if (!matrix) return parsed;
-            if (rows is null || columns is null || checked(rows.Value * columns.Value) != parsed.Length)
-                throw new FormatException($"Property '{normalized}' requires valid matrix row and column dimensions.");
-            Array shaped = Array.CreateInstance(parsed.GetType().GetElementType()!, rows.Value, columns.Value);
-            for (int i = 0; i < parsed.Length; i++) shaped.SetValue(parsed.GetValue(i), i / columns.Value, i % columns.Value);
-            return shaped;
-        }
-        return key switch
-        {
-            "string" => value, "boolean" or "bool" => bool.Parse(value), "int8" => sbyte.Parse(value, CultureInfo.InvariantCulture),
-            "uint8" or "byte" => byte.Parse(value, CultureInfo.InvariantCulture), "int16" => short.Parse(value, CultureInfo.InvariantCulture),
-            "uint16" => ushort.Parse(value, CultureInfo.InvariantCulture), "int32" or "int" => int.Parse(value, CultureInfo.InvariantCulture),
-            "uint32" or "uint" => uint.Parse(value, CultureInfo.InvariantCulture), "int64" => long.Parse(value, CultureInfo.InvariantCulture),
-            "uint64" => ulong.Parse(value, CultureInfo.InvariantCulture), "float32" or "float" => float.Parse(value, CultureInfo.InvariantCulture),
-            "float64" or "double" => double.Parse(value, CultureInfo.InvariantCulture), "timepoint" => DateTimeOffset.Parse(value, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind),
-            _ => value
-        };
-    }
+    private static object? ParseProperty(string? type, string value, int? rows = null, int? columns = null) => ViewerEditorCodec.ParseProperty(type, value, rows, columns);
 
-    private static XisfDisplayFunction? ParseDisplayFunction(string text)
-    {
-        if (string.IsNullOrWhiteSpace(text)) return null;
-        string[] groups = text.Split(';', StringSplitOptions.TrimEntries);
-        if (groups.Length != 5) throw new FormatException("A display function requires five semicolon-separated groups.");
-        return new XisfDisplayFunction(ParseNumbers(groups[0], 4), ParseNumbers(groups[1], 4), ParseNumbers(groups[2], 4), ParseNumbers(groups[3], 4), ParseNumbers(groups[4], 4));
-    }
-
-    private static double[] ParseNumbers(string text, int count)
-    {
-        double[] values = text.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries).Select(value => double.Parse(value, CultureInfo.InvariantCulture)).ToArray();
-        if (values.Length != count) throw new FormatException($"Expected {count} comma-separated values.");
-        return values;
-    }
-
-    private static double? ParseOptionalDouble(string text) => string.IsNullOrWhiteSpace(text) ? null : double.Parse(text, CultureInfo.InvariantCulture);
     private static string CreateIdentifier(string value)
     {
         string identifier = new(value.Select(character => char.IsAsciiLetterOrDigit(character) || character == '_' ? character : '_').ToArray());
@@ -546,24 +459,6 @@ public partial class MainWindow
     private static IEnumerable<string> Lines(string text) => text.Split(new[] { "\r\n", "\n" }, StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
     private static string? EmptyToNull(string? value) => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
     private static string FormatNumbers(IEnumerable<double>? values) => values is null ? "" : string.Join(", ", values.Select(value => value.ToString("R", CultureInfo.InvariantCulture)));
-    private static string FormatEditorValue(object? value) => value is null ? "" : value is string text ? text : value is System.Collections.IEnumerable sequence ? string.Join(", ", sequence.Cast<object?>().Select(FormatEditorValue)) : Convert.ToString(value, CultureInfo.InvariantCulture) ?? "";
-    private static string PropertyTypeName(object? value) => value switch { string => "String", bool => "Boolean", DateTimeOffset => "TimePoint", sbyte => "Int8", byte => "UInt8", short => "Int16", ushort => "UInt16", int => "Int32", uint => "UInt32", long => "Int64", ulong => "UInt64", float => "Float32", double => "Float64", _ => "String" };
-}
-
-public sealed class PropertyEditorRow
-{
-    public string Id { get; set; } = "";
-    public string Type { get; set; } = "String";
-    public string Value { get; set; } = "";
-    public string? Format { get; set; }
-    public string? Comment { get; set; }
-    public int? Rows { get; set; }
-    public int? Columns { get; set; }
-}
-
-public sealed class FitsKeywordEditorRow
-{
-    public string Name { get; set; } = "";
-    public string Value { get; set; } = "";
-    public string Comment { get; set; } = "";
+    private static string FormatEditorValue(object? value) => ViewerEditorCodec.FormatEditorValue(value);
+    private static string PropertyTypeName(object? value) => ViewerEditorCodec.PropertyTypeName(value);
 }

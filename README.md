@@ -10,7 +10,7 @@ The WPF sample viewer is available as a standalone Windows x64 executable in Git
 
 ## Usage
 
-An [Avalonia viewer is under development](docs/applications.md#avalonia-viewer-development). The initial loading/display workflow is runnable; editing, imports, saving and utilities remain migration work.
+The [Avalonia viewer](docs/applications.md#avalonia-viewer) implements loading, display, editing, raster imports, saving and utilities. The [migration audit](docs/plans/avalonia-viewer-migration.md) records automated evidence and remaining native/platform verification.
 
 See [API contracts and migration](docs/api-migration.md) for editable documents, consistent sample layouts, typed metadata, conversion reports, and safe defaults.
 
@@ -145,6 +145,8 @@ Both methods normalize samples through the XISF image bounds and support graysca
 `ToBgra32Pixels()` accepts the same stretch options and exposes the converted pixel buffer for custom Windows UI controls. WPF bitmap sources are frozen for safe use across UI threads, and XISF resolution metadata is applied when available.
 
 The solution also includes `XISFLib.WpfViewer`, a WPF library workbench and example implementation. It can browse and load `.xisf`, `.xish`, `.fit`, `.fits`, or `.fts` files, import PNG/JPEG/TIFF/BMP/GIF images, edit document and image properties, FITS keywords, tables and ancillary image metadata, configure compression/checksums/shuffling, and write FITS or monolithic/distributed XISF output. Its Utilities tab demonstrates unified astronomy metadata, sampled channel statistics, full histograms, region/channel reads, and bidirectional pixel/sky WCS transforms by calling the same public APIs shown above. For a loaded monolithic `.xisf`, **Byte-identical copy** is enabled by default: saving copies the complete source unchanged, including every image, unknown extension, signature, data-block representation, and metadata item. Clear that option to apply editor changes or writer settings; re-encoding intentionally rebuilds the selected image and can change XML ordering, creation metadata, block locations, compression, checksums, and file size. Saved files are reloaded immediately and shown with XISF or FITS conformance diagnostics. It also supports multi-image selection, comparison of linear display with configurable automatic stretching, mouse-wheel zooming, and left-button drag panning. Run it with `dotnet run --project XISFLib.WpfViewer`.
+
+The Avalonia workbench provides the same editing, import, save and utility features through shared application services. Run it with `dotnet run --project XISFLib.AvaloniaViewer -c Release`. Both Windows viewers publish as single self-contained executables; CI also builds/tests/probes Linux x64 and macOS arm64 Avalonia assets. Native-dialog/DPI and other OS verification status is tracked in the [migration audit](docs/plans/avalonia-viewer-migration.md).
 
 See the [application guide](docs/applications.md) for viewer editing limits, save modes, and command-line usage.
 

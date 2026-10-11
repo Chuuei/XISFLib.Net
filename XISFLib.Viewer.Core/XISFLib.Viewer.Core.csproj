@@ -6,7 +6,11 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="15.0.0" GeneratePathProperty="true" />
+    <EmbeddedResource Include="$(PkgMagick_NET-Q16-AnyCPU)/Notice.txt" LogicalName="Viewer.Magick.Notice.txt" />
+    <EmbeddedResource Include="$(PkgCommunityToolkit_Mvvm)/License.md" LogicalName="Viewer.Toolkit.License.txt" />
+    <EmbeddedResource Include="$(PkgCommunityToolkit_Mvvm)/ThirdPartyNotices.txt" LogicalName="Viewer.Toolkit.Notice.txt" />
     <ProjectReference Include="../XISFLib/XISFLib.csproj" />
-    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" GeneratePathProperty="true" />
   </ItemGroup>
 </Project>

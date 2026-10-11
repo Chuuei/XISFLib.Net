@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Windows;
+using XISFLib.Viewer;
 
 namespace XISFLib.WpfViewer;
 
@@ -15,23 +16,7 @@ public partial class MainWindow
             return;
         }
 
-        AstronomyImageMetadata metadata = AstronomyMetadata.From(_editableImage);
-        AstronomyMetadataGrid.ItemsSource = new[]
-        {
-            new UtilityValue("Object", metadata.ObjectName),
-            new UtilityValue("Observer", metadata.Observer),
-            new UtilityValue("Instrument", metadata.Instrument),
-            new UtilityValue("Telescope", metadata.Telescope),
-            new UtilityValue("Filter", metadata.Filter),
-            new UtilityValue("Exposure", FormatOptional(metadata.ExposureSeconds, " s")),
-            new UtilityValue("Gain", FormatOptional(metadata.Gain)),
-            new UtilityValue("Offset", FormatOptional(metadata.Offset)),
-            new UtilityValue("Binning", metadata.BinningX is null && metadata.BinningY is null ? null : $"{metadata.BinningX?.ToString(CultureInfo.CurrentCulture) ?? "?"} × {metadata.BinningY?.ToString(CultureInfo.CurrentCulture) ?? "?"}"),
-            new UtilityValue("Sensor temperature", FormatOptional(metadata.SensorTemperatureCelsius, " °C")),
-            new UtilityValue("Observation time", metadata.ObservationTime?.ToString("u", CultureInfo.CurrentCulture)),
-            new UtilityValue("Recognized/raw values", metadata.Values.Count.ToString(CultureInfo.CurrentCulture))
-        };
-
+        AstronomyMetadataGrid.ItemsSource = ViewerUtilityService.Overview(_editableImage);
         HistogramChannelComboBox.ItemsSource = Enumerable.Range(0, _editableImage.ChannelCount).ToArray();
         HistogramChannelComboBox.SelectedIndex = 0;
         int width = _editableImage.Dimensions[0];
@@ -42,9 +27,7 @@ public partial class MainWindow
         WcsYTextBox.Text = ((height - 1) / 2d).ToString("R", CultureInfo.InvariantCulture);
 
         _worldCoordinateSystem = CelestialWorldCoordinateSystem.TryCreate(_editableImage.FitsKeywords, out CelestialWorldCoordinateSystem? wcs) ? wcs : null;
-        WcsSummaryText.Text = _worldCoordinateSystem is null
-            ? "No supported celestial WCS was found in the selected image's FITS keywords."
-            : $"Pixel scale {_worldCoordinateSystem.PixelScaleArcseconds:N4} arcsec/pixel; rotation {_worldCoordinateSystem.RotationDegrees:N4}°; {(_worldCoordinateSystem.IsTangentPlane ? "TAN projection" : "linear projection")}.";
+        WcsSummaryText.Text = ViewerUtilityService.WcsSummary(_worldCoordinateSystem);
         PixelToSkyButton.IsEnabled = _worldCoordinateSystem is not null;
         SkyToPixelButton.IsEnabled = _worldCoordinateSystem is not null;
         StatisticsGrid.ItemsSource = null;
@@ -78,12 +61,7 @@ public partial class MainWindow
         {
             int maximumSamples = ParsePositiveInt(StatisticsSampleLimitTextBox.Text, "Maximum samples");
             bool normalize = NormalizeStatisticsCheckBox.IsChecked == true;
-            XisfStatisticsOptions options = new()
-            {
-                Normalize = normalize,
-                MaximumSamplesPerChannel = maximumSamples
-            };
-            IReadOnlyList<XisfChannelStatistics> statistics = await Task.Run(() => image.CalculateStatistics(options));
+            IReadOnlyList<XisfChannelStatistics> statistics = await Task.Run(() => ViewerUtilityService.Statistics(image, maximumSamples, normalize));
             StatisticsGrid.ItemsSource = statistics;
             StatusText.Text = $"Calculated statistics for {statistics.Count} channel(s).";
         });
@@ -96,29 +74,25 @@ public partial class MainWindow
         {
             int channel = HistogramChannelComboBox.SelectedItem is int selected ? selected : 0;
             int bins = ParsePositiveInt(HistogramBinCountTextBox.Text, "Histogram bins");
-            if (bins > 65_536) throw new ArgumentOutOfRangeException(nameof(bins), "Histogram bins must not exceed 65,536.");
-            XisfHistogram histogram = await Task.Run(() => _editableImage.CalculateHistogram(channel, bins));
-            double width = (histogram.UpperBound - histogram.LowerBound) / histogram.Bins.Count;
-            HistogramGrid.ItemsSource = histogram.Bins.Select((count, index) => new HistogramBinRow(index,
-                histogram.LowerBound + index * width, histogram.LowerBound + (index + 1) * width, count)).ToArray();
-            HistogramSummaryText.Text = $"Range {histogram.LowerBound:G8} to {histogram.UpperBound:G8}; underflow {histogram.UnderflowCount:N0}; overflow {histogram.OverflowCount:N0}; non-finite {histogram.NonFiniteCount:N0}.";
+            var histogram = await Task.Run(() => ViewerUtilityService.Histogram(_editableImage, channel, bins));
+            HistogramGrid.ItemsSource = histogram.Rows;
+            HistogramSummaryText.Text = histogram.Summary;
             StatusText.Text = $"Calculated a {bins:N0}-bin histogram for channel {channel}.";
         });
     }
 
-    private void ReadRegionButton_Click(object sender, RoutedEventArgs e)
+    private async void ReadRegionButton_Click(object sender, RoutedEventArgs e)
     {
         if (_editableImage is null) { ShowError("Load or import an image first."); return; }
-        try
+        await RunBusyAsync("Reading image region…", async () =>
         {
             int x = ParseNonnegativeInt(RegionXTextBox.Text, "X");
             int y = ParseNonnegativeInt(RegionYTextBox.Text, "Y");
             int width = ParsePositiveInt(RegionWidthTextBox.Text, "Width");
             int height = ParsePositiveInt(RegionHeightTextBox.Text, "Height");
-            double[] values = _editableImage.ReadRegion<double>(x, y, width, height, XisfPixelLayout.Interleaved);
+            double[] values = await Task.Run(() => _editableImage.ReadRegion<double>(x, y, width, height, XisfPixelLayout.Interleaved));
             ShowSampleValues(values, $"Region {x},{y} {width}×{height}, interleaved");
-        }
-        catch (Exception exception) { ShowError(exception.Message); }
+        });
     }
 
     private async void ReadChannelButton_Click(object sender, RoutedEventArgs e)
@@ -134,8 +108,7 @@ public partial class MainWindow
 
     private void ShowSampleValues(IReadOnlyList<double> values, string description)
     {
-        string preview = string.Join(", ", values.Take(64).Select(value => value.ToString("G8", CultureInfo.InvariantCulture)));
-        SampleOutputTextBox.Text = $"{description}: {values.Count:N0} value(s). First {Math.Min(values.Count, 64)}: {preview}{(values.Count > 64 ? ", …" : string.Empty)}";
+        SampleOutputTextBox.Text = ViewerUtilityService.SamplePreview(values, description);
         StatusText.Text = $"Read {values.Count:N0} samples with the pixel access API.";
     }
 
