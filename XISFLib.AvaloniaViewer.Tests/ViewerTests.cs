@@ -219,8 +219,10 @@ public class ViewerTests
         finally { File.Delete(path); File.Delete(output); }
     }
 
-    [AvaloniaFact]
-    public async Task PointerZoomPanAndCaptureReleaseRespectViewport()
+    [AvaloniaTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task PointerZoomPanAndCaptureReleaseRespectViewport(bool finished)
     {
         string path = Path.Combine(Path.GetTempPath(), Guid.NewGuid() + ".xisf");
         try
@@ -230,17 +232,37 @@ public class ViewerTests
             try
             {
                 var vm = Assert.IsType<WorkbenchViewModel>(window.DataContext); vm.FilePath = path; await vm.LoadCommand.ExecuteAsync(null);
-                var image = window.FindControl<Image>("ImageView")!;
+                if (finished)
+                {
+                    window.FindControl<TabControl>("WorkbenchTabs")!.SelectedItem = window.FindControl<TabItem>("FinishTab");
+                    await vm.Finish.CreateCommand.ExecuteAsync(null); window.UpdateLayout();
+                }
+                var image = window.FindControl<Image>(finished ? "FinishedImageView" : "ImageView")!;
+                var surface = window.FindControl<Grid>(finished ? "FinishedViewport" : "ImageViewport")!;
+                var pointer = surface.TranslatePoint(new Point(200, 100), window)!.Value;
                 var group = Assert.IsType<Avalonia.Media.TransformGroup>(image.RenderTransform);
                 var scale = Assert.IsType<Avalonia.Media.ScaleTransform>(group.Children[0]);
                 var translation = Assert.IsType<Avalonia.Media.TranslateTransform>(group.Children[1]);
-                window.MouseWheel(new Point(600, 300), new Vector(0, 1)); Assert.Equal(1.2, scale.ScaleX, 10);
+                window.MouseWheel(pointer, new Vector(0, 1)); Assert.Equal(1.2, scale.ScaleX, 10);
                 var before = translation.X;
-                window.MouseDown(new Point(600, 300), Avalonia.Input.MouseButton.Left); window.MouseMove(new Point(650, 320), Avalonia.Input.RawInputModifiers.LeftMouseButton);
-                Assert.Equal(before + 50, translation.X, 8); window.MouseUp(new Point(650, 320), Avalonia.Input.MouseButton.Left);
-                var stopped = translation.X; window.MouseMove(new Point(700, 400)); Assert.Equal(stopped, translation.X);
-                for (int i = 0; i < 100; i++) window.MouseWheel(new Point(600, 300), new Vector(0, 1)); Assert.Equal(64, scale.ScaleX);
-                for (int i = 0; i < 100; i++) window.MouseWheel(new Point(600, 300), new Vector(0, -1)); Assert.Equal(1, scale.ScaleX);
+                window.MouseDown(pointer, Avalonia.Input.MouseButton.Left); window.MouseMove(pointer + new Vector(50, 20), Avalonia.Input.RawInputModifiers.LeftMouseButton);
+                Assert.Equal(before + 50, translation.X, 8); window.MouseUp(pointer + new Vector(50, 20), Avalonia.Input.MouseButton.Left);
+                var stopped = translation.X; window.MouseMove(pointer + new Vector(100, 100)); Assert.Equal(stopped, translation.X);
+                for (int i = 0; i < 100; i++) window.MouseWheel(pointer, new Vector(0, 1)); Assert.Equal(64, scale.ScaleX);
+                for (int i = 0; i < 100; i++) window.MouseWheel(pointer, new Vector(0, -1)); Assert.Equal(1, scale.ScaleX);
+                if (finished)
+                {
+                    var normal = (Avalonia.Media.TransformGroup)window.FindControl<Image>("ImageView")!.RenderTransform!;
+                    Assert.Equal(1, ((Avalonia.Media.ScaleTransform)normal.Children[0]).ScaleX);
+                    Assert.Equal(0, ((Avalonia.Media.TranslateTransform)normal.Children[1]).X);
+                    window.MouseWheel(pointer, new Vector(0, 1));
+                    await vm.Finish.CreateCommand.ExecuteAsync(null);
+                    Assert.Equal(1, scale.ScaleX); Assert.Equal(0, translation.X); Assert.Equal(0, translation.Y);
+                    window.MouseWheel(pointer, new Vector(0, 1));
+                    await vm.UnloadCommand.ExecuteAsync(null);
+                    Assert.Null(image.Source); Assert.Equal(1, scale.ScaleX); Assert.Equal(0, translation.X);
+                    window.MouseWheel(pointer, new Vector(0, 1)); Assert.Equal(1, scale.ScaleX);
+                }
             }
             finally { window.Close(); }
         }

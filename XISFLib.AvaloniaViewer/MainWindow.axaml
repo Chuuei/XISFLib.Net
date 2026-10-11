@@ -368,9 +368,16 @@
             </StackPanel>
           </StackPanel>
           <Border Grid.Row="2" Background="#111923" CornerRadius="8" ClipToBounds="True" Padding="12">
-            <Grid>
+            <Grid x:Name="FinishedViewport" Background="Transparent" ClipToBounds="True"
+                  PointerWheelChanged="Viewport_Wheel" PointerPressed="Viewport_Pressed"
+                  PointerMoved="Viewport_Moved" PointerReleased="Viewport_Released" PointerCaptureLost="Viewport_CaptureLost">
               <TextBlock Text="Your finished picture will appear here" Foreground="#94A3B8" IsVisible="{Binding !Finish.HasPicture}" HorizontalAlignment="Center" VerticalAlignment="Center" />
-              <Image x:Name="FinishedImageView" Stretch="Uniform" RenderOptions.BitmapInterpolationMode="HighQuality" />
+              <Image x:Name="FinishedImageView" Stretch="Uniform" RenderOptions.BitmapInterpolationMode="HighQuality"
+                     IsHitTestVisible="False" RenderTransformOrigin="0%,0%">
+                <Image.RenderTransform>
+                  <TransformGroup><ScaleTransform /><TranslateTransform /></TransformGroup>
+                </Image.RenderTransform>
+              </Image>
             </Grid>
           </Border>
           <Grid Grid.Row="3" ColumnDefinitions="*,Auto" Margin="0,16,0,0">

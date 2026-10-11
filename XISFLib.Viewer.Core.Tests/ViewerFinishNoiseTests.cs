@@ -5,6 +5,28 @@ namespace XISFLib.Viewer.Core.Tests;
 public class ViewerFinishNoiseTests
 {
     [Theory]
+    [InlineData(0.03f)]
+    [InlineData(-0.03f)]
+    public void IrregularCoverageCropUsesPopulatedAreaAndRecognizesNegativeContent(float background)
+    {
+        const int side = 512;
+        var samples = new float[side * side];
+        for (int y = 0; y < side; y++)
+        for (int x = 0; x < side; x++)
+            if (Math.Pow((x - 256d) / 250, 2) + Math.Pow((y - 256d) / 240, 2) <= 1)
+                samples[y * side + x] = background;
+        samples[256 * side + 256] = 0.1f;
+        var source = XisfImageData.FromSamples(samples, [side, side], 1);
+        byte[] original = source.RawData.ToArray();
+        var picture = ViewerFinishService.Create(source);
+        Assert.InRange(picture.Width, 320, 380); Assert.InRange(picture.Height, 310, 370);
+        Assert.True(picture.Width * picture.Height < side * side * 0.70);
+        if (background > 0)
+            Assert.All(Enumerable.Range(0, picture.Width * picture.Height), p => Assert.True(picture.Pixels[p * 4] > 0));
+        Assert.Equal(original, source.RawData.ToArray());
+    }
+
+    [Theory]
     [InlineData(1, XisfPixelLayout.Planar)]
     [InlineData(3, XisfPixelLayout.Interleaved)]
     public void NoiseReductionRetainsBackgroundDustAndStarsAndDoesNotModifySource(int colors, XisfPixelLayout layout)

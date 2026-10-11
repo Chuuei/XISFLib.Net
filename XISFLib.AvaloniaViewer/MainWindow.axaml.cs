@@ -16,8 +16,7 @@ public partial class MainWindow : Window
     private WriteableBitmap? _finishedBitmap;
     private bool _closed;
     private readonly ViewerViewportState _viewport = new();
-    private ScaleTransform ImageScale => (ScaleTransform)((TransformGroup)ImageView.RenderTransform!).Children[0];
-    private TranslateTransform ImageTranslation => (TranslateTransform)((TransformGroup)ImageView.RenderTransform!).Children[1];
+    private readonly ViewerViewportState _finishedViewport = new();
 
     public MainWindow()
     {
@@ -38,6 +37,7 @@ public partial class MainWindow : Window
         if (_closed) return;
         var bitmap = picture is null ? null : AvaloniaBitmapAdapter.Create(picture);
         var old = _finishedBitmap; _finishedBitmap = bitmap; FinishedImageView.Source = bitmap; old?.Dispose();
+        _finishedViewport.Reset(); UpdateViewport(true);
     }
 
     private async void Finish_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
@@ -245,32 +245,43 @@ public partial class MainWindow : Window
         _viewport.Reset(); UpdateViewport();
     }
 
-    private void UpdateViewport()
+    private void UpdateViewport(bool finished = false)
     {
-        ImageScale.ScaleX = ImageScale.ScaleY = _viewport.Zoom;
-        ImageTranslation.X = _viewport.TranslationX; ImageTranslation.Y = _viewport.TranslationY;
+        var state = finished ? _finishedViewport : _viewport;
+        var transforms = (TransformGroup)(finished ? FinishedImageView : ImageView).RenderTransform!;
+        var scale = (ScaleTransform)transforms.Children[0]; var translation = (TranslateTransform)transforms.Children[1];
+        scale.ScaleX = scale.ScaleY = state.Zoom;
+        translation.X = state.TranslationX; translation.Y = state.TranslationY;
     }
 
     private void Viewport_Wheel(object? sender, PointerWheelEventArgs e)
     {
-        if (_bitmap is null) return;
-        var pointer = e.GetPosition(ImageViewport); _viewport.Wheel(e.Delta.Y, pointer.X, pointer.Y);
-        UpdateViewport(); e.Handled = true;
+        bool finished = ReferenceEquals(sender, FinishedViewport);
+        if ((finished ? _finishedBitmap : _bitmap) is null) return;
+        var surface = finished ? FinishedViewport : ImageViewport; var state = finished ? _finishedViewport : _viewport;
+        var pointer = e.GetPosition(surface); state.Wheel(e.Delta.Y, pointer.X, pointer.Y);
+        UpdateViewport(finished); e.Handled = true;
     }
 
     private void Viewport_Pressed(object? sender, PointerPressedEventArgs e)
     {
-        if (_bitmap is null || !e.GetCurrentPoint(ImageViewport).Properties.IsLeftButtonPressed) return;
-        var pointer = e.GetPosition(ImageViewport); _viewport.BeginPan(pointer.X, pointer.Y);
-        e.Pointer.Capture(ImageViewport); e.Handled = true;
+        bool finished = ReferenceEquals(sender, FinishedViewport);
+        var surface = finished ? FinishedViewport : ImageViewport; var state = finished ? _finishedViewport : _viewport;
+        if ((finished ? _finishedBitmap : _bitmap) is null || !e.GetCurrentPoint(surface).Properties.IsLeftButtonPressed) return;
+        var pointer = e.GetPosition(surface); state.BeginPan(pointer.X, pointer.Y);
+        e.Pointer.Capture(surface); e.Handled = true;
     }
 
     private void Viewport_Moved(object? sender, PointerEventArgs e)
     {
-        if (!_viewport.IsPanning || !e.GetCurrentPoint(ImageViewport).Properties.IsLeftButtonPressed) return;
-        var pointer = e.GetPosition(ImageViewport); _viewport.Move(pointer.X, pointer.Y); UpdateViewport();
+        bool finished = ReferenceEquals(sender, FinishedViewport);
+        var surface = finished ? FinishedViewport : ImageViewport; var state = finished ? _finishedViewport : _viewport;
+        if (!state.IsPanning || !e.GetCurrentPoint(surface).Properties.IsLeftButtonPressed) return;
+        var pointer = e.GetPosition(surface); state.Move(pointer.X, pointer.Y); UpdateViewport(finished);
     }
 
-    private void Viewport_Released(object? sender, PointerReleasedEventArgs e) { _viewport.EndPan(); e.Pointer.Capture(null); }
-    private void Viewport_CaptureLost(object? sender, PointerCaptureLostEventArgs e) => _viewport.EndPan();
+    private void Viewport_Released(object? sender, PointerReleasedEventArgs e)
+    { (ReferenceEquals(sender, FinishedViewport) ? _finishedViewport : _viewport).EndPan(); e.Pointer.Capture(null); }
+    private void Viewport_CaptureLost(object? sender, PointerCaptureLostEventArgs e)
+        => (ReferenceEquals(sender, FinishedViewport) ? _finishedViewport : _viewport).EndPan();
 }

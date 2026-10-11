@@ -12,9 +12,10 @@ public static partial class ViewerFinishService
         // Only consider coverage cropping when a corner is missing; never crop around a subject.
         int emptyCorners = 0;
         foreach (var (x, y) in new[] { (left, top), (right - 1, top), (left, bottom - 1), (right - 1, bottom - 1) })
-            if (!reader.HasSignal(y * sourceWidth + x, colors)) emptyCorners++;
+            if (!reader.HasContent(y * sourceWidth + x, colors)) emptyCorners++;
         if (emptyCorners == 0) return;
         var heights = new int[columns]; var stack = new int[columns + 1];
+        int populatedCells = 0;
         long bestArea = 0; int bestX = 0, bestY = 0, bestW = 0, bestH = 0;
         for (int y = 0; y < rows; y++)
         {
@@ -27,9 +28,10 @@ public static partial class ViewerFinishService
                 {
                     int px = left + x * cellX + sx * (cellX - 1) / 2;
                     int py = top + y * cellY + sy * (cellY - 1) / 2;
-                    if (!reader.HasSignal(py * sourceWidth + px, colors)) empty++;
+                    if (!reader.HasContent(py * sourceWidth + px, colors)) empty++;
                 }
                 heights[x] = empty >= 2 ? 0 : heights[x] + 1;
+                if (empty < 2) populatedCells++;
             }
             int count = 0;
             for (int x = 0; x <= columns; x++)
@@ -41,14 +43,17 @@ public static partial class ViewerFinishService
                     int start = count == 0 ? 0 : stack[count - 1] + 1;
                     int rectangleWidth = x - start, startY = y + 1 - rectangleHeight;
                     long area = (long)rectangleWidth * cellX * rectangleHeight * cellY;
-                    if (area > bestArea && rectangleWidth * cellX >= width * 0.70 && rectangleHeight * cellY >= height * 0.70
+                    if (area > bestArea && rectangleWidth * cellX >= width * 0.50 && rectangleHeight * cellY >= height * 0.50
                         && start <= columns / 2 && x > columns / 2 && startY <= rows / 2 && y >= rows / 2)
                     { bestArea = area; bestX = start; bestY = startY; bestW = rectangleWidth; bestH = rectangleHeight; }
                 }
                 if (x < columns) stack[count++] = x;
             }
         }
-        if (bestArea < (long)width * height * 0.70) return;
+        // Judge retention against actual mosaic coverage, not its empty bounding box.
+        // A large safety floor and the center/axis checks prevent a tight subject crop.
+        if (bestArea < (long)populatedCells * cellX * cellY * 0.60
+            || bestArea < (long)width * height * 0.35) return;
         right = left + (bestX + bestW) * cellX; bottom = top + (bestY + bestH) * cellY;
         left += bestX * cellX; top += bestY * cellY;
     }
