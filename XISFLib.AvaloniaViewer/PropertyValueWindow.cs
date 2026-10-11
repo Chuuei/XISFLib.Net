@@ -2,6 +2,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Layout;
+using Avalonia.Data;
 using Avalonia.Media;
 using Avalonia.Platform.Storage;
 using XISFLib.Viewer;
@@ -14,13 +15,12 @@ public sealed class PropertyValueWindow : Window
     public PropertyValueWindow(PropertyEditorRow row, string value)
     {
         Title = "Property value"; Width = 850; Height = 600;
-        var pages = new PagedMetadataText(value);
-        int page = 0;
-        string displayedText = "";
+        var state = new PropertyValueEditorState(row, value);
+        DataContext = state;
         var root = new Grid { Margin = new Thickness(12), RowDefinitions = new("Auto,*,Auto") };
-        root.Children.Add(new TextBlock { Text = row.Id, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 0, 0, 8) });
+        root.Children.Add(new TextBlock { Text = state.Identifier, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 0, 0, 8) });
         var text = new TextBox { Name = "ValuePage", AcceptsReturn = true, AcceptsTab = true, IsReadOnly = row.IsReadOnly,
-            MaxLength = MetadataText.PageSize * 2, TextWrapping = TextWrapping.NoWrap };
+            MaxLength = state.MaximumPageLength, TextWrapping = TextWrapping.NoWrap };
         ScrollViewer.SetVerticalScrollBarVisibility(text, ScrollBarVisibility.Auto);
         ScrollViewer.SetHorizontalScrollBarVisibility(text, ScrollBarVisibility.Auto);
         Grid.SetRow(text, 1); root.Children.Add(text);
@@ -34,31 +34,27 @@ public sealed class PropertyValueWindow : Window
         var cancel = new Button { Content = "Close / cancel" };
         foreach (var control in new Control[] { previous, next, position, export, apply, cancel }) buttons.Children.Add(control);
         Content = root;
-        void Store() { if (!row.IsReadOnly && text.Text != displayedText) pages.SetPage(page, text.Text ?? ""); }
-        void Refresh()
-        {
-            text.Text = pages.GetPage(page); text.CaretIndex = 0;
-            displayedText = text.Text ?? "";
-            position.Text = $"Page {page + 1:N0}/{pages.PageCount:N0} · {pages.CharacterCount:N0} characters";
-            previous.IsEnabled = page > 0; next.IsEnabled = page + 1 < pages.PageCount;
-        }
-        previous.Click += (_, _) => { Store(); page--; Refresh(); };
-        next.Click += (_, _) => { Store(); page++; Refresh(); };
+        text.Bind(TextBox.TextProperty, new Binding(nameof(state.PageText)) { Mode = BindingMode.TwoWay });
+        position.Bind(TextBlock.TextProperty, new Binding(nameof(state.Position)));
+        previous.Bind(IsEnabledProperty, new Binding(nameof(state.HasPrevious)));
+        next.Bind(IsEnabledProperty, new Binding(nameof(state.HasNext)));
+        previous.Click += (_, _) => state.Previous();
+        next.Click += (_, _) => state.Next();
         cancel.Click += (_, _) => Close();
         apply.Click += async (_, _) =>
         {
-            Store(); IsEnabled = false;
-            if (pages.HasChanges) row.Value = await Task.Run(pages.BuildText);
+            IsEnabled = false;
+            await state.AcceptAsync();
             Close();
         };
         export.Click += async (_, _) =>
         {
             var file = await StorageProvider.SaveFilePickerAsync(new() { Title = "Export property text", DefaultExtension = "txt", ShowOverwritePrompt = true });
             if (file is null) return;
-            Store(); IsEnabled = false;
+            IsEnabled = false;
             try
             {
-                string full = await Task.Run(pages.BuildText);
+                string full = await state.GetFullTextAsync();
                 await using var stream = await file.OpenWriteAsync();
                 stream.SetLength(0);
                 await using var writer = new StreamWriter(stream, new System.Text.UTF8Encoding(false));
@@ -71,7 +67,6 @@ public sealed class PropertyValueWindow : Window
             }
             finally { IsEnabled = true; }
         };
-        Refresh();
     }
 
     public static async Task OpenAsync(Window owner, PropertyEditorRow row)

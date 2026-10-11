@@ -1,6 +1,6 @@
 # Avalonia viewer implementation plan
 
-Status: **all planned functionality implemented on 2026-10-11; portability and interactive verification remain open**. Both viewers use shared application services. Automated Windows evidence is recorded below; Linux/macOS CI execution, native-dialog/DPI interaction and long-session/cold-load measurements are not claimed complete. Checkboxes track requirements including verification, so unfinished checks are retained explicitly.
+Status: **planned WPF user functionality implemented; full parity certification remains open**. The ordered phase checklist was reconciled with the current source on 2026-10-11. Earlier implementation checkboxes had not been updated consistently. Completed implementation and outstanding verification now appear separately. Both viewers now bind the same WorkbenchViewModel and ViewerUtilityState, including session ownership, editor drafts and command orchestration. Automated Windows evidence is recorded below; Linux/macOS CI execution, native-dialog/DPI interaction and long-session/cold-load measurements are not claimed complete.
 
 Prepared on 2026-10-10 against repository HEAD `a7d788c1a6995b0b753a7b578d67d48e0ec21666` and the current WPF sources. Re-inventory functionality if the WPF application changes before implementation.
 
@@ -106,15 +106,18 @@ The current WPF editor has limits: complex/binary128/unavailable properties are 
 
 ## Ordered implementation phases
 
-Each phase should be a reviewable commit with a green applicable build/test set. Keep WPF working throughout. Add tests with the functionality rather than postponing all testing until the end. Update this file with completed checkboxes, evidence paths, selected versions, deviations, and the next action.
+This is the current implementation checklist, reconciled against the source and evidence logs below. Checked items are implemented or have the specifically described evidence; unchecked items state the remaining work explicitly. Historical slice logs describe the state at that time and are superseded by this checklist. The F01–F27 table still governs full parity certification.
+
+No missing WPF user action is currently identified by this audit. Both frontends now bind WorkbenchViewModel/ViewerUtilityState and share session ownership, drafts, commands, busy/status state and diagnostics. PropertyValueEditorState shares paged edits and ViewerViewportState shares zoom/pan geometry. Dialogs, grid commits, bitmap ownership and UI scheduling remain frontend handlers/delegates rather than a common interface hierarchy.
 
 ### 1. Freeze the baseline and resolve platform spikes
 
-- [ ] Recheck every WPF event handler/control against F01–F27; record defaults, supported edits, commit/discard behavior, and error paths.
-- [ ] Build/test existing solution and capture representative render hashes, save/reload results, metadata trees, utility values and load-stage timings under ignored `artifacts/avalonia-baseline/`.
+- [x] Record the WPF feature inventory, defaults and editor/save contracts in F01–F27 and the application guide; implemented controls and handlers exist for the corresponding Avalonia operations.
+- [x] Build/test the solution; retain independent render hashes and shared save/tree/utility regressions, plus native load-stage reports under `artifacts/avalonia-baseline/`.
 - [x] Verify compatible stable Avalonia desktop/theme/grid/headless packages, licensing, diagnostics changes, and .NET 10 support.
-- [ ] Prototype framebuffer transfer (BGRA, alpha, stride, DPI), editable-grid row addition/deletion and commit, metadata-tree performance, and native local-path dialogs.
-- [ ] Run raster import compatibility spikes for PNG/JPEG/TIFF/BMP/GIF; choose decoder(s) and record platform gaps with a concrete implementation path.
+- [x] Implement and test framebuffer transfer, editable-grid commits and metadata-tree content/defaults. Native local-path dialog handlers are implemented.
+- [x] Select Magick.NET-Q16-AnyCPU 15.0.0 and run Windows independent PNG/JPEG/TIFF/BMP/GIF compatibility checks; document decoder limits and per-OS gaps.
+- [ ] Complete native-dialog, expanded-tree and per-OS codec interaction verification (phases 8 and 11).
 
 Exit: baseline evidence exists; dependencies and difficult platform features have tested approaches. No unresolved codec is treated as optional parity.
 
@@ -125,7 +128,9 @@ Depends on phase 1.
 - [x] Move the numeric/display part of `XisfWindowsExtensions` into core `Imaging`, including options, orientation and DPI helpers.
 - [x] Keep `ToBitmap`, `ToBitmapSource`, and `ToBgra32Pixels` Windows APIs as wrappers over the same renderer; avoid duplicate image-sized buffers.
 - [x] Add core render tests and retain Windows adapter tests, including all orientations, layouts/endians, RGB/Lab/alpha, non-finite values and stored display functions.
-- [ ] Compare against frozen baseline hashes and measure allocation changes; update API docs and any type forwarding.
+- [x] Compare against 288 frozen pre-extraction render hashes; update rendering API documentation and retain the XisfStretchOptions type forwarder.
+- [x] Record warm rendering/load allocation measurements in the benchmark reports.
+- [ ] Complete cold-load and long-session managed/native-memory comparisons in phase 11.
 
 Exit: WPF output matches baseline, the renderer builds/tests without Windows, and no UI framework has entered core.
 
@@ -134,11 +139,12 @@ Exit: WPF output matches baseline, the renderer builds/tests without Windows, an
 Depends on phase 2.
 
 - [x] Add `XISFLib.Viewer.Core` and its tests to the solution.
-- [ ] Extract session loading/selection, row models, property/table codecs, metadata-tree construction, save mode selection, diagnostics and utility orchestration.
-- [ ] Introduce testable async operation state and framework service interfaces. Stage editor parsing before mutation; keep buffer ownership/source lifetime explicit.
-- [ ] Adapt WPF handlers incrementally to the shared view models/services. Preserve control names or update existing reflection-based benchmarks alongside them.
-- [ ] Test byte-copy versus re-encode, selected-image scope, conversion-loss presentation, failed operation recovery and editor commit/discard rules.
-- [ ] Handle OS-specific path identity safely; do not carry Windows case-insensitive comparisons into Linux same-file logic. Never overwrite a source through an alias accidentally.
+- [x] Extract ViewerSession, editor rows/codecs, metadata-tree building, ViewerFileService and utility services/state. Both frontends use WorkbenchViewModel for load/selection/diagnostics orchestration.
+- [x] Add testable async operation state, closure/generation guards and presentation/yield delegates; stage parsing before mutation and document ownership/source lifetime. Frontend dialog handlers replace the originally suggested interface hierarchy.
+- [x] Adapt WPF to the same WorkbenchViewModel and ViewerUtilityState as Avalonia, retaining native handlers for dialogs, grid commits and presentation. Existing benchmark control names remain usable.
+- [x] Test copy/re-encode, selected-image scope, conversion findings, failure recovery and editor commit/discard contracts in shared and frontend regressions.
+- [x] Implement OS-specific path comparison and staged copy publication that replaces destination aliases rather than writing through them.
+- [ ] Verify case-sensitive paths and source/destination alias behavior on Linux/macOS runners (phase 11).
 
 Exit: WPF consumes the shared behavior with equivalent output and performance. Scientific logic/editor parsing is not copied into a second frontend.
 
@@ -148,7 +154,7 @@ Depends on phase 3.
 
 - [x] Create `XISFLib.AvaloniaViewer` with desktop `Program.cs`, `App.axaml`, `MainWindow.axaml`, selected theme and compiled bindings.
 - [x] Add solution entries and references to viewer core/core library; verify there is no WPF, WinForms, `System.Drawing.Common`, or `XISFLib.Windows` dependency in the portable frontend.
-- [ ] Build the sidebar and six tabs, compose dialog/error/scheduler services, wire status and command enablement.
+- [x] Build the sidebar and all six populated tabs; wire frontend dialogs, error feedback, UI scheduling, status and command enablement.
 - [x] Add `XISFLib.AvaloniaViewer.Tests`, the actual selected headless package/theme, and a startup/binding test. Confirm xUnit package compatibility with the repository.
 
 Exit: both applications build and start; the Avalonia shell binds to shared state. Empty tabs are still marked pending, not completed features.
@@ -157,11 +163,11 @@ Exit: both applications build and start; the Avalonia shell binds to shared stat
 
 Depends on phase 4.
 
-- [ ] Wire F01–F06 with the shared loader, lazy selection and BGRA renderer.
+- [x] Wire F01–F06 loading, lazy selection, display/stretch controls and BGRA rendering; native keyboard/dialog/DPI certification remains in phase 11.
 - [x] Transfer rows into Avalonia bitmap storage with explicit alpha mode/stride/DPI and deterministic disposal.
-- [ ] Port pointer anchoring, zoom clamp/step, pan capture/loss/release and viewport reset/resize behavior.
-- [ ] Present the bitmap before metadata/editor work; guard session replacement/window closure and suppress obsolete results.
-- [ ] Test malformed files, unsupported render types, multi-image files, failed loads and operation recovery. Preserve useful diagnostics even if an image cannot be displayed.
+- [x] Port pointer-anchored zoom, clamp/step, pan capture/loss/release and viewport reset; the Image uses Stretch="Uniform" to fit the viewport as it resizes. Headless gestures are covered.
+- [x] Present the bitmap before metadata/editor work; guard session replacement/window closure and suppress obsolete results.
+- [x] Add malformed-input, unsupported-render, multi-image, failed-load and recovery regressions; retain the previous session/diagnostics on failed loads.
 
 Exit: astronomy files display with verified pixel parity and responsive UI; F01–F06 have evidence.
 
@@ -170,8 +176,9 @@ Exit: astronomy files display with verified pixel parity and responsive UI; F01�
 Depends on phase 5.
 
 - [x] Bind complete shared metadata trees, XML nodes, FITS HDU headers, comments, tables and ancillary values.
-- [ ] Preserve expanded defaults/order and empty-state behavior; verify virtualization or incremental population with large trees rather than assuming WPF settings port directly.
-- [ ] Display both diagnostic types and explicit validation results, including conversion omissions after saves.
+- [x] Preserve metadata order, expansion defaults and empty states; test collapsed large branches and bound displayed text. Native tim-ray property-grid scrolling is measured.
+- [ ] Verify expanded large-tree scrolling/population on each desktop OS; collapsed-tree tests do not establish expanded-tree virtualization.
+- [x] Display XISF/FITS findings and explicit validation results, including conversion omissions after saves.
 
 Exit: F08 and the validation portion of F20 are verified, with no full tree build blocking the first preview.
 
@@ -180,9 +187,9 @@ Exit: F08 and the validation portion of F20 are verified, with no full tree buil
 Depends on phase 6.
 
 - [x] Implement image attributes, property/FITS grids, document metadata/properties, and row add/remove/commit behavior.
-- [ ] Implement CFA, working-space, display-function, ICC and first-table controls; use shared parsing and validation.
-- [ ] Preserve matrix dimensions, format/comments, type aliases and current unsupported-editor rules. Explicitly commit focused grid cells before taking a save snapshot.
-- [ ] Verify all edited fields through serialized outputs, not only bindings; check invalid edits do not partially corrupt the live session.
+- [x] Implement CFA, working-space, display-function, ICC and first-table controls with shared parsing and validation.
+- [x] Preserve matrix dimensions, format/comments, type aliases and unsupported originals; commit focused cells before save snapshots. At the user's request the image-property grid exposes only ID, Type, Value and Inspect, matching WPF; retained dimensions/format/comments are not extra image-grid columns.
+- [x] Verify edited fields through shared serialized-output regressions and frontend active-cell tests; malformed edits are staged before live mutation.
 
 Exit: F09–F12, F14 and F15 pass applicable tests; attachment/thumbnail integration completes in phase 8.
 
@@ -192,9 +199,9 @@ Depends on phases 1 and 7.
 
 - [x] Implement the chosen raster-decoder services, native codec dependencies and native-dialog filters.
 - [x] Match frame zero, UInt8 RGB/RGBA, actual transparency detection, thumbnail alpha omission, identifier and DPI behavior.
-- [ ] Verify decoded sample results against WPF for independent small fixtures; explicitly investigate color-profile/EXIF/rounding differences.
+- [x] Compare independent WIC fixtures with the shared decoder for channels, alpha, DPI, frame zero and high-bit TIFF rounding; document that universal TIFF/ICC/EXIF preservation is not promised by either viewer.
 - [x] Attach ICC/profile bytes and import thumbnails on workers; dispose decoder resources. Long-session native-memory checks remain in phase 11.
-- [ ] Close the per-OS codec matrix for the five required formats; do not announce full cross-platform parity prematurely.
+- [ ] Execute the codec/native-library matrix on Linux/macOS and representative real TIFF/ICC/EXIF variants; do not announce full cross-platform parity prematurely.
 
 Exit: F07/F13 are verified on Windows; portability gaps and their implementation status are explicit.
 
@@ -205,8 +212,9 @@ Depends on phase 8.
 - [x] Wire writer configuration and defaults, including all compression/checksum values and shuffle.
 - [x] Match byte-identical copy availability/default, ignored-editor warning and same-source behavior; verify complete source hashes.
 - [x] Wire selected-image re-encoding, distributed pair paths, FITS checksums and displayed conversion losses using shared save orchestration.
-- [ ] Match extension/overwrite/cancel dialog behavior, reload the saved document, and refresh sessions/editors/previews/diagnostics coherently.
-- [ ] Exercise same-path save, existing destination, denied access, serialization failure and distributed partial-output contracts. Apply any safety fixes to both viewers.
+- [x] Implement native extension/filter choices, overwrite prompts and cancellation handling; reload saved output and refresh sessions/editors/previews/diagnostics.
+- [x] Test same-path copy, existing-output preservation, failed serialization, selected-image/distributed reload and failure recovery. Both viewers use the same save service; distributed pairs retain the documented nontransactional contract.
+- [ ] Exercise native extension selection, cancel/overwrite prompts, denied-access dialogs and distributed partial-output failures interactively on supported OSes.
 
 Exit: F16–F20 pass with byte/hash/numeric evidence and documented preservation limits.
 
@@ -238,11 +246,14 @@ Exit: F26 and all claimed OS parity have real evidence; no unresolved major perf
 
 Depends on phase 11.
 
-- [ ] Add an Avalonia Windows x64 self-contained publish profile and clean-machine launch smoke check. Verify actual native assets and single-file extraction behavior; keep trimming/AOT disabled initially unless separately validated.
-- [ ] Add portable CI jobs for shared/viewer tests and app builds, plus per-RID packaging/smoke checks for supported OSes. Keep existing Windows/WPF build, audit, Pages and release behavior intact.
-- [ ] Upload clearly named Avalonia artifacts. Extend tag releases with those assets while retaining WPF assets, existing release notes/prerelease behavior and narrowly scoped write permissions.
-- [ ] Add run/publish instructions, native prerequisites and documented limitations to application/getting-started/contributing guides. Update architecture, AGENTS.md and any DocFX metadata for new public rendering APIs.
-- [ ] Run the full applicable build/test/audit/DocFX checks; mark F01–F27 Done only with linked evidence. Review unresolved platform gaps explicitly.
+- [x] Add the Avalonia Windows x64 self-contained publish profile; verify single-executable output and local native extraction/launch. Trimming/AOT remain disabled.
+- [ ] Verify launch on a clean machine without an SDK; a local standalone run on the development machine is not that evidence.
+- [x] Configure portable CI tests, per-RID publication and native probes; retain existing Windows/WPF build, audit, Pages and release rules.
+- [x] Configure named Avalonia artifact uploads and tag-release ZIP assets alongside WPF, preserving notes/prerelease rules and permission scope.
+- [ ] Obtain successful remote matrix/artifact/release execution evidence; editing the workflow is not proof that GitHub ran it successfully.
+- [x] Update application/getting-started/contributing guides, prerequisites, limitations, architecture, AGENTS.md and DocFX rendering API metadata.
+- [x] Run applicable local Release build/tests/audit/strict DocFX checks; evidence is in the implementation logs and durable regressions.
+- [ ] Close outstanding F-row verification and review remaining platform gaps before declaring full parity certification complete.
 
 Exit: both viewers are usable and distributed, and feature parity is demonstrated for each supported platform rather than inferred from shared code.
 
@@ -260,7 +271,7 @@ Completion requires every F-row to be Done with evidence, both viewers' applicab
 | --- | --- | --- | --- |
 | 1 | Implemented; interactive baseline partial | Independent render baseline, editor/codec/utility/save regressions and native tab renders exist. | Complete native dialog/DPI inventory |
 | 2 | Implemented | Independent hashes, wrappers/type forwarding, native bitmap and staged allocation measurements exist. | Long-session/native allocation checks remain in phase 11 |
-| 3 | Implemented | WPF adopts shared loading/rendering/information/editor/raster/save/utility services. Async portable state has failure and closure guards. | Retain frontend-specific events and shared contracts |
+| 3 | Implemented | Both frontends bind the same workbench/utility state, editor drafts and orchestration. Async portable state has failure and closure guards. | Retain frontend-specific events and shared contracts |
 | 4 | Implemented | All six tabs, local-path dialogs, commands/status and headless tests are wired. | Interactive platform checklist |
 | 5 | Implemented; desktop verification partial | Loading/selection/stretch/unload, alpha/stride/orientation/DPI and pointer gesture tests pass. | Full native keyboard/DPI interaction |
 | 6 | Implemented; desktop verification partial | Complete shared tree, explicit validation and conversion findings after reload. Collapsed large-tree tests pass. | Expanded large-tree native scroll verification |
@@ -381,3 +392,11 @@ Large-metadata follow-up (October 2026): both property grids now bind bounded pr
 - [Avalonia headless xUnit testing](https://docs.avaloniaui.net/docs/testing/headless-xunit): framework-specific test setup, dispatcher and isolation requirements.
 - [Microsoft MVVM Toolkit](https://learn.microsoft.com/en-us/dotnet/communitytoolkit/mvvm/): framework-independent MVVM support.
 - [ImageSharp project and license](https://github.com/SixLabors/ImageSharp): evaluate decoder capabilities and current license eligibility before selecting the dependency.
+
+### 2026-10-11: Consolidate both frontends on shared state
+
+WPF now binds the same WorkbenchViewModel and ViewerUtilityState as Avalonia. Removed its duplicate session fields, editor population/parsing wrappers, loading/rendering/save orchestration, busy/diagnostic state and utility handlers. Native controls, dialogs, cell commits, frozen WPF bitmaps and disposable Avalonia bitmaps remain frontend adapters. Creator names identify each application; writer defaults are shared.
+
+PropertyValueEditorState centralizes bounded page navigation, staged edits and full-text reconstruction. ViewerViewportState centralizes pointer-anchored zoom, bounds and captured-pan geometry. Tests cover staged export/acceptance, unchanged typed-array preservation and viewport geometry. WPF regressions now exercise shared state through real bindings and the save entry point, including active-cell commits, invalid drafts, byte-copy bypass and failed-load recovery. The hidden WPF benchmark initializes bindings before setting the path and invoking the actual load handler.
+
+Checks: all 291 tests passed (182 core, 36 Windows, 63 shared, 10 Avalonia). The WPF load probe successfully loaded slow.xisf and all four FITS examples; evidence is artifacts/consolidation/wpf-load.json. The standalone Windows Avalonia smoke probe passed, including saves/utilities and all six tab captures; evidence is artifacts/consolidation/avalonia-smoke.json. These checks do not certify native dialogs, DPI, physical screen timing or other operating systems.

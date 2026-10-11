@@ -5,7 +5,7 @@ using CommunityToolkit.Mvvm.Input;
 
 namespace XISFLib.Viewer;
 
-/// <summary>Initial portable loading/preview state; editor and writer commands are migrated in later phases.</summary>
+/// <summary>Shared desktop workbench state and orchestration for both WPF and Avalonia.</summary>
 public sealed class WorkbenchViewModel : ObservableObject
 {
     private readonly Func<XisfBgra32Image?, Task> _present;
@@ -99,6 +99,7 @@ public sealed class WorkbenchViewModel : ObservableObject
     public string IccProfileDescription => _iccProfile is null ? "None" : $"{_iccProfile.Length:N0} bytes";
     public string ThumbnailDescription => _thumbnail is null ? "None" : string.Join(" × ", _thumbnail.Dimensions);
     public bool CanEditMetadata => CanInteract && SelectedImage is not null;
+    public bool ShouldCopyOriginal(string outputPath) => !ViewerSession.IsFitsPath(outputPath) && !Distributed && CanCopyOriginal && PreserveOriginal;
     public IAsyncRelayCommand LoadCommand { get; }
     public IAsyncRelayCommand UnloadCommand { get; }
     public IAsyncRelayCommand ApplyCommand { get; }
@@ -222,7 +223,7 @@ public sealed class WorkbenchViewModel : ObservableObject
     {
         var image = SelectedImage ?? throw new InvalidOperationException("Load or import an image first.");
         bool fits = ViewerSession.IsFitsPath(path), distributed = !fits && Distributed;
-        string? copySource = !fits && !distributed && PreserveOriginal && CanCopyOriginal ? _session!.SourcePath : null;
+        string? copySource = ShouldCopyOriginal(path) ? _session!.SourcePath : null;
         DocumentEditorSnapshot document;
         XisfWriterOptions options;
         if (copySource is not null)

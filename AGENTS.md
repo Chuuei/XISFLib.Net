@@ -19,11 +19,11 @@ Raster import in the viewers is limited to PNG, JPEG, TIFF, BMP, and GIF. Keep t
 | `XISFLib/` | Platform-independent `net10.0` library: XISF/FITS models, codecs, validation, conversion, imaging utilities, astronomy |
 | `XISFLib.Windows/` | `net10.0-windows` WPF/Windows Forms bitmap adapters, frozen bitmap sources |
 | `XISFLib.Convert/` | Batch XISF-to-FITS console application; testable logic in `BatchConversion.cs` |
-| `XISFLib.WpfViewer/` | WPF workbench/sample; `MainWindow.xaml.cs`, `.Workbench.cs`, and `.Utilities.cs` divide responsibilities |
+| `XISFLib.WpfViewer/` | WPF views and native adapters; `MainWindow.xaml.cs` and `.Workbench.cs` bind shared workbench state |
 | `XISFLib.Benchmarks/` | Elapsed-time and allocation measurements, including the actual WPF load path |
 | `XISFLib.Tests/` | xUnit core, malformed-input, numeric, conversion, astronomy, metadata, and converter tests |
 | `XISFLib.Windows.Tests/` | xUnit rendering and Windows adapter tests |
-| `XISFLib.Viewer.Core/` | Shared sessions, editor parsing, save/import and utility services |
+| `XISFLib.Viewer.Core/` | Shared workbench/session state, commands, editors, paging, viewport geometry, save/import and utilities |
 | `XISFLib.AvaloniaViewer/` | Avalonia desktop workbench and native publication/load probes |
 | `XISFLib.Viewer.Core.Tests/` | Shared session/state regressions |
 | `XISFLib.AvaloniaViewer.Tests/` | xUnit v3 headless tests with real Skia bitmap backend |
@@ -158,7 +158,7 @@ CI validates all four test suites, core packaging, dependency auditing, strict D
 
 ## Further reading
 
-Viewer migration implementation is complete for the planned feature set. Viewer.Core now shares sessions, metadata trees, typed property/FITS/attribute/document/table parsing, ViewerFileService save modes, ViewerRasterDecoder imports and ViewerUtilityService calculations. Avalonia exposes all six tabs and every WPF workbench operation. Native dialog/DPI/expanded-tree interaction certification and Linux/macOS runner results remain open in the parity audit; do not call these verified merely because the implementation builds.
+Viewer migration implementation is complete for the planned feature set. Both frontends bind the same WorkbenchViewModel and ViewerUtilityState: session ownership, busy/closure guards, editor drafts, load/selection/render/save orchestration, diagnostics and utility commands belong in Viewer.Core. PropertyValueEditorState shares bounded page navigation and staged edits; ViewerViewportState shares zoom/pan geometry. Keep dialogs, active-cell commits, pointer capture, transforms and bitmap ownership in the frontend. WPF freezes BitmapSource on a worker; Avalonia transfers/disposes native bitmaps on the UI thread. Avalonia exposes all six tabs and every WPF workbench operation. Native dialog/DPI/expanded-tree interaction certification and Linux/macOS runner results remain open in the parity audit; do not call these verified merely because the implementation builds.
 
 Editor contracts: commit active cells before snapshots, parse document rows and every image/table field before mutation, retain unsupported/unavailable property objects/XML, and keep unrepresentable tables read-only. Apply edits persist per image; selection discards unapplied image rows/attributes/attachments. Document rows survive image selection and reset on load/unload. Creator settings persist. Timestamp formatting retains fractional seconds and offsets. Preserve RGB/display names and derive luminance through XisfColorSpace; metadata editing does not change sample storage or geometry.
 
@@ -174,7 +174,7 @@ CI retains the Windows solution/tests, WPF single-executable asset and Pages beh
 
 Native probe: dotnet run --project XISFLib.AvaloniaViewer -c Release -- --smoke-test artifacts/avalonia-smoke/report.json. Staged load benchmark: dotnet run --project XISFLib.AvaloniaViewer -c Release -- --benchmark 5 artifacts/avalonia-load.json Examples. Both modes exit when finished and never run during normal startup. Reports/screenshots stay under artifacts. Assignment timings and render-target captures are not physical screen-presentation measurements.
 
-- [Avalonia viewer migration plan](docs/plans/avalonia-viewer-migration.md): future project creation, shared-code extraction, ordered implementation phases and feature-parity checklist. Initial projects are implemented; remaining functionality and evidence are tracked in the plan. Update its progress/evidence as work proceeds.
+- [Avalonia viewer migration plan](docs/plans/avalonia-viewer-migration.md): completed implementation phases, consolidation history, feature-parity checklist and outstanding verification evidence. Update its progress/evidence as work proceeds.
 
 - [Contributing](CONTRIBUTING.md): development, packaging, documentation, CI.
 - [API guide](docs/api-guide.md) and [migration](docs/api-migration.md): recommended public usage.

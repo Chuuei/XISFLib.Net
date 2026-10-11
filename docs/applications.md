@@ -2,6 +2,8 @@
 
 The solution includes WPF and Avalonia workbenches, a batch converter, and benchmark harnesses. They demonstrate the public library APIs; reference `XISFLib` or `XISFLib.Windows` directly when integrating the library into another application.
 
+Both viewers bind the same workbench and utility state. Loading, selection, editor drafts, saving, diagnostics and calculations follow one implementation in `Viewer.Core`. Property dialogs share staged paging, and zoom/pan share viewport geometry. Frontends provide native controls, dialogs, grid commits and bitmap handling. Writer defaults are shared: zlib, SHA-256 and byte shuffling; creator-application names identify the frontend.
+
 ## Avalonia viewer
 
 Run with the .NET 10 SDK:

@@ -1,6 +1,5 @@
 using System.Diagnostics;
 using System.IO;
-using System.Reflection;
 using System.Text.Json;
 using System.Windows;
 using System.Windows.Controls;
@@ -39,10 +38,11 @@ internal static class WpfLoadBenchmarks
                 var window = new MainWindow();
                 // Exercise the actual click handler and dispatcher without opening a window.
                 window.RaiseEvent(new RoutedEventArgs(FrameworkElement.LoadedEvent));
+                Dispatcher.CurrentDispatcher.Invoke(() => { }, DispatcherPriority.DataBind);
                 ((TextBox)window.FindName("FilePathTextBox")).Text = Path.GetFullPath(path);
                 var view = (Image)window.FindName("ImageView");
                 var status = (TextBlock)window.FindName("StatusText");
-                var busy = typeof(MainWindow).GetField("_isBusy", BindingFlags.NonPublic | BindingFlags.Instance)!;
+                var state = (XISFLib.Viewer.WorkbenchViewModel)window.DataContext;
                 var frame = new DispatcherFrame();
                 double? ready = null;
                 var watch = Stopwatch.StartNew();
@@ -50,7 +50,7 @@ internal static class WpfLoadBenchmarks
                 timer.Tick += (_, _) =>
                 {
                     if (view.Source is not null) ready ??= watch.Elapsed.TotalMilliseconds;
-                    if (!(bool)busy.GetValue(window)!) frame.Continue = false;
+                    if (!state.IsBusy) frame.Continue = false;
                     if (watch.Elapsed.TotalSeconds > 60) { timer.Stop(); throw new TimeoutException("WPF load timed out."); }
                 };
                 timer.Start();
@@ -66,11 +66,15 @@ internal static class WpfLoadBenchmarks
             Console.WriteLine($"{path}: bitmap assigned {sourceMilliseconds:F2} ms; all tabs ready {completeMilliseconds:F2} ms");
             results.Add(new { Path = path, BitmapAssignedMilliseconds = sourceMilliseconds, AllTabsReadyMilliseconds = completeMilliseconds });
         }
-        if (output is not null) File.WriteAllText(output, JsonSerializer.Serialize(new
+        if (output is not null)
         {
-            Runtime = Environment.Version.ToString(), Environment.ProcessorCount, Iterations = iterations,
-            Measurement = "Hidden window; time to Image.Source assignment and load completion. Excludes process startup and physical screen presentation.",
-            Results = results
-        }, new JsonSerializerOptions { WriteIndented = true }));
+            Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(output))!);
+            File.WriteAllText(output, JsonSerializer.Serialize(new
+            {
+                Runtime = Environment.Version.ToString(), Environment.ProcessorCount, Iterations = iterations,
+                Measurement = "Hidden window; time to Image.Source assignment and load completion. Excludes process startup and physical screen presentation.",
+                Results = results
+            }, new JsonSerializerOptions { WriteIndented = true }));
+        }
     }
 }

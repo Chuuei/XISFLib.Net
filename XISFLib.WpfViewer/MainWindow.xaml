@@ -1,16 +1,9 @@
-<Window x:Class="XISFLib.WpfViewer.MainWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:local="clr-namespace:XISFLib.WpfViewer"
-        xmlns:viewer="clr-namespace:XISFLib.Viewer;assembly=XISFLib.Viewer.Core"
-        Title="XISF Library Workbench" Height="900" Width="1450" MinHeight="650" MinWidth="1050"
-        Loaded="Window_Loaded">
+<Window x:Class="XISFLib.WpfViewer.MainWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:XISFLib.WpfViewer" xmlns:viewer="clr-namespace:XISFLib.Viewer;assembly=XISFLib.Viewer.Core" Title="XISF Library Workbench" Height="900" Width="1450" MinHeight="650" MinWidth="1050" Loaded="Window_Loaded">
     <Window.Resources>
         <HierarchicalDataTemplate DataType="{x:Type viewer:MetadataNode}" ItemsSource="{Binding Children}">
             <StackPanel Orientation="Horizontal">
                 <TextBlock Text="{Binding Name}" FontWeight="SemiBold" />
-                <TextBlock Text="{Binding DisplayValue, StringFormat={}{0}}" Margin="8,0,0,0" Foreground="#606060"
-                           TextWrapping="Wrap" />
+                <TextBlock Text="{Binding DisplayValue, StringFormat={}{0}}" Margin="8,0,0,0" Foreground="#606060" TextWrapping="Wrap" />
             </StackPanel>
         </HierarchicalDataTemplate>
     </Window.Resources>
@@ -22,8 +15,7 @@
 
         <Border Grid.Column="0" Padding="16" BorderBrush="#404040" BorderThickness="0,0,1,0">
             <DockPanel>
-                <TextBlock DockPanel.Dock="Bottom" x:Name="StatusText" Margin="0,16,0,0"
-                           Text="Open an XISF file or import a standard image to begin." TextWrapping="Wrap" Foreground="#606060" />
+                <TextBlock DockPanel.Dock="Bottom" x:Name="StatusText" Margin="0,16,0,0" Text="{Binding Status, Mode=OneWay}" TextWrapping="Wrap" Foreground="#606060" />
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel>
                         <TextBlock Text="XISF Library Workbench" FontSize="22" FontWeight="SemiBold" Margin="0,0,0,18" />
@@ -34,38 +26,29 @@
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
-                            <TextBox x:Name="FilePathTextBox" VerticalContentAlignment="Center" />
-                            <Button Grid.Column="1" Content="Browse…" Margin="8,0,0,0" Padding="12,5"
-                                    Click="BrowseButton_Click" />
+                            <TextBox x:Name="FilePathTextBox" VerticalContentAlignment="Center" Text="{Binding FilePath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            <Button Grid.Column="1" Content="Browse…" Margin="8,0,0,0" Padding="12,5" Click="BrowseButton_Click" />
                         </Grid>
-                        <Button x:Name="LoadButton" Content="Load XISF or FITS" Padding="12,7" HorizontalAlignment="Stretch"
-                                Click="LoadButton_Click" />
-                        <Button x:Name="UnloadButton" Content="Unload image" Padding="12,7" Margin="0,8,0,0"
-                                HorizontalAlignment="Stretch" Click="UnloadButton_Click" />
-                        <Button x:Name="ImportButton" Content="Import PNG, JPEG, TIFF, BMP or GIF…" Padding="12,7"
-                                Margin="0,8,0,0" HorizontalAlignment="Stretch" Click="ImportButton_Click" />
+                        <Button x:Name="LoadButton" Content="Load XISF or FITS" Padding="12,7" HorizontalAlignment="Stretch" Click="LoadButton_Click" IsEnabled="{Binding CanInteract}" />
+                        <Button x:Name="UnloadButton" Content="Unload image" Padding="12,7" Margin="0,8,0,0" HorizontalAlignment="Stretch" Click="UnloadButton_Click" IsEnabled="{Binding CanInteract}" />
+                        <Button x:Name="ImportButton" Content="Import PNG, JPEG, TIFF, BMP or GIF…" Padding="12,7" Margin="0,8,0,0" HorizontalAlignment="Stretch" Click="ImportButton_Click" IsEnabled="{Binding CanInteract}" />
 
                         <TextBlock Text="Image in document" FontWeight="SemiBold" Margin="0,20,0,6" />
-                        <ComboBox x:Name="ImageSelector" IsEnabled="False" SelectionChanged="ImageSelector_SelectionChanged" />
-                        <TextBlock x:Name="ImageDetailsText" Margin="0,7,0,0" Foreground="#606060" TextWrapping="Wrap" />
+                        <ComboBox x:Name="ImageSelector" IsEnabled="False" SelectionChanged="ImageSelector_SelectionChanged" ItemsSource="{Binding ImageLabels}" SelectedIndex="{Binding SelectedImageIndex, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        <TextBlock x:Name="ImageDetailsText" Margin="0,7,0,0" Foreground="#606060" TextWrapping="Wrap" Text="{Binding ImageDetails, Mode=OneWay}" />
 
                         <Separator Margin="0,20" />
                         <TextBlock Text="Display configuration" FontSize="16" FontWeight="SemiBold" />
-                        <CheckBox x:Name="AutoStretchCheckBox" Content="Automatic screen stretch" IsChecked="True"
-                                  Margin="0,12,0,0" Checked="StretchSetting_Changed" Unchecked="StretchSetting_Changed" />
-                        <CheckBox x:Name="LinkChannelsCheckBox" Content="Link RGB channels" IsChecked="True"
-                                  Margin="20,8,0,0" Checked="StretchSetting_Changed" Unchecked="StretchSetting_Changed" />
+                        <CheckBox x:Name="AutoStretchCheckBox" Content="Automatic screen stretch" IsChecked="{Binding AutoStretch, Mode=TwoWay}" Margin="0,12,0,0" Checked="StretchSetting_Changed" Unchecked="StretchSetting_Changed" />
+                        <CheckBox x:Name="LinkChannelsCheckBox" Content="Link RGB channels" IsChecked="{Binding LinkChannels, Mode=TwoWay}" Margin="20,8,0,0" Checked="StretchSetting_Changed" Unchecked="StretchSetting_Changed" />
 
                         <TextBlock Text="Target background (0–1)" Margin="20,12,0,4" />
-                        <TextBox x:Name="TargetBackgroundTextBox" Text="0.25" Margin="20,0,0,0"
-                                 LostFocus="StretchValue_LostFocus" KeyDown="StretchValue_KeyDown" />
+                        <TextBox x:Name="TargetBackgroundTextBox" Text="{Binding TargetBackground, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="20,0,0,0" LostFocus="StretchValue_LostFocus" KeyDown="StretchValue_KeyDown" />
 
                         <TextBlock Text="Shadows clipping (≤ 0)" Margin="20,12,0,4" />
-                        <TextBox x:Name="ShadowsClippingTextBox" Text="-2.8" Margin="20,0,0,0"
-                                 LostFocus="StretchValue_LostFocus" KeyDown="StretchValue_KeyDown" />
+                        <TextBox x:Name="ShadowsClippingTextBox" Text="{Binding ShadowsClipping, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="20,0,0,0" LostFocus="StretchValue_LostFocus" KeyDown="StretchValue_KeyDown" />
 
-                        <Button x:Name="ApplyButton" Content="Apply display settings" Margin="0,16,0,0" Padding="12,7"
-                                Click="ApplyButton_Click" />
+                        <Button x:Name="ApplyButton" Content="Apply display settings" Margin="0,16,0,0" Padding="12,7" Click="ApplyButton_Click" IsEnabled="{Binding CanEditMetadata}" />
                         <Button Content="Third-party notices…" Click="NoticesButton_Click" Margin="0,8,0,0" />
                     </StackPanel>
                 </ScrollViewer>
@@ -75,17 +58,10 @@
         <TabControl Grid.Column="1">
             <TabItem Header="Image">
                 <Grid Background="#181818">
-                    <TextBlock x:Name="EmptyViewText" Text="No image loaded" Foreground="#A0A0A0"
-                               FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    <TextBlock x:Name="EmptyViewText" Text="No image loaded" Foreground="#A0A0A0" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center" />
                     <Border Margin="16" ClipToBounds="True">
-                        <Grid x:Name="ImageViewport" Background="Transparent" Cursor="Hand"
-                              MouseLeftButtonDown="ImageViewport_MouseLeftButtonDown"
-                              MouseLeftButtonUp="ImageViewport_MouseLeftButtonUp"
-                              MouseMove="ImageViewport_MouseMove"
-                              MouseWheel="ImageViewport_MouseWheel"
-                              LostMouseCapture="ImageViewport_LostMouseCapture">
-                            <Image x:Name="ImageView" Stretch="Uniform" SnapsToDevicePixels="True"
-                                   IsHitTestVisible="False" RenderTransformOrigin="0,0">
+                        <Grid x:Name="ImageViewport" Background="Transparent" Cursor="Hand" MouseLeftButtonDown="ImageViewport_MouseLeftButtonDown" MouseLeftButtonUp="ImageViewport_MouseLeftButtonUp" MouseMove="ImageViewport_MouseMove" MouseWheel="ImageViewport_MouseWheel" LostMouseCapture="ImageViewport_LostMouseCapture">
+                            <Image x:Name="ImageView" Stretch="Uniform" SnapsToDevicePixels="True" IsHitTestVisible="False" RenderTransformOrigin="0,0">
                                 <Image.RenderTransform>
                                     <TransformGroup>
                                         <ScaleTransform x:Name="ImageScaleTransform" ScaleX="1" ScaleY="1" />
@@ -99,14 +75,8 @@
             </TabItem>
             <TabItem Header="Information">
                 <Grid Background="#FAFAFA">
-                    <TextBlock x:Name="EmptyMetadataText" Text="Load an XISF file to view its metadata."
-                               Foreground="#606060" FontSize="16" HorizontalAlignment="Center"
-                               VerticalAlignment="Center" />
-                    <TreeView x:Name="MetadataTree" Margin="12" Background="Transparent"
-                              BorderThickness="0" Visibility="Collapsed"
-                              VirtualizingStackPanel.IsVirtualizing="True"
-                              VirtualizingStackPanel.VirtualizationMode="Recycling"
-                              ScrollViewer.HorizontalScrollBarVisibility="Auto">
+                    <TextBlock x:Name="EmptyMetadataText" Text="Load an XISF file to view its metadata." Foreground="#606060" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    <TreeView x:Name="MetadataTree" Margin="12" Background="Transparent" BorderThickness="0" Visibility="Collapsed" VirtualizingStackPanel.IsVirtualizing="True" VirtualizingStackPanel.VirtualizationMode="Recycling" ScrollViewer.HorizontalScrollBarVisibility="Auto" ItemsSource="{Binding Metadata}">
                         <TreeView.ItemContainerStyle>
                             <Style TargetType="TreeViewItem">
                                 <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=OneTime}" />
@@ -120,7 +90,7 @@
                     <StackPanel Margin="18" MaxWidth="1050" HorizontalAlignment="Left">
                         <TextBlock Text="Astronomy utilities" FontSize="18" FontWeight="SemiBold" />
                         <TextBlock Text="These controls call the public XISFLib utility APIs for the selected image." Foreground="#606060" Margin="0,4,0,12" />
-                        <DataGrid x:Name="AstronomyMetadataGrid" AutoGenerateColumns="False" IsReadOnly="True" HeadersVisibility="Column" MinHeight="160">
+                        <DataGrid x:Name="AstronomyMetadataGrid" AutoGenerateColumns="False" IsReadOnly="True" HeadersVisibility="Column" MinHeight="160" ItemsSource="{Binding Utilities.Overview}">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Field" Binding="{Binding Name}" Width="220" />
                                 <DataGridTextColumn Header="Value" Binding="{Binding Value}" Width="*" />
@@ -130,11 +100,11 @@
                         <TextBlock Text="Channel statistics" FontSize="16" FontWeight="SemiBold" Margin="0,20,0,6" />
                         <WrapPanel>
                             <TextBlock Text="Maximum samples per channel" VerticalAlignment="Center" />
-                            <TextBox x:Name="StatisticsSampleLimitTextBox" Text="500000" Width="110" Margin="8,0,12,0" />
-                            <CheckBox x:Name="NormalizeStatisticsCheckBox" Content="Normalize through image bounds" VerticalAlignment="Center" Margin="0,0,12,0" />
-                            <Button x:Name="CalculateStatisticsButton" Content="Calculate statistics" Padding="12,5" Click="CalculateStatisticsButton_Click" />
+                            <TextBox x:Name="StatisticsSampleLimitTextBox" Text="{Binding Utilities.SampleLimit, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="110" Margin="8,0,12,0" />
+                            <CheckBox x:Name="NormalizeStatisticsCheckBox" Content="Normalize through image bounds" VerticalAlignment="Center" Margin="0,0,12,0" IsChecked="{Binding Utilities.Normalize, Mode=TwoWay}" />
+                            <Button x:Name="CalculateStatisticsButton" Content="Calculate statistics" Padding="12,5" Command="{Binding Utilities.StatisticsCommand}" />
                         </WrapPanel>
-                        <DataGrid x:Name="StatisticsGrid" AutoGenerateColumns="False" IsReadOnly="True" Margin="0,8,0,0" MinHeight="150">
+                        <DataGrid x:Name="StatisticsGrid" AutoGenerateColumns="False" IsReadOnly="True" Margin="0,8,0,0" MinHeight="150" ItemsSource="{Binding Utilities.Statistics}">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Channel" Binding="{Binding Channel}" Width="Auto" />
                                 <DataGridTextColumn Header="Samples" Binding="{Binding SampleCount}" Width="Auto" />
@@ -151,12 +121,12 @@
 
                         <TextBlock Text="Histogram" FontSize="16" FontWeight="SemiBold" Margin="0,20,0,6" />
                         <WrapPanel>
-                            <TextBlock Text="Channel" VerticalAlignment="Center" /><ComboBox x:Name="HistogramChannelComboBox" Width="70" Margin="8,0,12,0" />
-                            <TextBlock Text="Bins" VerticalAlignment="Center" /><TextBox x:Name="HistogramBinCountTextBox" Text="256" Width="70" Margin="8,0,12,0" />
-                            <Button x:Name="CalculateHistogramButton" Content="Calculate histogram" Padding="12,5" Click="CalculateHistogramButton_Click" />
+                            <TextBlock Text="Channel" VerticalAlignment="Center" /><ComboBox x:Name="HistogramChannelComboBox" Width="70" Margin="8,0,12,0" ItemsSource="{Binding Utilities.Channels}" SelectedItem="{Binding Utilities.Channel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            <TextBlock Text="Bins" VerticalAlignment="Center" /><TextBox x:Name="HistogramBinCountTextBox" Text="{Binding Utilities.Bins, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="70" Margin="8,0,12,0" />
+                            <Button x:Name="CalculateHistogramButton" Content="Calculate histogram" Padding="12,5" Command="{Binding Utilities.HistogramCommand}" />
                         </WrapPanel>
-                        <TextBlock x:Name="HistogramSummaryText" Foreground="#606060" Margin="0,8,0,4" TextWrapping="Wrap" />
-                        <DataGrid x:Name="HistogramGrid" AutoGenerateColumns="False" IsReadOnly="True" MaxHeight="240">
+                        <TextBlock x:Name="HistogramSummaryText" Foreground="#606060" Margin="0,8,0,4" TextWrapping="Wrap" Text="{Binding Utilities.HistogramSummary, Mode=OneWay}" />
+                        <DataGrid x:Name="HistogramGrid" AutoGenerateColumns="False" IsReadOnly="True" MaxHeight="240" ItemsSource="{Binding Utilities.Histogram}">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Bin" Binding="{Binding Index}" Width="80" />
                                 <DataGridTextColumn Header="Lower edge" Binding="{Binding LowerEdge}" Width="*" />
@@ -167,28 +137,28 @@
 
                         <TextBlock Text="Region and channel access" FontSize="16" FontWeight="SemiBold" Margin="0,20,0,6" />
                         <WrapPanel>
-                            <TextBlock Text="X" VerticalAlignment="Center" /><TextBox x:Name="RegionXTextBox" Text="0" Width="55" Margin="5,0,10,0" />
-                            <TextBlock Text="Y" VerticalAlignment="Center" /><TextBox x:Name="RegionYTextBox" Text="0" Width="55" Margin="5,0,10,0" />
-                            <TextBlock Text="Width" VerticalAlignment="Center" /><TextBox x:Name="RegionWidthTextBox" Text="16" Width="55" Margin="5,0,10,0" />
-                            <TextBlock Text="Height" VerticalAlignment="Center" /><TextBox x:Name="RegionHeightTextBox" Text="16" Width="55" Margin="5,0,10,0" />
-                            <Button x:Name="ReadRegionButton" Content="Read interleaved region" Padding="12,5" Click="ReadRegionButton_Click" />
-                            <Button x:Name="ReadChannelButton" Content="Read selected channel" Padding="12,5" Margin="8,0,0,0" Click="ReadChannelButton_Click" />
+                            <TextBlock Text="X" VerticalAlignment="Center" /><TextBox x:Name="RegionXTextBox" Text="{Binding Utilities.RegionX, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="55" Margin="5,0,10,0" />
+                            <TextBlock Text="Y" VerticalAlignment="Center" /><TextBox x:Name="RegionYTextBox" Text="{Binding Utilities.RegionY, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="55" Margin="5,0,10,0" />
+                            <TextBlock Text="Width" VerticalAlignment="Center" /><TextBox x:Name="RegionWidthTextBox" Text="{Binding Utilities.RegionWidth, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="55" Margin="5,0,10,0" />
+                            <TextBlock Text="Height" VerticalAlignment="Center" /><TextBox x:Name="RegionHeightTextBox" Text="{Binding Utilities.RegionHeight, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="55" Margin="5,0,10,0" />
+                            <Button x:Name="ReadRegionButton" Content="Read interleaved region" Padding="12,5" Command="{Binding Utilities.RegionCommand}" />
+                            <Button x:Name="ReadChannelButton" Content="Read selected channel" Padding="12,5" Margin="8,0,0,0" Command="{Binding Utilities.ChannelCommand}" />
                         </WrapPanel>
-                        <TextBox x:Name="SampleOutputTextBox" IsReadOnly="True" TextWrapping="Wrap" MinHeight="55" Margin="0,8,0,0" />
+                        <TextBox x:Name="SampleOutputTextBox" IsReadOnly="True" TextWrapping="Wrap" MinHeight="55" Margin="0,8,0,0" Text="{Binding Utilities.Samples, Mode=OneWay}" />
 
                         <TextBlock Text="World coordinate system" FontSize="16" FontWeight="SemiBold" Margin="0,20,0,6" />
-                        <TextBlock x:Name="WcsSummaryText" Foreground="#606060" Margin="0,0,0,8" />
+                        <TextBlock x:Name="WcsSummaryText" Foreground="#606060" Margin="0,0,0,8" Text="{Binding Utilities.WcsSummary, Mode=OneWay}" />
                         <WrapPanel Margin="0,0,0,6">
-                            <TextBlock Text="Pixel X" VerticalAlignment="Center" /><TextBox x:Name="WcsXTextBox" Text="0" Width="90" Margin="6,0,12,0" />
-                            <TextBlock Text="Pixel Y" VerticalAlignment="Center" /><TextBox x:Name="WcsYTextBox" Text="0" Width="90" Margin="6,0,12,0" />
-                            <Button x:Name="PixelToSkyButton" Content="Pixel → sky" Padding="12,5" Click="PixelToSkyButton_Click" />
-                            <TextBlock x:Name="PixelToSkyResultText" VerticalAlignment="Center" Margin="12,0,0,0" />
+                            <TextBlock Text="Pixel X" VerticalAlignment="Center" /><TextBox x:Name="WcsXTextBox" Text="{Binding Utilities.PixelX, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="90" Margin="6,0,12,0" />
+                            <TextBlock Text="Pixel Y" VerticalAlignment="Center" /><TextBox x:Name="WcsYTextBox" Text="{Binding Utilities.PixelY, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="90" Margin="6,0,12,0" />
+                            <Button x:Name="PixelToSkyButton" Content="Pixel → sky" Padding="12,5" Command="{Binding Utilities.PixelToSkyCommand}" />
+                            <TextBlock x:Name="PixelToSkyResultText" VerticalAlignment="Center" Margin="12,0,0,0" Text="{Binding Utilities.PixelResult, Mode=OneWay}" />
                         </WrapPanel>
                         <WrapPanel>
-                            <TextBlock Text="RA (degrees)" VerticalAlignment="Center" /><TextBox x:Name="WcsRaTextBox" Width="110" Margin="6,0,12,0" />
-                            <TextBlock Text="Dec (degrees)" VerticalAlignment="Center" /><TextBox x:Name="WcsDecTextBox" Width="110" Margin="6,0,12,0" />
-                            <Button x:Name="SkyToPixelButton" Content="Sky → pixel" Padding="12,5" Click="SkyToPixelButton_Click" />
-                            <TextBlock x:Name="SkyToPixelResultText" VerticalAlignment="Center" Margin="12,0,0,0" />
+                            <TextBlock Text="RA (degrees)" VerticalAlignment="Center" /><TextBox x:Name="WcsRaTextBox" Width="110" Margin="6,0,12,0" Text="{Binding Utilities.RightAscension, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            <TextBlock Text="Dec (degrees)" VerticalAlignment="Center" /><TextBox x:Name="WcsDecTextBox" Width="110" Margin="6,0,12,0" Text="{Binding Utilities.Declination, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            <Button x:Name="SkyToPixelButton" Content="Sky → pixel" Padding="12,5" Command="{Binding Utilities.SkyToPixelCommand}" />
+                            <TextBlock x:Name="SkyToPixelResultText" VerticalAlignment="Center" Margin="12,0,0,0" Text="{Binding Utilities.SkyResult, Mode=OneWay}" />
                         </WrapPanel>
                     </StackPanel>
                 </ScrollViewer>
@@ -198,20 +168,20 @@
                     <StackPanel Margin="18" MaxWidth="900" HorizontalAlignment="Left">
                         <TextBlock Text="Image attributes" FontSize="18" FontWeight="SemiBold" />
                         <UniformGrid Columns="4" Margin="0,12,0,0">
-                            <TextBlock Text="Identifier" VerticalAlignment="Center" /><TextBox x:Name="ImageIdTextBox" Margin="6,3" />
-                            <TextBlock Text="Image type" VerticalAlignment="Center" /><ComboBox x:Name="ImageTypeComboBox" Margin="6,3" IsEditable="True" />
-                            <TextBlock Text="Color space" VerticalAlignment="Center" /><ComboBox x:Name="ColorSpaceComboBox" Margin="6,3" IsEditable="True" />
-                            <TextBlock Text="Orientation" VerticalAlignment="Center" /><ComboBox x:Name="OrientationComboBox" Margin="6,3" />
-                            <TextBlock Text="Offset / pedestal" VerticalAlignment="Center" /><TextBox x:Name="OffsetTextBox" Margin="6,3" Text="0" />
-                            <TextBlock Text="UUID" VerticalAlignment="Center" /><TextBox x:Name="UuidTextBox" Margin="6,3" />
-                            <TextBlock Text="Resolution X" VerticalAlignment="Center" /><TextBox x:Name="ResolutionXTextBox" Margin="6,3" />
-                            <TextBlock Text="Resolution Y" VerticalAlignment="Center" /><TextBox x:Name="ResolutionYTextBox" Margin="6,3" />
-                            <TextBlock Text="Resolution unit" VerticalAlignment="Center" /><ComboBox x:Name="ResolutionUnitComboBox" Margin="6,3" />
+                            <TextBlock Text="Identifier" VerticalAlignment="Center" /><TextBox x:Name="ImageIdTextBox" Margin="6,3" Text="{Binding ImageEditor.Id, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            <TextBlock Text="Image type" VerticalAlignment="Center" /><ComboBox x:Name="ImageTypeComboBox" Margin="6,3" IsEditable="True" Text="{Binding ImageEditor.ImageType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            <TextBlock Text="Color space" VerticalAlignment="Center" /><ComboBox x:Name="ColorSpaceComboBox" Margin="6,3" IsEditable="True" Text="{Binding ImageEditor.ColorSpace, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            <TextBlock Text="Orientation" VerticalAlignment="Center" /><ComboBox x:Name="OrientationComboBox" Margin="6,3" SelectedItem="{Binding ImageEditor.Orientation, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            <TextBlock Text="Offset / pedestal" VerticalAlignment="Center" /><TextBox x:Name="OffsetTextBox" Margin="6,3" Text="{Binding ImageEditor.Offset, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            <TextBlock Text="UUID" VerticalAlignment="Center" /><TextBox x:Name="UuidTextBox" Margin="6,3" Text="{Binding ImageEditor.Uuid, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            <TextBlock Text="Resolution X" VerticalAlignment="Center" /><TextBox x:Name="ResolutionXTextBox" Margin="6,3" Text="{Binding ImageEditor.ResolutionX, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            <TextBlock Text="Resolution Y" VerticalAlignment="Center" /><TextBox x:Name="ResolutionYTextBox" Margin="6,3" Text="{Binding ImageEditor.ResolutionY, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            <TextBlock Text="Resolution unit" VerticalAlignment="Center" /><ComboBox x:Name="ResolutionUnitComboBox" Margin="6,3" SelectedItem="{Binding ImageEditor.ResolutionUnit, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                         </UniformGrid>
 
                         <TextBlock Text="Image properties" FontSize="16" FontWeight="SemiBold" Margin="0,20,0,6" />
                         <TextBlock Text="{Binding SelectedItem.IdentifierPreview, ElementName=ImagePropertiesGrid}" TextWrapping="Wrap" MaxWidth="900" MinHeight="24" FontWeight="SemiBold" />
-                        <DataGrid x:Name="ImagePropertiesGrid" AutoGenerateColumns="False" CanUserAddRows="True" Height="260" RowHeight="28" EnableRowVirtualization="True" EnableColumnVirtualization="True" VirtualizingPanel.VirtualizationMode="Recycling" ScrollViewer.CanContentScroll="True">
+                        <DataGrid x:Name="ImagePropertiesGrid" AutoGenerateColumns="False" CanUserAddRows="True" Height="260" RowHeight="28" EnableRowVirtualization="True" EnableColumnVirtualization="True" VirtualizingPanel.VirtualizationMode="Recycling" ScrollViewer.CanContentScroll="True" ItemsSource="{Binding ImageProperties}">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Identifier" Binding="{Binding Id}" Width="2*" />
                                 <DataGridTextColumn Header="Type" Binding="{Binding Type}" Width="*" />
@@ -221,7 +191,7 @@
                         <TextBlock Text="Double-click a long value to inspect or edit it in pages. Types include String, Boolean, numbers, TimePoint and vectors." Foreground="#606060" Margin="0,4,0,0" />
 
                         <TextBlock Text="FITS keywords" FontSize="16" FontWeight="SemiBold" Margin="0,20,0,6" />
-                        <DataGrid x:Name="FitsKeywordsGrid" AutoGenerateColumns="False" CanUserAddRows="True" MinHeight="120">
+                        <DataGrid x:Name="FitsKeywordsGrid" AutoGenerateColumns="False" CanUserAddRows="True" MinHeight="120" ItemsSource="{Binding FitsKeywords}">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="*" />
                                 <DataGridTextColumn Header="Value" Binding="{Binding Value}" Width="2*" />
@@ -231,29 +201,29 @@
 
                         <TextBlock Text="Ancillary image metadata" FontSize="16" FontWeight="SemiBold" Margin="0,20,0,8" />
                         <UniformGrid Columns="4">
-                            <TextBlock Text="CFA pattern" VerticalAlignment="Center" /><TextBox x:Name="CfaPatternTextBox" Margin="6,3" />
-                            <TextBlock Text="CFA name" VerticalAlignment="Center" /><TextBox x:Name="CfaNameTextBox" Margin="6,3" />
-                            <TextBlock Text="CFA width" VerticalAlignment="Center" /><TextBox x:Name="CfaWidthTextBox" Margin="6,3" />
-                            <TextBlock Text="CFA height" VerticalAlignment="Center" /><TextBox x:Name="CfaHeightTextBox" Margin="6,3" />
-                            <TextBlock Text="RGB gamma" VerticalAlignment="Center" /><TextBox x:Name="RgbGammaTextBox" Margin="6,3" />
-                            <CheckBox x:Name="RgbSrgbCheckBox" Content="sRGB transfer" Margin="6,3" /><TextBlock />
+                            <TextBlock Text="CFA pattern" VerticalAlignment="Center" /><TextBox x:Name="CfaPatternTextBox" Margin="6,3" Text="{Binding ImageEditor.CfaPattern, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            <TextBlock Text="CFA name" VerticalAlignment="Center" /><TextBox x:Name="CfaNameTextBox" Margin="6,3" Text="{Binding ImageEditor.CfaName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            <TextBlock Text="CFA width" VerticalAlignment="Center" /><TextBox x:Name="CfaWidthTextBox" Margin="6,3" Text="{Binding ImageEditor.CfaWidth, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            <TextBlock Text="CFA height" VerticalAlignment="Center" /><TextBox x:Name="CfaHeightTextBox" Margin="6,3" Text="{Binding ImageEditor.CfaHeight, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            <TextBlock Text="RGB gamma" VerticalAlignment="Center" /><TextBox x:Name="RgbGammaTextBox" Margin="6,3" Text="{Binding ImageEditor.Gamma, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            <CheckBox x:Name="RgbSrgbCheckBox" Content="sRGB transfer" Margin="6,3" IsChecked="{Binding ImageEditor.IsSrgb, Mode=TwoWay}" /><TextBlock />
                         </UniformGrid>
-                        <TextBlock Text="RGB primary x chromaticities (comma-separated)" Margin="0,8,0,2" /><TextBox x:Name="RgbChromaticitiesTextBox" />
-                        <TextBlock Text="RGB primary y chromaticities (comma-separated)" Margin="0,8,0,2" /><TextBox x:Name="RgbYChromaticitiesTextBox" />
-                        <TextBlock Text="RGB luminance coefficients (comma-separated)" Margin="0,8,0,2" /><TextBox x:Name="RgbLuminanceTextBox" IsReadOnly="True" />
+                        <TextBlock Text="RGB primary x chromaticities (comma-separated)" Margin="0,8,0,2" /><TextBox x:Name="RgbChromaticitiesTextBox" Text="{Binding ImageEditor.ChromaticityX, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        <TextBlock Text="RGB primary y chromaticities (comma-separated)" Margin="0,8,0,2" /><TextBox x:Name="RgbYChromaticitiesTextBox" Text="{Binding ImageEditor.ChromaticityY, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        <TextBlock Text="RGB luminance coefficients (comma-separated)" Margin="0,8,0,2" /><TextBox x:Name="RgbLuminanceTextBox" IsReadOnly="True" Text="{Binding ImageEditor.Luminance, Mode=OneWay}" />
                         <TextBlock Text="Display function: midtones; shadows; highlights; low range; high range (four values per group)" Margin="0,8,0,2" />
-                        <TextBox x:Name="DisplayFunctionTextBox" />
+                        <TextBox x:Name="DisplayFunctionTextBox" Text="{Binding ImageEditor.DisplayFunction, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                         <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
                             <Button Content="Attach ICC profile…" Click="IccProfileButton_Click" Padding="10,5" />
-                            <TextBlock x:Name="IccProfileText" Text="None" Margin="10,0,20,0" VerticalAlignment="Center" />
+                            <TextBlock x:Name="IccProfileText" Text="{Binding IccProfileDescription, Mode=OneWay}" Margin="10,0,20,0" VerticalAlignment="Center" />
                             <Button Content="Set thumbnail…" Click="ThumbnailButton_Click" Padding="10,5" />
-                            <TextBlock x:Name="ThumbnailText" Text="None" Margin="10,0,0,0" VerticalAlignment="Center" />
+                            <TextBlock x:Name="ThumbnailText" Text="{Binding ThumbnailDescription, Mode=OneWay}" Margin="10,0,0,0" VerticalAlignment="Center" />
                         </StackPanel>
 
                         <TextBlock Text="One image table" FontSize="16" FontWeight="SemiBold" Margin="0,20,0,6" />
-                        <UniformGrid Columns="4"><TextBlock Text="Table identifier" VerticalAlignment="Center" /><TextBox x:Name="TableIdTextBox" Margin="6,3" /><TextBlock Text="Caption" VerticalAlignment="Center" /><TextBox x:Name="TableCaptionTextBox" Margin="6,3" /></UniformGrid>
-                        <TextBlock Text="Fields, one per line: id|type|header|format" Margin="0,6,0,2" /><TextBox x:Name="TableFieldsTextBox" AcceptsReturn="True" Height="70" VerticalScrollBarVisibility="Auto" />
-                        <TextBlock Text="Rows, one per line with | separated cells" Margin="0,6,0,2" /><TextBox x:Name="TableRowsTextBox" AcceptsReturn="True" Height="90" VerticalScrollBarVisibility="Auto" />
+                        <UniformGrid Columns="4"><TextBlock Text="Table identifier" VerticalAlignment="Center" /><TextBox x:Name="TableIdTextBox" Margin="6,3" Text="{Binding TableEditor.Id, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="{Binding TableEditor.IsReadOnly}" ToolTip="{Binding TableEditor.Notice}" /><TextBlock Text="Caption" VerticalAlignment="Center" /><TextBox x:Name="TableCaptionTextBox" Margin="6,3" Text="{Binding TableEditor.Caption, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="{Binding TableEditor.IsReadOnly}" ToolTip="{Binding TableEditor.Notice}" /></UniformGrid>
+                        <TextBlock Text="Fields, one per line: id|type|header|format" Margin="0,6,0,2" /><TextBox x:Name="TableFieldsTextBox" AcceptsReturn="True" Height="70" VerticalScrollBarVisibility="Auto" Text="{Binding TableEditor.Fields, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="{Binding TableEditor.IsReadOnly}" ToolTip="{Binding TableEditor.Notice}" />
+                        <TextBlock Text="Rows, one per line with | separated cells" Margin="0,6,0,2" /><TextBox x:Name="TableRowsTextBox" AcceptsReturn="True" Height="90" VerticalScrollBarVisibility="Auto" Text="{Binding TableEditor.Rows, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="{Binding TableEditor.IsReadOnly}" ToolTip="{Binding TableEditor.Notice}" />
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>
@@ -262,24 +232,23 @@
                     <StackPanel Margin="18" MaxWidth="900" HorizontalAlignment="Left">
                         <TextBlock Text="XISF writer configuration" FontSize="18" FontWeight="SemiBold" />
                         <UniformGrid Columns="4" Margin="0,12,0,0">
-                            <TextBlock Text="Compression" VerticalAlignment="Center" /><ComboBox x:Name="CompressionComboBox" Margin="6,3" />
-                            <TextBlock Text="Checksum" VerticalAlignment="Center" /><ComboBox x:Name="ChecksumComboBox" Margin="6,3" />
-                            <TextBlock Text="Creator application" VerticalAlignment="Center" /><TextBox x:Name="CreatorTextBox" Text="XISFLib.WpfViewer" Margin="6,3" />
-                            <CheckBox x:Name="ShuffleCheckBox" Content="Byte shuffle" Margin="6,3" /><TextBlock />
-                            <CheckBox x:Name="DistributedCheckBox" Content="Distributed .xish + .xisb output" Margin="6,3" Grid.ColumnSpan="2" /><TextBlock /><TextBlock />
-                            <CheckBox x:Name="PreserveOriginalCheckBox" Content="Byte-identical copy of loaded XISF (ignore editor changes)" Margin="6,3" Grid.ColumnSpan="4" IsEnabled="False"
-                                      ToolTip="Copies the loaded monolithic XISF without re-encoding it. Clear this option to apply metadata and writer settings." />
+                            <TextBlock Text="Compression" VerticalAlignment="Center" /><ComboBox x:Name="CompressionComboBox" Margin="6,3" ItemsSource="{Binding CompressionChoices}" SelectedItem="{Binding Compression, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            <TextBlock Text="Checksum" VerticalAlignment="Center" /><ComboBox x:Name="ChecksumComboBox" Margin="6,3" ItemsSource="{Binding ChecksumChoices}" SelectedItem="{Binding Checksum, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            <TextBlock Text="Creator application" VerticalAlignment="Center" /><TextBox x:Name="CreatorTextBox" Text="{Binding DocumentEditor.CreatorApplication, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="6,3" />
+                            <CheckBox x:Name="ShuffleCheckBox" Content="Byte shuffle" Margin="6,3" IsChecked="{Binding Shuffle, Mode=TwoWay}" /><TextBlock />
+                            <CheckBox x:Name="DistributedCheckBox" Content="Distributed .xish + .xisb output" Margin="6,3" Grid.ColumnSpan="2" IsChecked="{Binding Distributed, Mode=TwoWay}" /><TextBlock /><TextBlock />
+                            <CheckBox x:Name="PreserveOriginalCheckBox" Content="Byte-identical copy of loaded XISF (ignore editor changes)" Margin="6,3" Grid.ColumnSpan="4" IsEnabled="{Binding CanCopyOriginal}" ToolTip="Copies the loaded monolithic XISF without re-encoding it. Clear this option to apply metadata and writer settings." IsChecked="{Binding PreserveOriginal, Mode=TwoWay}" />
                         </UniformGrid>
                         <TextBlock Text="Document metadata" FontSize="16" FontWeight="SemiBold" Margin="0,20,0,6" />
-                        <DataGrid x:Name="DocumentMetadataGrid" AutoGenerateColumns="False" CanUserAddRows="True" Height="260" RowHeight="28" EnableRowVirtualization="True" EnableColumnVirtualization="True" VirtualizingPanel.VirtualizationMode="Recycling" ScrollViewer.CanContentScroll="True">
+                        <DataGrid x:Name="DocumentMetadataGrid" AutoGenerateColumns="False" CanUserAddRows="True" Height="260" RowHeight="28" EnableRowVirtualization="True" EnableColumnVirtualization="True" VirtualizingPanel.VirtualizationMode="Recycling" ScrollViewer.CanContentScroll="True" ItemsSource="{Binding DocumentEditor.Metadata}">
                             <DataGrid.Columns><DataGridTextColumn Header="Identifier" Binding="{Binding Id}" Width="2*" /><DataGridTextColumn Header="Type" Binding="{Binding Type}" Width="*" /><DataGridTextColumn Header="Value" Binding="{Binding InlineValue}" Width="3*" /><DataGridTemplateColumn Header="Inspect" Width="75"><DataGridTemplateColumn.CellTemplate><DataTemplate><Button Content="Open…" Click="OpenPropertyValue_Click" Padding="4,0" MinHeight="0" Height="24" Margin="0,1" /></DataTemplate></DataGridTemplateColumn.CellTemplate></DataGridTemplateColumn></DataGrid.Columns>
                         </DataGrid>
                         <TextBlock Text="Document properties" FontSize="16" FontWeight="SemiBold" Margin="0,20,0,6" />
-                        <DataGrid x:Name="DocumentPropertiesGrid" AutoGenerateColumns="False" CanUserAddRows="True" Height="260" RowHeight="28" EnableRowVirtualization="True" EnableColumnVirtualization="True" VirtualizingPanel.VirtualizationMode="Recycling" ScrollViewer.CanContentScroll="True">
+                        <DataGrid x:Name="DocumentPropertiesGrid" AutoGenerateColumns="False" CanUserAddRows="True" Height="260" RowHeight="28" EnableRowVirtualization="True" EnableColumnVirtualization="True" VirtualizingPanel.VirtualizationMode="Recycling" ScrollViewer.CanContentScroll="True" ItemsSource="{Binding DocumentEditor.Properties}">
                             <DataGrid.Columns><DataGridTextColumn Header="Identifier" Binding="{Binding Id}" Width="2*" /><DataGridTextColumn Header="Type" Binding="{Binding Type}" Width="*" /><DataGridTextColumn Header="Value" Binding="{Binding InlineValue}" Width="3*" /><DataGridTemplateColumn Header="Inspect" Width="75"><DataGridTemplateColumn.CellTemplate><DataTemplate><Button Content="Open…" Click="OpenPropertyValue_Click" Padding="4,0" MinHeight="0" Height="24" Margin="0,1" /></DataTemplate></DataGridTemplateColumn.CellTemplate></DataGridTemplateColumn></DataGrid.Columns>
                         </DataGrid>
                         <StackPanel Orientation="Horizontal" Margin="0,20,0,0">
-                            <Button x:Name="SaveButton" Content="Save as XISF or FITS…" Padding="18,8" Click="SaveButton_Click" />
+                            <Button x:Name="SaveButton" Content="Save as XISF or FITS…" Padding="18,8" Click="SaveButton_Click" IsEnabled="{Binding CanEditMetadata}" />
                             <Button Content="Validate loaded document" Padding="18,8" Margin="10,0,0,0" Click="ValidateButton_Click" />
                         </StackPanel>
                     </StackPanel>
@@ -288,7 +257,7 @@
             <TabItem Header="Diagnostics">
                 <Grid Margin="12">
                     <TextBlock x:Name="EmptyDiagnosticsText" Text="Save/reload or validate a document to see conformance diagnostics." Foreground="#606060" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                    <DataGrid x:Name="DiagnosticsGrid" AutoGenerateColumns="False" IsReadOnly="True" Visibility="Collapsed">
+                    <DataGrid x:Name="DiagnosticsGrid" AutoGenerateColumns="False" IsReadOnly="True" Visibility="Collapsed" ItemsSource="{Binding Diagnostics}">
                         <DataGrid.Columns><DataGridTextColumn Header="Severity" Binding="{Binding Severity}" Width="Auto" /><DataGridTextColumn Header="Code" Binding="{Binding Code}" Width="Auto" /><DataGridTextColumn Header="Message" Binding="{Binding Message}" Width="*" /></DataGrid.Columns>
                     </DataGrid>
                 </Grid>
