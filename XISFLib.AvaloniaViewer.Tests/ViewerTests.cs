@@ -43,6 +43,8 @@ public class ViewerTests
                 var cancel = window.FindControl<Button>("CancelFinishedButton")!;
                 var sharpen = window.FindControl<CheckBox>("SharpenStarsCheckBox")!;
                 var spikes = window.FindControl<CheckBox>("ReduceStarSpikesCheckBox")!;
+                var noise = window.FindControl<CheckBox>("ReduceNoiseCheckBox")!;
+                Assert.True(noise.IsChecked);
                 Assert.True(sharpen.IsChecked); Assert.True(spikes.IsChecked);
                 int visibleOperations = 0;
                 vm.Finish.PropertyChanged += (_, e) =>
@@ -69,6 +71,8 @@ public class ViewerTests
                 Assert.False(vm.Finish.SharpenStars); Assert.Null(preview.Source); Assert.False(png.IsEffectivelyEnabled);
                 spikes.IsChecked = false;
                 Assert.False(vm.Finish.ReduceStarSpikes);
+                noise.IsChecked = false;
+                Assert.False(vm.Finish.ReduceNoise);
                 await vm.UnloadCommand.ExecuteAsync(null);
                 Assert.Null(preview.Source); Assert.False(png.IsEffectivelyEnabled);
             }

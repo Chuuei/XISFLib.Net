@@ -347,6 +347,8 @@
             <TextBlock Text="Make a picture to share" FontSize="22" FontWeight="SemiBold" />
             <TextBlock Text="One click trims empty edges, reduces uneven sky glow and brings out faint detail against a dark background. Review the result, then save your picture." TextWrapping="Wrap" Classes="muted" />
             <StackPanel Orientation="Horizontal" Spacing="20" IsEnabled="{Binding CanInteract}">
+              <CheckBox x:Name="ReduceNoiseCheckBox" Content="Reduce noise" IsChecked="{Binding Finish.ReduceNoise}"
+                        ToolTip.Tip="Automatically reduce fine grain and colored speckles in noisy stacks. Turn off to retain more faint texture." />
               <CheckBox x:Name="SharpenStarsCheckBox" Content="Sharpen stars" IsChecked="{Binding Finish.SharpenStars}"
                         ToolTip.Tip="Gentle automatic deconvolution of isolated stars; saturated or poorly resolved stars are skipped." />
               <CheckBox x:Name="ReduceStarSpikesCheckBox" Content="Reduce star spikes" IsChecked="{Binding Finish.ReduceStarSpikes}"

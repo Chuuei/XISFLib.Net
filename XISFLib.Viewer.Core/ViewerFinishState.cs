@@ -17,7 +17,7 @@ public sealed class ViewerFinishState : ObservableObject
     private double _progressValue;
     private string _progressText = "";
     private int _operation;
-    private bool _sharpenStars = true, _reduceStarSpikes = true;
+    private bool _sharpenStars = true, _reduceStarSpikes = true, _reduceNoise = true;
 
     public ViewerFinishState(Func<XisfImageData?> image, Func<bool> isRasterImport, Func<string, Func<Task>, Task> run, Func<bool> canRun, Func<bool> canPublish)
     {
@@ -25,7 +25,7 @@ public sealed class ViewerFinishState : ObservableObject
         CreateCommand = new AsyncRelayCommand(token => run("Creating a finished image…", async () =>
         {
             var current = image()!; int revision = _revision; bool raster = isRasterImport();
-            var options = new FinishOptions(SharpenStars, ReduceStarSpikes);
+            var options = new FinishOptions(SharpenStars, ReduceStarSpikes, ReduceNoise);
             var progress = BeginOperation("Preparing finished image…");
             try
             {
@@ -56,6 +56,7 @@ public sealed class ViewerFinishState : ObservableObject
     public string Summary { get => _summary; private set => SetProperty(ref _summary, value); }
     public bool SharpenStars { get => _sharpenStars; set { if (SetProperty(ref _sharpenStars, value)) Refresh(); } }
     public bool ReduceStarSpikes { get => _reduceStarSpikes; set { if (SetProperty(ref _reduceStarSpikes, value)) Refresh(); } }
+    public bool ReduceNoise { get => _reduceNoise; set { if (SetProperty(ref _reduceNoise, value)) Refresh(); } }
     public bool IsProcessing
     {
         get => _processing;

@@ -23,12 +23,12 @@ public static partial class ViewerFinishService
     public static FinishedPicture Create(XisfImageData source, bool isRasterImport, CancellationToken cancellationToken, IProgress<FinishProgress>? progress)
         => Create(source, isRasterImport, cancellationToken, progress, new());
 
-    /// <summary>Creates a sharing copy with optional automatic star restoration and spike attenuation.</summary>
+    /// <summary>Creates a sharing copy with optional adaptive noise reduction, automatic star restoration and spike attenuation.</summary>
     /// <param name="source">Scientific Gray/RGB source; samples and metadata remain unchanged.</param>
     /// <param name="isRasterImport">Whether to retain developed raster exposure and skip linear star restoration.</param>
     /// <param name="cancellationToken">Cancellation between stages, tiles, stars and scan rows.</param>
     /// <param name="progress">Optional worker-thread stage progress.</param>
-    /// <param name="options">Simple switches for star restoration; no manual PSF parameters are needed.</param>
+    /// <param name="options">Simple noise and star restoration switches; no manual noise or PSF parameters are needed.</param>
     /// <returns>An owned sharing preview/export artifact.</returns>
     public static FinishedPicture Create(XisfImageData source, bool isRasterImport, CancellationToken cancellationToken,
         IProgress<FinishProgress>? progress, FinishOptions options)
@@ -63,6 +63,8 @@ public static partial class ViewerFinishService
             while (height - bottom < height / 5 && BlankLine(reader, width, colors, 0, bottom - 1, width, true, cancellationToken)) bottom--;
             while (left < width / 5 && BlankLine(reader, width, colors, left, top, bottom - top, false, cancellationToken)) left++;
             while (width - right < width / 5 && BlankLine(reader, width, colors, right - 1, top, bottom - top, false, cancellationToken)) right--;
+            if (!isRasterImport)
+                TrimMosaicCorners(reader, width, colors, ref left, ref top, ref right, ref bottom, cancellationToken);
             // Small edge cleanup for large frames, without a composition/aspect-ratio crop.
             int tidyX = right - left >= 256 ? Math.Max(1, (right - left) / 100) : 0;
             int tidyY = bottom - top >= 256 ? Math.Max(1, (bottom - top) / 100) : 0;
@@ -152,6 +154,12 @@ public static partial class ViewerFinishService
             }
         }
         double displayNoise = EstimateDisplayNoise(bgra, croppedWidth, croppedHeight);
+        bool multiscaleNoise = stretch && options.ReduceNoise && displayNoise >= 2;
+        if (multiscaleNoise)
+        {
+            reporter.Begin("Reducing grain and color noise", 0);
+            bgra = ReduceMultiscaleNoise(bgra, croppedWidth, croppedHeight, gray, cancellationToken, reporter);
+        }
         reporter.Begin("Preparing image for cleanup");
         using var picture = new MagickImage();
         // Some filters contain several native passes; keep those stages indeterminate rather than showing a false completion.
@@ -214,6 +222,7 @@ public static partial class ViewerFinishService
         string crop = left == 0 && top == 0 && right == width && bottom == height ? "Full frame retained" : $"Edges trimmed: {width:N0} × {height:N0} → {croppedWidth:N0} × {croppedHeight:N0}";
         string exposure = stretch ? (rgb ? "Automatic stretch onto a dark sky and background color balance" : "Automatic stretch onto a dark sky") : "Existing exposure retained";
         string gradient = gradients.Any(g => g.IsActive) ? "; conservative gradient reduction" : "";
+        if (multiscaleNoise) gradient += "; adaptive multiscale grain and color noise reduction";
         string restoration = restoredStars > 0 ? $"; gentle deconvolution of {restoredStars:N0} {(restoredStars == 1 ? "star" : "stars")}" : "";
         if (reducedSpikes > 0) restoration += $"; spike attenuation around {reducedSpikes:N0} bright {(reducedSpikes == 1 ? "star" : "stars")}";
         return new(checked((int)picture.Width), checked((int)picture.Height), bytes, dpiX, dpiY,
@@ -516,4 +525,5 @@ public sealed record FinishProgress(string Stage, double? Percentage);
 /// <summary>Novice sharing-image restoration switches, enabled by default. Scientific storage is never restored in place.</summary>
 /// <param name="SharpenStars">Apply damped local Richardson–Lucy restoration to isolated, resolved, unsaturated stars in linear data.</param>
 /// <param name="ReduceStarSpikes">Attenuate supported narrow opposite rays around bright stars, retaining cores and broad halos.</param>
-public sealed record FinishOptions(bool SharpenStars = true, bool ReduceStarSpikes = true);
+/// <param name="ReduceNoise">Adaptively suppress fine grain and color noise at three scales in stretched scientific images.</param>
+public sealed record FinishOptions(bool SharpenStars = true, bool ReduceStarSpikes = true, bool ReduceNoise = true);
