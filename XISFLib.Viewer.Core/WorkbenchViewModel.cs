@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.Globalization;
+using System.Windows.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
@@ -30,6 +31,8 @@ public sealed class WorkbenchViewModel : ObservableObject
     private XisfImageData? _thumbnail;
     private bool _canCopyOriginal;
     private bool _preserveOriginal;
+    private string? _bayerPattern;
+    private string _bayerDescription = "Load a Bayer mosaic to debayer it.";
 
     public WorkbenchViewModel(Func<XisfBgra32Image?, Task> present, Func<Task>? yieldPresentation = null)
     {
@@ -42,6 +45,8 @@ public sealed class WorkbenchViewModel : ObservableObject
         ValidateCommand = new AsyncRelayCommand(ValidateAsync, () => !IsBusy && !_closed && _session is not null);
         ApplyMetadataCommand = new AsyncRelayCommand(ApplyMetadataAsync, () => CanInteract && SelectedImage is not null);
         ApplyDocumentCommand = new AsyncRelayCommand(ApplyDocumentAsync, () => CanEditMetadata);
+        DebayerCommand = new AsyncRelayCommand(DebayerAsync, () => CanDebayer && BayerPattern is not null);
+        CancelDebayerCommand = DebayerCommand.CreateCancelCommand();
         Utilities = new(() => SelectedImage, (status, action) => RunAsync(status, _ => action()), () => CanEditMetadata) { CanPublish = () => !_closed };
         Quality = new(() => SelectedImage, (status, action) => RunAsync(status, async generation =>
         {
@@ -82,6 +87,8 @@ public sealed class WorkbenchViewModel : ObservableObject
             ValidateCommand.NotifyCanExecuteChanged();
             ApplyMetadataCommand.NotifyCanExecuteChanged();
             ApplyDocumentCommand.NotifyCanExecuteChanged();
+            DebayerCommand.NotifyCanExecuteChanged();
+            OnPropertyChanged(nameof(CanDebayer));
             OnPropertyChanged(nameof(CanEditMetadata));
             Utilities.NotifyCommands();
             Quality.AnalyzeCommand.NotifyCanExecuteChanged();
@@ -105,6 +112,16 @@ public sealed class WorkbenchViewModel : ObservableObject
     public ViewerUtilityState Utilities { get; }
     public ViewerQualityState Quality { get; }
     public ViewerFinishState Finish { get; }
+    public IReadOnlyList<string> BayerPatterns => ViewerDebayerService.Patterns;
+    public string? BayerPattern
+    {
+        get => _bayerPattern;
+        set { if (SetProperty(ref _bayerPattern, value)) DebayerCommand.NotifyCanExecuteChanged(); }
+    }
+    public string BayerDescription { get => _bayerDescription; private set => SetProperty(ref _bayerDescription, value); }
+    public bool CanDebayer => CanInteract && ViewerDebayerService.IsSupported(SelectedImage);
+    public IAsyncRelayCommand DebayerCommand { get; }
+    public ICommand CancelDebayerCommand { get; }
     public IReadOnlyList<XisfCompression> CompressionChoices { get; } = Enum.GetValues<XisfCompression>();
     public IReadOnlyList<XisfChecksum> ChecksumChoices { get; } = Enum.GetValues<XisfChecksum>();
     public XisfCompression Compression { get; set; } = XisfCompression.Zlib;
@@ -127,7 +144,7 @@ public sealed class WorkbenchViewModel : ObservableObject
     public bool ResetViewportOnPresentation { get; private set; }
     public ViewerLoadTiming? LastLoadTiming { get; private set; }
 
-    public void Close() { _closed = true; _generation++; Quality.AnalyzeCommand.Cancel(); Finish.Refresh(); }
+    public void Close() { _closed = true; _generation++; Quality.AnalyzeCommand.Cancel(); DebayerCommand.Cancel(); Finish.Refresh(); }
 
     public Task SaveFinishedAsync(string path) => Finish.SaveAsync(path, _session?.SourcePath);
 
@@ -176,6 +193,32 @@ public sealed class WorkbenchViewModel : ObservableObject
 
     private Task SelectImageAsync() => RenderAsync();
 
+    private Task DebayerAsync(CancellationToken cancellationToken) => RunAsync("Debayering image with bilinear interpolation…", async generation =>
+    {
+        if (_session is not { } session || SelectedImage is not { } source || BayerPattern is not { } pattern) return;
+        var stretch = CreateStretch();
+        // Work from the applied image; editor drafts remain attached to the original until selection changes.
+        var result = await Task.Run(() =>
+        {
+            var image = ViewerDebayerService.Create(source, pattern, cancellationToken);
+            cancellationToken.ThrowIfCancellationRequested();
+            var rendered = XisfDisplayRenderer.Render(image, stretch);
+            cancellationToken.ThrowIfCancellationRequested();
+            return (Image: image, Rendered: rendered);
+        }, cancellationToken);
+        if (!IsCurrent(generation)) return;
+        ResetViewportOnPresentation = true;
+        await _present(result.Rendered);
+        if (!IsCurrent(generation)) return;
+        int index = session.AddDerivedImage(result.Image);
+        ImageLabels.Add(session.GetImageLabel(index));
+        SelectedImageIndex = _presentedIndex = index;
+        CanCopyOriginal = PreserveOriginal = false;
+        PopulateMetadataEditor(result.Image);
+        SetDetails(result.Image);
+        Status = $"Debayered {pattern} to RGB. Original mosaic remains in Selected image. Save re-encodes the RGB image; unapplied image drafts were discarded.";
+    });
+
     private Task ApplyDocumentAsync() => RunAsync("Applying document edits…", _ =>
     {
         DocumentEditor.Apply();
@@ -196,6 +239,7 @@ public sealed class WorkbenchViewModel : ObservableObject
             Utilities.Refresh();
             Quality.Refresh();
             Finish.Refresh();
+            RefreshDebayer();
             var rendered = await Task.Run(() => XisfDisplayRenderer.Render(image, stretch));
             if (!IsCurrent(generation)) return;
             ResetViewportOnPresentation = true;
@@ -289,6 +333,7 @@ public sealed class WorkbenchViewModel : ObservableObject
         Quality.Refresh();
         Finish.Refresh();
         ImageProperties.Clear(); FitsKeywords.Clear();
+        RefreshDebayer();
         if (image is not null)
         {
             foreach (var pair in image.Properties) ImageProperties.Add(ViewerEditorCodec.ToEditorRow(pair.Key, pair.Value));
@@ -297,6 +342,15 @@ public sealed class WorkbenchViewModel : ObservableObject
         OnPropertyChanged(nameof(SelectedImage)); OnPropertyChanged(nameof(CanEditMetadata));
         ApplyMetadataCommand.NotifyCanExecuteChanged();
         ApplyDocumentCommand.NotifyCanExecuteChanged();
+    }
+
+    private void RefreshDebayer()
+    {
+        var detected = ViewerDebayerService.Detect(SelectedImage);
+        BayerPattern = detected.Pattern;
+        BayerDescription = detected.Description;
+        OnPropertyChanged(nameof(CanDebayer));
+        DebayerCommand.NotifyCanExecuteChanged();
     }
 
     private Task ValidateAsync() => RunAsync("Validating document…", async generation =>
@@ -332,7 +386,12 @@ public sealed class WorkbenchViewModel : ObservableObject
         ResetViewportOnPresentation = index != _presentedIndex;
         await _present(result.Rendered);
         if (!IsCurrent(generation)) return;
-        if (index != _presentedIndex) PopulateMetadataEditor(result.Image);
+        if (index != _presentedIndex)
+        {
+            PopulateMetadataEditor(result.Image);
+            CanCopyOriginal = session.CanCopyOriginal && index < session.OriginalImageCount;
+            PreserveOriginal = CanCopyOriginal;
+        }
         _presentedIndex = index;
         SetDetails(result.Image);
         Status = "Image ready.";

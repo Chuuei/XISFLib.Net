@@ -44,7 +44,7 @@ Useful implementation entry points:
 
 ## Build and validation
 
-Use the repository's `global.json`: currently .NET SDK `10.0.401`, latest-feature roll-forward, no prerelease SDKs. C# 14 is configured in `Directory.Build.props`. The complete solution and Windows tests require Windows; the core library is platform independent.
+Use the repository's `global.json`: currently .NET SDK `10.0.0`, latest-feature roll-forward, prerelease SDKs allowed. C# 14 is configured in `Directory.Build.props`. The complete solution and Windows tests require Windows; the core library is platform independent.
 
 Run from the repository root:
 
@@ -157,6 +157,8 @@ The Avalonia `WinX64` publish profile produces exactly `artifacts/avalonia/win-x
 CI validates all four test suites, core packaging, dependency auditing, strict DocFX generation, and single-executable publication. Default-branch successful builds/manual runs deploy GitHub Pages; pull requests validate without deployment. Version tags beginning with `v` publish a GitHub release with the Avalonia viewer ZIPs; hyphenated tags are prereleases. Reruns replace the executable asset while preserving release notes. Do not broaden deployment triggers or write permissions unintentionally.
 
 ## Further reading
+
+Viewer debayering: `ViewerDebayerService` reconstructs a separate RGB image using bilinear interpolation; original mosaics remain selectable in the session. Detect native 2 × 2 CFA first, then FITS BAYERPAT with integer XBAYROFF/YBAYROFF; missing/invalid patterns require explicit choice. Manual tiles refer to stored rows before display orientation. Preserve geometry, numeric storage, bounds, byte order and exact observed samples, including UInt64; integer interpolation uses UInt128 sums and rounds down. Work/cancellation stays off the UI thread with row checkpoints. Derived images cannot use whole-file copy, and selecting them invalidates quality/finished results and discards unapplied image drafts. Remove stale CFA, ICC, thumbnail, display function, UUID and FITS storage hints; retain original source/metadata, document drafts and processing history. Unknown image extension elements stay on the source rather than transferring to the derived result. See docs/applications.md for limits.
 
 Avalonia is the sole desktop viewer; XISFLib.WpfViewer was removed. Keep it out of solution entries, dependencies, CI assets and current usage documentation. XISFLib.Windows remains a supported Windows bitmap adapter package. WorkbenchViewModel and ViewerUtilityState in Viewer.Core own sessions, busy/closure guards, editor drafts, load/selection/render/save orchestration, diagnostics and utility commands. PropertyValueEditorState handles bounded page navigation/staged edits; ViewerViewportState handles zoom/pan geometry. Native dialogs, active-cell commits, pointer capture, transforms and bitmap ownership belong in Avalonia. Transfer/dispose bitmaps on the UI thread. Native-dialog/DPI/expanded-tree certification and Linux/macOS runner results remain evidence gaps.
 

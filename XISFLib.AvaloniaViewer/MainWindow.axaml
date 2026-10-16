@@ -45,6 +45,19 @@
                 <TextBlock Text="Preview adjustments leave scientific samples unchanged." Classes="muted" FontSize="11" TextWrapping="Wrap" />
               </StackPanel>
             </Border>
+            <Border Classes="card">
+              <StackPanel Spacing="10">
+                <TextBlock Text="BAYER COLOR" Classes="eyebrow" />
+                <TextBlock Text="Debayer image" FontSize="16" FontWeight="SemiBold" />
+                <TextBlock Text="{Binding BayerDescription}" Classes="muted" TextWrapping="Wrap" />
+                <ComboBox x:Name="BayerPatternBox" ItemsSource="{Binding BayerPatterns}" SelectedItem="{Binding BayerPattern}" IsEnabled="{Binding CanDebayer}" PlaceholderText="Choose Bayer pattern…" HorizontalAlignment="Stretch" />
+                <TextBlock Text="Pattern reads left to right across the first two stored rows, before display rotation or flipping." Classes="muted" FontSize="11" TextWrapping="Wrap" />
+                <Button x:Name="DebayerButton" Content="Create debayered RGB image" Command="{Binding DebayerCommand}" />
+                <ProgressBar IsVisible="{Binding DebayerCommand.IsRunning}" IsIndeterminate="True" Height="4" />
+                <Button Content="Cancel debayering" Command="{Binding CancelDebayerCommand}" IsVisible="{Binding DebayerCommand.IsRunning}" />
+                <TextBlock Text="Bilinear interpolation keeps the original mosaic. Uses applied metadata; unapplied image edits are discarded when selecting the RGB result." Classes="muted" FontSize="11" TextWrapping="Wrap" />
+              </StackPanel>
+            </Border>
             <Button Content="Finish &amp; share" Classes="primary" Click="Finish_Click" IsEnabled="{Binding CanEditMetadata}" ToolTip.Tip="Automatically prepare a picture to save as PNG or JPEG" />
             <StackPanel Margin="8,0" Spacing="5"><TextBlock Text="CANVAS NAVIGATION" Classes="eyebrow" /><TextBlock Text="Scroll to zoom · Drag to pan" Classes="muted" FontSize="12" /></StackPanel>
           </StackPanel>

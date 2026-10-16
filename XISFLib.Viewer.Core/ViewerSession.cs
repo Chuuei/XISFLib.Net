@@ -3,21 +3,23 @@ namespace XISFLib.Viewer;
 /// <summary>Portable file loading and lazy image materialization for the desktop viewer.</summary>
 public sealed class ViewerSession
 {
-    private readonly XisfImageData?[] _images;
+    private readonly List<XisfImageData?> _images;
 
     private ViewerSession(string path, XisfDocument? xisf, FitsDocument? fits, XisfImageData?[] images)
     {
         SourcePath = Path.GetFullPath(path);
         Xisf = xisf;
         Fits = fits;
-        _images = images;
-        Images = Array.AsReadOnly(images);
+        _images = images.ToList();
+        OriginalImageCount = images.Length;
+        Images = _images.AsReadOnly();
     }
 
     public string SourcePath { get; }
     public XisfDocument? Xisf { get; }
     public FitsDocument? Fits { get; }
     public IReadOnlyList<XisfImageData?> Images { get; }
+    public int OriginalImageCount { get; }
     public bool CanCopyOriginal => Xisf is not null && ViewerFileService.IsMonolithicXisf(SourcePath);
     public double ParseMilliseconds { get; private set; }
     public double MaterializeMilliseconds { get; private set; }
@@ -26,11 +28,17 @@ public sealed class ViewerSession
     public XisfImageData GetImage(int index)
     {
         ArgumentOutOfRangeException.ThrowIfNegative(index);
-        ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(index, _images.Length);
+        ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(index, _images.Count);
         return _images[index] ??= XisfImageData.FromImage(Xisf!.Images[index]);
     }
 
-    public string GetImageLabel(int index) => $"{index + 1}: {(Xisf?.Images[index].Id ?? _images[index]?.Id) ?? "unnamed image"}";
+    public string GetImageLabel(int index) => $"{index + 1}: {(_images[index]?.Id ?? (index < OriginalImageCount ? Xisf?.Images[index].Id : null)) ?? "unnamed image"}";
+
+    internal int AddDerivedImage(XisfImageData image)
+    {
+        _images.Add(image);
+        return _images.Count - 1;
+    }
 
     public static ViewerSession Load(string path)
     {

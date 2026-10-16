@@ -37,7 +37,7 @@ public static partial class ViewerFinishService
         var reporter = new StageProgress(progress);
         reporter.Begin("Inspecting image and trimming edges");
         ArgumentNullException.ThrowIfNull(source);
-        if (source.ColorFilterArray is not null) throw new NotSupportedException("This image is a CFA mosaic. Open a debayered RGB image to create a finished color picture.");
+        if (source.ColorFilterArray is not null) throw new NotSupportedException("This image is a CFA mosaic. Use Debayer image in the sidebar to create a debayered RGB image before finishing.");
         bool gray = source.ColorSpace is null || source.ColorSpace.Equals("Gray", StringComparison.OrdinalIgnoreCase);
         bool rgb = source.ColorSpace?.Equals("RGB", StringComparison.OrdinalIgnoreCase) == true;
         int colors = gray ? 1 : 3;

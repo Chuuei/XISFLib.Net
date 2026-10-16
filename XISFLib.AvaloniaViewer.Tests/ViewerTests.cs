@@ -21,6 +21,39 @@ public static class TestAppBuilder
 public class ViewerTests
 {
     [AvaloniaFact]
+    public async Task DebayerControlsRequirePatternAndPublishRgbWhileOriginalRemainsSelectable()
+    {
+        string path = Path.Combine(Path.GetTempPath(), Guid.NewGuid() + ".xisf");
+        try
+        {
+            XisfWriter.Write(path, [XisfImageData.FromSamples(new ushort[] { 60000, 30000, 30000, 1000 }, [2, 2], 1)]);
+            var window = new MainWindow(); window.Show();
+            try
+            {
+                var vm = Assert.IsType<WorkbenchViewModel>(window.DataContext);
+                vm.FilePath = path; vm.AutoStretch = false;
+                await vm.LoadCommand.ExecuteAsync(null); window.UpdateLayout();
+                var patterns = window.FindControl<ComboBox>("BayerPatternBox")!;
+                var button = window.FindControl<Button>("DebayerButton")!;
+                Assert.Null(patterns.SelectedItem); Assert.False(button.IsEffectivelyEnabled);
+                patterns.SelectedItem = "RGGB"; window.UpdateLayout();
+                Assert.Equal("RGGB", vm.BayerPattern); Assert.True(button.IsEffectivelyEnabled);
+                await vm.DebayerCommand.ExecuteAsync(null); window.UpdateLayout();
+                Assert.Equal(3, vm.SelectedImage!.ChannelCount); Assert.False(button.IsEffectivelyEnabled);
+                Assert.False(vm.CanCopyOriginal);
+                Assert.IsType<WriteableBitmap>(window.FindControl<Image>("ImageView")!.Source);
+                vm.SelectedImageIndex = 0;
+                // The bound selector starts this command from SelectionChanged.
+                await vm.SelectImageCommand.ExecutionTask!; window.UpdateLayout();
+                Assert.Equal(1, vm.SelectedImage.ChannelCount); Assert.True(vm.CanDebayer);
+                Assert.True(vm.CanCopyOriginal); Assert.Equal(2, vm.ImageLabels.Count);
+            }
+            finally { window.Close(); }
+        }
+        finally { File.Delete(path); }
+    }
+
+    [AvaloniaFact]
     public async Task FinishTabHasASeparateReviewedPreviewAndSaveAvailabilityFollowsItsLifecycle()
     {
         string path = Path.Combine(Path.GetTempPath(), Guid.NewGuid() + ".xisf"), export = path + ".png";
