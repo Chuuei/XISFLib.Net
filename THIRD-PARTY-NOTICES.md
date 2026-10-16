@@ -10,6 +10,7 @@ their original terms; the project license does not relicense them.
 | Component | Version | License / source |
 | --- | --- | --- |
 | K4os.Compression.LZ4 | 1.3.8 | MIT, https://github.com/MiloszKrajewski/K4os.Compression.LZ4 |
+| Original LZ4 codec | Original-code attribution | BSD-2-Clause, Copyright 2011-2020 Yann Collet; full notice in `Notices/LICENSE-LZ4.txt` |
 | ZstdSharp.Port | 0.8.8 | MIT, https://github.com/oleg-st/ZstdSharp; underlying Zstandard uses BSD-3-Clause |
 | System.Security.Cryptography.Xml and Pkcs | 10.0.13 | MIT, https://github.com/dotnet/runtime |
 | .NET runtime and Windows Desktop runtime, when redistributed | Release-resolved version | MIT and bundled third-party notices, https://github.com/dotnet/runtime and https://github.com/dotnet/windowsdesktop |
