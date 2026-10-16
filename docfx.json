@@ -10,9 +10,10 @@
   "build": {
     "content": [
       {
-        "files": ["index.md", "README.md", "CONTRIBUTING.md", "toc.yml", "docs/*.md", "docs/plans/*.md", "docs/toc.yml", "docs/api/**.yml"]
+        "files": ["index.md", "README.md", "CONTRIBUTING.md", "THIRD-PARTY-NOTICES.md", "toc.yml", "docs/*.md", "docs/plans/*.md", "docs/toc.yml", "docs/api/**.yml"]
       }
     ],
+    "resource": [{ "files": ["LICENSE", "NOTICE"] }],
     "dest": "docs/_site",
     "template": ["default", "modern"],
     "globalMetadata": {

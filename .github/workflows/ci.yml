@@ -40,6 +40,15 @@ jobs:
         with:
           name: nuget-packages
           path: artifacts\*.*nupkg
+      - name: Prepare corresponding native sources
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: ./tools/Export-NativeSources.ps1 -OutputDirectory ./artifacts/native-sources
+      - uses: actions/upload-artifact@v4
+        if: startsWith(github.ref, 'refs/tags/v')
+        with:
+          name: native-sources
+          path: artifacts/native-sources/*.zip
+          if-no-files-found: error
 
   portable-viewer:
     strategy:
@@ -73,7 +82,10 @@ jobs:
         run: |
           $files = @(Get-ChildItem artifacts/avalonia/${{ matrix.rid }} -Recurse -File)
           $expected = if ($IsWindows) { 'XISFLib.AvaloniaViewer.exe' } else { 'XISFLib.AvaloniaViewer' }
-          if ($files.Count -ne 1 -or $files[0].Name -ne $expected) { throw 'Avalonia output must contain exactly one executable.' }
+          $executables = @($files | Where-Object { $_.Name -eq $expected })
+          $unexpected = @($files | Where-Object { $_.Name -ne $expected -and $_.FullName -notmatch '[\\/]Data[\\/]' })
+          if ($executables.Count -ne 1 -or $unexpected.Count -ne 0) { throw 'Avalonia output must contain one executable plus required Data license notices.' }
+          if (-not (Test-Path artifacts/avalonia/${{ matrix.rid }}/Data/XISFLib-NOTICE.txt)) { throw 'Missing project attribution notice.' }
       - name: Windows native publication smoke
         if: runner.os == 'Windows'
         shell: pwsh
@@ -114,6 +126,11 @@ jobs:
       group: release-${{ github.ref }}
       cancel-in-progress: false
     steps:
+      - name: Download corresponding native sources
+        uses: actions/download-artifact@v4
+        with:
+          name: native-sources
+          path: release
       - name: Download standalone Avalonia viewers
         uses: actions/download-artifact@v4
         with:
@@ -127,7 +144,7 @@ jobs:
           RELEASE_TAG: ${{ github.ref_name }}
         run: |
           set -euo pipefail
-          assets=(release/XISFLib.AvaloniaViewer-*.zip)
+          assets=(release/XISFLib.AvaloniaViewer-*.zip release/XISFLib.NativeSources-*.zip)
           if gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
             gh release upload "$RELEASE_TAG" "${assets[@]}" --repo "$GITHUB_REPOSITORY" --clobber
           else

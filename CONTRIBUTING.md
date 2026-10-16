@@ -48,3 +48,7 @@ Avalonia ZIP artifacts are named `avalonia-viewer-{rid}`. Version tags beginning
 For Linux/macOS development, build/test the three portable projects individually instead of the Windows-containing solution. Run `dotnet run --project XISFLib.AvaloniaViewer -c Release -- --smoke-test artifacts/avalonia-smoke/report.json` for a real desktop-backend probe. It exits with a failure code on errors and produces six tab renders. Normal startup never runs probes. The standalone Windows Avalonia profile is `Properties/PublishProfiles/WinX64.pubxml`. The Avalonia viewer disables trimming and embeds dependency notices; update `XISFLib.AvaloniaViewer/Notices` when framework/backend licenses change. Magick.NET and toolkit notices are embedded directly from their pinned NuGet packages.
 
 For initial hosting setup, select **GitHub Actions** under repository **Settings > Pages > Build and deployment > Source**. The workflow uses the repository's `GITHUB_TOKEN`; no personal access token or `gh-pages` branch is needed. Environment protection rules can be configured on `github-pages`.
+
+## License and native release materials
+
+Authored code uses Apache-2.0 with NOTICE attribution. Keep the Data license sidecars with the standalone executable. Version-tag releases also publish the pinned native corresponding-source ZIP; source/relinking requirements are not satisfied by embedded notices alone. See docs/licensing.md and docs/native-rebuild.md. Core NuGet packages carry their own license/NOTICE and dependency notices.

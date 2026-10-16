@@ -1,9 +1,18 @@
 <Project>
   <PropertyGroup>
     <LangVersion>14.0</LangVersion>
+    <Authors>Chuuei and contributors</Authors>
+    <RepositoryUrl>https://github.com/Chuuei/XISFLib.Net</RepositoryUrl>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <NuGetAudit>true</NuGetAudit>
     <NuGetAuditMode>all</NuGetAuditMode>
     <NuGetAuditLevel>low</NuGetAuditLevel>
     <WarningsAsErrors>$(WarningsAsErrors);NU1901;NU1902;NU1903;NU1904</WarningsAsErrors>
   </PropertyGroup>
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)Notices/*.txt" Link="Data/XISFLib/%(Filename)%(Extension)" Pack="true" PackagePath="notices" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="$(MSBuildThisFileDirectory)LICENSE" Link="Data/XISFLib-LICENSE.txt" Pack="true" PackagePath="" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="$(MSBuildThisFileDirectory)NOTICE" Link="Data/XISFLib-NOTICE.txt" Pack="true" PackagePath="" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="$(MSBuildThisFileDirectory)THIRD-PARTY-NOTICES.md" Link="Data/XISFLib-THIRD-PARTY-NOTICES.md" Pack="true" PackagePath="THIRD-PARTY-NOTICES.md" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
 </Project>

@@ -24,5 +24,7 @@
   href: plans/avalonia-viewer-migration.md
 - name: Contributing
   href: ../CONTRIBUTING.md
+- name: Licensing and redistribution
+  href: licensing.md
 - name: API reference
   href: api/

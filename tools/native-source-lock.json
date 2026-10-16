@@ -1,0 +1,337 @@
+{
+  "magickNetVersion": "15.0.0",
+  "nativeVersion": "2026.1010.1943",
+  "dependenciesVersion": "2026.10.09.2225",
+  "configureVersion": "2026.09.21.1729",
+  "sources": [
+    {
+      "repository": "dlemstra/Magick.NET",
+      "commit": "79bb8700d7fe3a564f62926ab299fc2520cb2269",
+      "filename": "dlemstra-Magick.NET-79bb8700d7fe.tar.gz",
+      "url": "https://codeload.github.com/dlemstra/Magick.NET/tar.gz/79bb8700d7fe3a564f62926ab299fc2520cb2269",
+      "sha256": "3858218fd303be9aaaa520260947b6f4199674150f9f7ed9ef7b6755490761a4"
+    },
+    {
+      "repository": "dlemstra/Magick.Native",
+      "commit": "4dcdad28530c14c8d35687fdeb1ecc8d39b01e30",
+      "filename": "dlemstra-Magick.Native-4dcdad28530c.tar.gz",
+      "url": "https://codeload.github.com/dlemstra/Magick.Native/tar.gz/4dcdad28530c14c8d35687fdeb1ecc8d39b01e30",
+      "sha256": "3d9177de1def3e7500aa598d8888f2c909b88bdb8f2c9ef53feee4afdf5a3b3f"
+    },
+    {
+      "repository": "ImageMagick/ImageMagick",
+      "commit": "211e5b975a0019a88dcef5f84c1193f46738d815",
+      "filename": "ImageMagick-ImageMagick-211e5b975a00.tar.gz",
+      "url": "https://codeload.github.com/ImageMagick/ImageMagick/tar.gz/211e5b975a0019a88dcef5f84c1193f46738d815",
+      "sha256": "4847919949ce49cda2e2a530f2f4ab9f8375185f539bec9110e02b27ca6a258d"
+    },
+    {
+      "repository": "ImageMagick/Dependencies",
+      "commit": "f586cbad542b5d7f7927c7ebac376e497c869131",
+      "filename": "ImageMagick-Dependencies-f586cbad542b.tar.gz",
+      "url": "https://codeload.github.com/ImageMagick/Dependencies/tar.gz/f586cbad542b5d7f7927c7ebac376e497c869131",
+      "sha256": "e555e11bc2cf0b93b233286390083d908fed880c5ffee882034c5e50cef73536"
+    },
+    {
+      "repository": "ImageMagick/Configure",
+      "commit": "08ea96dd18267b90a56204a598ba2b30db20c6b7",
+      "filename": "ImageMagick-Configure-08ea96dd1826.tar.gz",
+      "url": "https://codeload.github.com/ImageMagick/Configure/tar.gz/08ea96dd18267b90a56204a598ba2b30db20c6b7",
+      "sha256": "77fdb376277482fcddf8c7e4df9d0ffd9758de51ae6766b726766fbac6fc401d"
+    },
+    {
+      "repository": "ImageMagick/aom",
+      "commit": "689067b48df9548d25e37abaa618ebd4b6015c67",
+      "filename": "ImageMagick-aom-689067b48df9.tar.gz",
+      "url": "https://codeload.github.com/ImageMagick/aom/tar.gz/689067b48df9548d25e37abaa618ebd4b6015c67",
+      "sha256": "e5393eb75213436750c33a0eea1c9c72e9f1a536e07c6abdb60a753a4ae173df"
+    },
+    {
+      "repository": "ImageMagick/brotli",
+      "commit": "6225e7a93b6bcc1f3e3b267e9523a8eaea49eb5e",
+      "filename": "ImageMagick-brotli-6225e7a93b6b.tar.gz",
+      "url": "https://codeload.github.com/ImageMagick/brotli/tar.gz/6225e7a93b6bcc1f3e3b267e9523a8eaea49eb5e",
+      "sha256": "45a2fac54a1b210d2aae2ef83deab127dc368915cc1cbefdcd53d30fb15df7da"
+    },
+    {
+      "repository": "ImageMagick/bzip2",
+      "commit": "abffe764f875f71d051efb19d4c83139375f82d7",
+      "filename": "ImageMagick-bzip2-abffe764f875.tar.gz",
+      "url": "https://codeload.github.com/ImageMagick/bzip2/tar.gz/abffe764f875f71d051efb19d4c83139375f82d7",
+      "sha256": "0ec88bb7126677682271d3df7fd7e62cf14d875542e6d5631fcb374bf1c91610"
+    },
+    {
+      "repository": "ImageMagick/de265",
+      "commit": "5a0bf9f624d810de6af20e41ac3cfd92bf7de508",
+      "filename": "ImageMagick-de265-5a0bf9f624d8.tar.gz",
+      "url": "https://codeload.github.com/ImageMagick/de265/tar.gz/5a0bf9f624d810de6af20e41ac3cfd92bf7de508",
+      "sha256": "a6c6f0ba717bb2d317e44e055615f89cbe6a19102c49b7f1477076eaa97661ac"
+    },
+    {
+      "repository": "ImageMagick/exr",
+      "commit": "85a96b21d3cdcae99fbea6f32f62eba9ca4a9fdd",
+      "filename": "ImageMagick-exr-85a96b21d3cd.tar.gz",
+      "url": "https://codeload.github.com/ImageMagick/exr/tar.gz/85a96b21d3cdcae99fbea6f32f62eba9ca4a9fdd",
+      "sha256": "2dd58e07fb6fedde14586310e301a252a4a3e7bba347176419d812683635706f"
+    },
+    {
+      "repository": "ImageMagick/ffi",
+      "commit": "91982d4ac97b179dd1fb878caef2ed2847bc38b6",
+      "filename": "ImageMagick-ffi-91982d4ac97b.tar.gz",
+      "url": "https://codeload.github.com/ImageMagick/ffi/tar.gz/91982d4ac97b179dd1fb878caef2ed2847bc38b6",
+      "sha256": "2ab2dd0a7349810ff2f2513d274cc20447a00abbcf2c420c47368a3762c0407f"
+    },
+    {
+      "repository": "ImageMagick/freetype",
+      "commit": "6cf8b1a08bdec1d41246f51bcd12e5a62c9845e2",
+      "filename": "ImageMagick-freetype-6cf8b1a08bde.tar.gz",
+      "url": "https://codeload.github.com/ImageMagick/freetype/tar.gz/6cf8b1a08bdec1d41246f51bcd12e5a62c9845e2",
+      "sha256": "90b9dd5cf4ea6e6f2ffa97950a68863fb94fd2c05aa0e52c942d02093505b93b"
+    },
+    {
+      "repository": "ImageMagick/glib",
+      "commit": "ea0118ca0d408473d320b21262a1cdc6ce3e5f40",
+      "filename": "ImageMagick-glib-ea0118ca0d40.tar.gz",
+      "url": "https://codeload.github.com/ImageMagick/glib/tar.gz/ea0118ca0d408473d320b21262a1cdc6ce3e5f40",
+      "sha256": "c797ca6e45da4df7fdf7b4da4889cc7484bca2448bf03c3c1c00fe5d38104fb3"
+    },
+    {
+      "repository": "ImageMagick/heif",
+      "commit": "fb38f427d04f098c30b5c6ebda46be366841cc7b",
+      "filename": "ImageMagick-heif-fb38f427d04f.tar.gz",
+      "url": "https://codeload.github.com/ImageMagick/heif/tar.gz/fb38f427d04f098c30b5c6ebda46be366841cc7b",
+      "sha256": "7a19e9c747697354f37fe40e86456699a4d3a68465936efb4c5ad17a4ada3112"
+    },
+    {
+      "repository": "ImageMagick/highway",
+      "commit": "e1a586af5be6358bb983ff608f9678a622209ca3",
+      "filename": "ImageMagick-highway-e1a586af5be6.tar.gz",
+      "url": "https://codeload.github.com/ImageMagick/highway/tar.gz/e1a586af5be6358bb983ff608f9678a622209ca3",
+      "sha256": "bf5e3b614051a94c53b1bc0b9a91e9c4ccf138599b1a8a709c71f9a2fe23bcf2"
+    },
+    {
+      "repository": "ImageMagick/imath",
+      "commit": "1ec391453dd33f3432018d3a266e3d177a705235",
+      "filename": "ImageMagick-imath-1ec391453dd3.tar.gz",
+      "url": "https://codeload.github.com/ImageMagick/imath/tar.gz/1ec391453dd33f3432018d3a266e3d177a705235",
+      "sha256": "ec2edc11d8afd0c46f5ee47af3aeadff6a09247c3ebbbf3efa138658a6f80af0"
+    },
+    {
+      "repository": "ImageMagick/jpeg-turbo",
+      "commit": "b91492930ceb23c0b5282e8b9fc21de54182d92e",
+      "filename": "ImageMagick-jpeg-turbo-b91492930ceb.tar.gz",
+      "url": "https://codeload.github.com/ImageMagick/jpeg-turbo/tar.gz/b91492930ceb23c0b5282e8b9fc21de54182d92e",
+      "sha256": "17524714d065474d79b17b02776c8add6dcd317f2fd98ebce9d4773b001dd0b8"
+    },
+    {
+      "repository": "ImageMagick/jpeg-xl",
+      "commit": "8503118ff13ab8b11680296900da3361d6703dc1",
+      "filename": "ImageMagick-jpeg-xl-8503118ff13a.tar.gz",
+      "url": "https://codeload.github.com/ImageMagick/jpeg-xl/tar.gz/8503118ff13ab8b11680296900da3361d6703dc1",
+      "sha256": "909ea42d073bd5878be2ec40360e97dc62518cff9eb40b75328ac41c1a0bde97"
+    },
+    {
+      "repository": "ImageMagick/lcms",
+      "commit": "d261ab6fda30fd7578a2ce7ace5c0b2c7d3fc0b8",
+      "filename": "ImageMagick-lcms-d261ab6fda30.tar.gz",
+      "url": "https://codeload.github.com/ImageMagick/lcms/tar.gz/d261ab6fda30fd7578a2ce7ace5c0b2c7d3fc0b8",
+      "sha256": "fe6f8810de14efa5613216fd7b7bd2b1a52258301bd26a8c827711945405e3d4"
+    },
+    {
+      "repository": "ImageMagick/lqr",
+      "commit": "a2e9e8b5b41bf0569f51482707a12d354a086f3a",
+      "filename": "ImageMagick-lqr-a2e9e8b5b41b.tar.gz",
+      "url": "https://codeload.github.com/ImageMagick/lqr/tar.gz/a2e9e8b5b41bf0569f51482707a12d354a086f3a",
+      "sha256": "a543255184370596adff8522e585df53d3f9088c0fc351073fc1c4b8a2df54d2"
+    },
+    {
+      "repository": "ImageMagick/openjpeg",
+      "commit": "5a52e8e0690da686ddb6e98310e7bb5190a9a7c5",
+      "filename": "ImageMagick-openjpeg-5a52e8e0690d.tar.gz",
+      "url": "https://codeload.github.com/ImageMagick/openjpeg/tar.gz/5a52e8e0690da686ddb6e98310e7bb5190a9a7c5",
+      "sha256": "4b9967da677a7b1458ed9ebc18cf2750a9d4f1e85a164b764987248f77bd15a7"
+    },
+    {
+      "repository": "ImageMagick/openjph",
+      "commit": "c1a1ffc1e3f90eb9397407f1f545a47e01390aef",
+      "filename": "ImageMagick-openjph-c1a1ffc1e3f9.tar.gz",
+      "url": "https://codeload.github.com/ImageMagick/openjph/tar.gz/c1a1ffc1e3f90eb9397407f1f545a47e01390aef",
+      "sha256": "2141784c9f10fb8b526e30ceedc5a5406c9037900241ba7579a60362dddfbf8f"
+    },
+    {
+      "repository": "ImageMagick/png",
+      "commit": "1ccb8b78643c7ad5360f00719a1e952ce0be7a53",
+      "filename": "ImageMagick-png-1ccb8b78643c.tar.gz",
+      "url": "https://codeload.github.com/ImageMagick/png/tar.gz/1ccb8b78643c7ad5360f00719a1e952ce0be7a53",
+      "sha256": "950c64e8bec363eace77b0940fbcf494d4379017599dda5a2bb325c05274ac5e"
+    },
+    {
+      "repository": "ImageMagick/raw",
+      "commit": "9f7613ef48877180225b9377c87b0f3a65a2ca8e",
+      "filename": "ImageMagick-raw-9f7613ef4887.tar.gz",
+      "url": "https://codeload.github.com/ImageMagick/raw/tar.gz/9f7613ef48877180225b9377c87b0f3a65a2ca8e",
+      "sha256": "7a33c80b123d75c9c63cc80d4e27bc0f5bb1654f12f93d83e3db09c0ad346031"
+    },
+    {
+      "repository": "ImageMagick/tiff",
+      "commit": "3021cd03440ba6954f8bdf2b7ad4557a36092cd8",
+      "filename": "ImageMagick-tiff-3021cd03440b.tar.gz",
+      "url": "https://codeload.github.com/ImageMagick/tiff/tar.gz/3021cd03440ba6954f8bdf2b7ad4557a36092cd8",
+      "sha256": "f6646956524fe69996a2e270e5b1bd115c7f290011841c8648fc15a509ee35ca"
+    },
+    {
+      "repository": "ImageMagick/webp",
+      "commit": "b981ef267195cb12f2cb97e4dd23e12a1323a4ce",
+      "filename": "ImageMagick-webp-b981ef267195.tar.gz",
+      "url": "https://codeload.github.com/ImageMagick/webp/tar.gz/b981ef267195cb12f2cb97e4dd23e12a1323a4ce",
+      "sha256": "9e0901646ec502fb8a932163ac11e4718758c4dc206948eee5ed155b92d0f212"
+    },
+    {
+      "repository": "ImageMagick/xml",
+      "commit": "3ba73c8312b7ac88adc1a2e62df13d0827e93a0f",
+      "filename": "ImageMagick-xml-3ba73c8312b7.tar.gz",
+      "url": "https://codeload.github.com/ImageMagick/xml/tar.gz/3ba73c8312b7ac88adc1a2e62df13d0827e93a0f",
+      "sha256": "a1a59f3e706f4dc717e1a6b0b47a310b2ece867557d934b1c932fd8737d6b592"
+    },
+    {
+      "repository": "ImageMagick/zlib",
+      "commit": "e42706934e4e7564d960031ae62ff29d918ee06d",
+      "filename": "ImageMagick-zlib-e42706934e4e.tar.gz",
+      "url": "https://codeload.github.com/ImageMagick/zlib/tar.gz/e42706934e4e7564d960031ae62ff29d918ee06d",
+      "sha256": "f493dc331efae71a25499358a5b3a1967eb7ac3556b3a22befed5e268bb08802"
+    },
+    {
+      "repository": "ImageMagick/zstd",
+      "commit": "4d5752ffeca8defb48ad744274f4f76b2866d71d",
+      "filename": "ImageMagick-zstd-4d5752ffeca8.tar.gz",
+      "url": "https://codeload.github.com/ImageMagick/zstd/tar.gz/4d5752ffeca8defb48ad744274f4f76b2866d71d",
+      "sha256": "0b30081ed1d96efc99b69dfd576ddaa25c66ca08fa1798a61af452646382c5af"
+    },
+    {
+      "repository": "ImageMagick/cairo",
+      "commit": "4334da83d8f44abe5aab1a11956e3f8e6e58eac7",
+      "filename": "ImageMagick-cairo-4334da83d8f4.tar.gz",
+      "url": "https://codeload.github.com/ImageMagick/cairo/tar.gz/4334da83d8f44abe5aab1a11956e3f8e6e58eac7",
+      "sha256": "276b1e39fb456125839003feefb9b8ebcb4f63660cc3edde68f77e3a208b43f7"
+    },
+    {
+      "repository": "ImageMagick/croco",
+      "commit": "178785cdc6faecad555a4e6fe4fda2b625046e8e",
+      "filename": "ImageMagick-croco-178785cdc6fa.tar.gz",
+      "url": "https://codeload.github.com/ImageMagick/croco/tar.gz/178785cdc6faecad555a4e6fe4fda2b625046e8e",
+      "sha256": "b51c0bbe1bca5445065ab9dd3bb139cbe53da23590abb30fbbfdb1882d7db83f"
+    },
+    {
+      "repository": "ImageMagick/fribidi",
+      "commit": "f62e4ce7160f0c9d70a6a448c83122c920370324",
+      "filename": "ImageMagick-fribidi-f62e4ce7160f.tar.gz",
+      "url": "https://codeload.github.com/ImageMagick/fribidi/tar.gz/f62e4ce7160f0c9d70a6a448c83122c920370324",
+      "sha256": "bd91946f7ad5020008abf25eaa87d45b96e913095ee5141d361823745878229a"
+    },
+    {
+      "repository": "ImageMagick/gdk-pixbuf",
+      "commit": "92a234886a0337480770ef93dc74ea920bf39ab3",
+      "filename": "ImageMagick-gdk-pixbuf-92a234886a03.tar.gz",
+      "url": "https://codeload.github.com/ImageMagick/gdk-pixbuf/tar.gz/92a234886a0337480770ef93dc74ea920bf39ab3",
+      "sha256": "048edde4fad3e6bfcea990832e31a66209caf562e2939b7dbb3bf55a9ef606d6"
+    },
+    {
+      "repository": "ImageMagick/harfbuzz",
+      "commit": "fe24029d434c2797c18052f58f6bc7b5dcfee8d7",
+      "filename": "ImageMagick-harfbuzz-fe24029d434c.tar.gz",
+      "url": "https://codeload.github.com/ImageMagick/harfbuzz/tar.gz/fe24029d434c2797c18052f58f6bc7b5dcfee8d7",
+      "sha256": "6cd85bee343d7b8ad9050b0062a6294a5d57c7ffe54d934688d2b812859a6e5e"
+    },
+    {
+      "repository": "ImageMagick/lzma",
+      "commit": "131e9a49425f51b8dd8710c57fbaa527baed3989",
+      "filename": "ImageMagick-lzma-131e9a49425f.tar.gz",
+      "url": "https://codeload.github.com/ImageMagick/lzma/tar.gz/131e9a49425f51b8dd8710c57fbaa527baed3989",
+      "sha256": "8ccc6b3e09e2e927ff171b28fd3181fc2210cfebca96f33ae3155bcedbe8b3a4"
+    },
+    {
+      "repository": "ImageMagick/openh264",
+      "commit": "5ed6416df5c4eb35e275f759792c9253c5f1f5f3",
+      "filename": "ImageMagick-openh264-5ed6416df5c4.tar.gz",
+      "url": "https://codeload.github.com/ImageMagick/openh264/tar.gz/5ed6416df5c4eb35e275f759792c9253c5f1f5f3",
+      "sha256": "f85456ce344bf7de0284af9d8cf04f19baa8bbee3ff5ad0caf019c2e8ac20686"
+    },
+    {
+      "repository": "ImageMagick/pango",
+      "commit": "0b1e4536e0005f3c36b523c17ea12322490efd45",
+      "filename": "ImageMagick-pango-0b1e4536e000.tar.gz",
+      "url": "https://codeload.github.com/ImageMagick/pango/tar.gz/0b1e4536e0005f3c36b523c17ea12322490efd45",
+      "sha256": "6fa31ce353abd9999edfa23bd7502c98bb75f7f95faa22dfd809ac8ed27c162b"
+    },
+    {
+      "repository": "ImageMagick/pixman",
+      "commit": "f7b55a8d3c39380724da9fbdef72ad70be800efc",
+      "filename": "ImageMagick-pixman-f7b55a8d3c39.tar.gz",
+      "url": "https://codeload.github.com/ImageMagick/pixman/tar.gz/f7b55a8d3c39380724da9fbdef72ad70be800efc",
+      "sha256": "ad78d8518bf56c031dfd7da5e30ed195282058c8e57fdbc014a572439a690387"
+    },
+    {
+      "repository": "ImageMagick/raqm",
+      "commit": "a699b8b7838acb4ac8d5891f42ecf3d84a00a9ad",
+      "filename": "ImageMagick-raqm-a699b8b7838a.tar.gz",
+      "url": "https://codeload.github.com/ImageMagick/raqm/tar.gz/a699b8b7838acb4ac8d5891f42ecf3d84a00a9ad",
+      "sha256": "3fd0b81d784d4506e0ef20faa840ad16c2374621368d7e62b295c2c9ffca21b8"
+    },
+    {
+      "repository": "ImageMagick/rsvg",
+      "commit": "7415a6765db7554ba6f0f1b3dcb0877f36ff581b",
+      "filename": "ImageMagick-rsvg-7415a6765db7.tar.gz",
+      "url": "https://codeload.github.com/ImageMagick/rsvg/tar.gz/7415a6765db7554ba6f0f1b3dcb0877f36ff581b",
+      "sha256": "dbfc4f2e50d1021c4eb8c946956a77cafb94ded6146a212cca042f4ee89fc0c1"
+    },
+    {
+      "repository": "ImageMagick/zip",
+      "commit": "745377bdab21cf5e5fc19d0bbfcde93030d3af5e",
+      "filename": "ImageMagick-zip-745377bdab21.tar.gz",
+      "url": "https://codeload.github.com/ImageMagick/zip/tar.gz/745377bdab21cf5e5fc19d0bbfcde93030d3af5e",
+      "sha256": "7dd4d84339bdea5475f4382e4341b319af2a61719e82f34354cd7eea97963d54"
+    },
+    {
+      "repository": "ImageMagick/jpeg-turbo-12",
+      "commit": "9837071e8c0e5fba6daa03f31aba4416ff5eaf7c",
+      "filename": "ImageMagick-jpeg-turbo-12-9837071e8c0e.tar.gz",
+      "url": "https://codeload.github.com/ImageMagick/jpeg-turbo-12/tar.gz/9837071e8c0e5fba6daa03f31aba4416ff5eaf7c",
+      "sha256": "903329907ed0cf934670698dce2af34426a7741969f4ce2fa1ebfe200457902a"
+    },
+    {
+      "repository": "ImageMagick/jpeg-turbo-16",
+      "commit": "d16d0839d655478b4d517ebe2aeabfecce8192d9",
+      "filename": "ImageMagick-jpeg-turbo-16-d16d0839d655.tar.gz",
+      "url": "https://codeload.github.com/ImageMagick/jpeg-turbo-16/tar.gz/d16d0839d655478b4d517ebe2aeabfecce8192d9",
+      "sha256": "4cd61f69821e7636e4ab5e72b4934037af37d9e68770cebc9eca18b66652f93e"
+    },
+    {
+      "repository": "ImageMagick/fftw",
+      "commit": "6d33fb83ae4f2014834b1f506b444916e9a19ef7",
+      "filename": "ImageMagick-fftw-6d33fb83ae4f.tar.gz",
+      "url": "https://codeload.github.com/ImageMagick/fftw/tar.gz/6d33fb83ae4f2014834b1f506b444916e9a19ef7",
+      "sha256": "d5e57e9d2dbb1b326693e5e1fbc39cd4cd8bd7691eb482da1baaecbb6ff10240"
+    },
+    {
+      "repository": "ImageMagick/flif",
+      "commit": "2f4c78d6c88025de551d461a9981be2004b36beb",
+      "filename": "ImageMagick-flif-2f4c78d6c880.tar.gz",
+      "url": "https://codeload.github.com/ImageMagick/flif/tar.gz/2f4c78d6c88025de551d461a9981be2004b36beb",
+      "sha256": "f231928579feab9d3f7663a10a5db647f9a764c487ab933388659846c54ee104"
+    },
+    {
+      "repository": "ImageMagick/jbig",
+      "commit": "c431166292d1590280b30a8edefee4d36c7a6219",
+      "filename": "ImageMagick-jbig-c431166292d1.tar.gz",
+      "url": "https://codeload.github.com/ImageMagick/jbig/tar.gz/c431166292d1590280b30a8edefee4d36c7a6219",
+      "sha256": "d2e1fdab8dc937773c1d4dbb048bbef6b973c806e30d4a1d13dd42789bd8f909"
+    },
+    {
+      "repository": "ImageMagick/fontconfig",
+      "commit": "943048d94dfa3d7d4a213f36f9ef7af988397cd4",
+      "filename": "ImageMagick-fontconfig-943048d94dfa.tar.gz",
+      "url": "https://codeload.github.com/ImageMagick/fontconfig/tar.gz/943048d94dfa3d7d4a213f36f9ef7af988397cd4",
+      "sha256": "9700f1d27aee3815208d3c632ba327ac1bdab739dd4219e122b3af98574d7c47"
+    }
+  ]
+}

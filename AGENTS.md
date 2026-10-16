@@ -152,7 +152,7 @@ Document public APIs with useful XML summaries and parameter/return contracts. I
 
 Do not edit or commit generated `docs/api`, `docs/_site`, `bin`, `obj`, or `artifacts`. Change C# XML comments or authored Markdown instead.
 
-The Avalonia `WinX64` publish profile produces exactly `artifacts/avalonia/win-x64/XISFLib.AvaloniaViewer.exe`, self-contained with .NET. Native libraries self-extract at runtime. Trimming is disabled; symbols are embedded/excluded to keep publication to one executable.
+The Avalonia `WinX64` publish profile produces `artifacts/avalonia/win-x64/XISFLib.AvaloniaViewer.exe` plus required `Data/` license notices, self-contained with .NET. Native libraries self-extract at runtime. Trimming is disabled; symbols are embedded/excluded to keep publication to one executable plus legal notices.
 
 CI validates all four test suites, core packaging, dependency auditing, strict DocFX generation, and single-executable publication. Default-branch successful builds/manual runs deploy GitHub Pages; pull requests validate without deployment. Version tags beginning with `v` publish a GitHub release with the Avalonia viewer ZIPs; hyphenated tags are prereleases. Reruns replace the executable asset while preserving release notes. Do not broaden deployment triggers or write permissions unintentionally.
 
@@ -188,3 +188,7 @@ Novice finishing: Finish & share binds ViewerFinishState/ViewerFinishService. On
 - [I/O contracts](docs/io-and-limitations.md): ownership, failure, resource, cancellation, precision limits.
 - [Specification coverage](docs/specification-compliance.md) and [astrometry](docs/astrometry.md): supported behavior and evidence limits.
 - [Performance](docs/performance.md) and [applications](docs/applications.md): benchmark methodology and viewer/converter behavior.
+
+## License and publication gate
+
+Authored code uses Apache-2.0 with NOTICE attribution. Preserve third-party licenses and do not relicense external photographs. Native viewer redistribution needs the complete corresponding source/relinking materials required by native delegate licenses; embedded notices alone are insufficient. Core packages remain independent of viewer dependencies. See docs/licensing.md.

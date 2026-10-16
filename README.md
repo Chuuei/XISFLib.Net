@@ -178,3 +178,7 @@ The document exposes typed global/image properties, tables, FITS keywords, ICC p
 - FITS 4.0 80-byte cards and 2880-byte records, primary/image/table/unknown HDUs, physical scaling and nulls, long and hierarchical keywords, WCS-preserving metadata conversion, standard unsigned integer conventions, and FITS checksums
 
 The [specification coverage report](docs/specification-compliance.md) records the September 2026 Revision 1 audit, implemented features, verification evidence and operational bounds. See [native astrometric solutions](docs/astrometry.md) for all seven projections, projective transforms, spline distortion models and layer fallback.
+
+## License and attribution
+
+Authored code is [Apache-2.0](LICENSE). Preserve the relevant attribution in [NOTICE](NOTICE) when redistributing. Third-party components and external sample images keep their own licenses. Read [licensing](docs/licensing.md) and [third-party notices](THIRD-PARTY-NOTICES.md) before distributing binaries.
